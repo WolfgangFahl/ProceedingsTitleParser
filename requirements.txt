@@ -1,0 +1,12 @@
+# Python Graph handling package
+# https://pypi.org/project/networkx/
+networkx
+# https://pypi.org/project/pyparsing/
+# https://github.com/pyparsing/pyparsing
+pyparsing
+# https://pypi.org/project/matplotlib/
+matplotlib
+# https://pypi.org/project/PyYAML/
+PyYAML
+# https://pypi.org/project/num2words/
+num2words
