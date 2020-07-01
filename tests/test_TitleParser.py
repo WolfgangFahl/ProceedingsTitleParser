@@ -138,7 +138,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
      
     def testSeries(self):
         ''' test getting serieses of Proceeding Events '''
-        tp=self.getWikiDataTitleParser()
+        tp=self.getTitleParser("proceedings.txt",16000)
         d=self.getDictionary()
         tc=Counter()
         for line in tp.lines:

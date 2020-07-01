@@ -138,7 +138,7 @@ Germany:
 Greece:
   type: country
 India:
-  type: country  
+  type: country
 Ireland:
   type: country
 ireland:
@@ -1741,7 +1741,7 @@ Abstracts From:
 In:
   type: extract
 Selected:
-  type: extract  
+  type: extract
 Select Legal:
   type: extract
 Report on:
