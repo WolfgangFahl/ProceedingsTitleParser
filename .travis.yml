@@ -20,5 +20,7 @@ install:
 script:
   # command to install dependencies
   - ./install
+	# command to get sample data
+	- ./getsamples
   # command to run tests
   - ./test

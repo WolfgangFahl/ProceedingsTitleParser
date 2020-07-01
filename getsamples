@@ -1,0 +1,67 @@
+#!/bin/bash
+# this script is part of https://github.com/WolfgangFahl/ProceedingsTitleParser
+# it gets the test data sets for
+#
+# 1. CEUR-WS
+#
+# WF 2020-07-01
+
+sampledir="sampledata"
+
+#
+# download
+#
+download() {
+  local l_src="$1"
+  local l_target="$2"
+  if [ ! -f $l_target ]
+  then
+    echo "downloading $l_target from $l_src"
+    curl -o $l_target $l_src
+  else
+    echo "$l_target already downloaded"
+  fi
+}
+
+
+
+#
+# get the data from CEUR-WS
+#
+getCEURWS() {
+  echo "getting sample data for CEUR-WS"
+  samplehtml=$sampledir/ceurs-ws.html
+  sampletxt=$sampledir/proceedings-ceur-ws.txt
+  download http://ceur-ws.org/ $samplehtml
+  if [ ! -f $sampletxt ]
+  then
+    echo "filtering proceeding titles from $samplehtml into $sampletxt"
+    cat $samplehtml | grep "#FFFFFF" -A3 | grep -vi "edited by:" | python3 -c 'import html, sys; [print(html.unescape(l), end="") for l in sys.stdin]' | awk '
+# ignore
+/Edited by: / { next }
+/<font size=-2>&nbsp;/ { next }
+/--/ { print ""; next }
+# FILTER raw html
+{
+  line=$0
+  gsub("<BR>","",line)
+  gsub("<br>","",line)
+  gsub("<TD bgcolor=.#FFFFFF.>","",line)
+  # nbsp
+  gsub(" </TD>","",line)
+  printf ("%s",line)
+}' > $sampletxt
+ else
+    echo "$sampletxt already filtered from $samplehtml"
+ fi
+ wc -l $sampletxt
+}
+
+if [ ! -d $sampledir ]
+then
+  echo  "creating $sampledir directory"
+  mkdir -p $sampledir
+else
+  echo "$sampledir directory already exists"
+fi
+getCEURWS
