@@ -18,9 +18,9 @@ install:
   - echo $USER
 # command to run tests
 script:
-  # command to install dependencies
+# command to install dependencies
   - ./install
-	# command to get sample data
+# command to get sample data
 	- ./getsamples
-  # command to run tests
+# command to run tests
   - ./test
