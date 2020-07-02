@@ -40,17 +40,19 @@ class TestProceedingsTitleParser(unittest.TestCase):
         parser=ProceedingsTitleParser(d)
         return parser
     
-    def tryParse(self,line,parser,tc,qref=None):
+    def tryParse(self,line,parser,tc,qref=None,doprint=False):
         """ try parsing the given line and return the title"""
         title=Title(line,parser.grammar)
         if qref is not None and self.debug:
             print (qref) 
-        print (line)
+        if doprint:    
+            print (line)
         try: 
             title.pyparse()
             if self.debug:
                 title.dump()
-            print (title.metadata())    
+            if doprint:    
+                print (title.metadata())    
             tc["success"]+=1
             return title
         except Exception as ex:
@@ -109,14 +111,17 @@ class TestProceedingsTitleParser(unittest.TestCase):
             index+=1
         self.assertEqual(tc["success"],len(titlelines))
         
-    def testParser(self,tp,minSuccess):
+    def doTestParser(self,tp,minSuccess,limit=100):
+        ''' general test Parsing function ''' 
         parser=self.getParser()
         tc=Counter()
+        lineCount=0
         for line in tp.lines:
             qref=None
             if "q" in line:
                 qref=line["q"]
-            self.tryParse(line["title"],parser,tc,qref=qref)
+            lineCount=lineCount+1    
+            self.tryParse(line["title"],parser,tc,qref=qref,doprint=lineCount<=limit)
         print(tc.most_common(2))   
         self.assertGreater(tc["success"], minSuccess)     
             
@@ -124,22 +129,22 @@ class TestProceedingsTitleParser(unittest.TestCase):
     def testPyParseWikiData(self):
         ''' test pyparsing parser '''
         tp=self.getTitleParser("proceedings-wikidata.txt",16000)
-        self.testParser(tp,15500)
+        self.doTestParser(tp,15500)
         
     def testCEUR_WS(self):
         ''' test pyparsing parser with CEUR-WS dataset '''
         tp=self.getTitleParser("proceedings-ceur-ws.txt",3449,mode='CEUR-WS')
-        self.testParser(tp,3000)
+        self.doTestParser(tp,2000)
         
     def testDBLP(self):
         ''' test pyparsing with DBLP dataset '''
         tp=self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp')
-        self.testParser(tp,13700)
+        self.doTestParser(tp,13700)
            
      
-    def testSeries(self):
-        ''' test getting serieses of Proceeding Events '''
-        tp=self.getTitleParser("proceedings.txt",16000)
+    def testSeriesEnumeration(self):
+        ''' test getting most often used series enumerations of Proceeding Events '''
+        tp=self.getTitleParser("proceedings-wikidata.txt",16000)
         d=self.getDictionary()
         tc=Counter()
         for line in tp.lines:
@@ -152,7 +157,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         print(tc.most_common(250))     
            
 
-    def testTitleParser(self):
+    def testTitleParser(self,limit=100):
         ''' test reading the titles '''
         tp=self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp')
         d=self.getDictionary()
