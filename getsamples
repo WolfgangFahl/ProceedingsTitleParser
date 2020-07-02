@@ -21,6 +21,7 @@ download() {
   else
     echo "$l_target already downloaded"
   fi
+  wc -l $l_target
 }
 
 
@@ -39,7 +40,10 @@ getCEURWS() {
     cat $samplehtml | grep "#FFFFFF" -A3 | grep -vi "edited by:" | python3 -c 'import html, sys; [print(html.unescape(l), end="") for l in sys.stdin]' | awk '
 # ignore
 /Edited by: / { next }
-/<font size=-2>&nbsp;/ { next }
+/<font size=-2>/ { next }
+/<\/font>/ { next }
+/<\/TD>/ { next }
+/<[Aa] HREF=".*">.*<\/[aA]>/ { next }
 /--/ { print ""; next }
 # FILTER raw html
 {
@@ -57,6 +61,17 @@ getCEURWS() {
  wc -l $sampletxt
 }
 
+#
+# get the text files
+#
+getText() {
+  for source in dblp wikidata
+  do
+     target=proceedings-$source.txt
+     download http://wiki.bitplan.com/images/$target $sampledir/$target
+  done
+}
+
 if [ ! -d $sampledir ]
 then
   echo  "creating $sampledir directory"
@@ -65,3 +80,4 @@ else
   echo "$sampledir directory already exists"
 fi
 getCEURWS
+getText

@@ -16,7 +16,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
 
     debug=False
     def setUp(self):
-        self.titlesdir="/Users/wf/Projekte/2020/ConfIDent/wikidata/"
+        path=os.path.dirname(__file__)
+        self.titlesdir=path+"/../sampledata/"
         pass
 
     def tearDown(self):
@@ -122,13 +123,13 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 
     def testPyParseWikiData(self):
         ''' test pyparsing parser '''
-        tp=self.getTitleParser("proceedings.txt",16000)
+        tp=self.getTitleParser("proceedings-wikidata.txt",16000)
         self.testParser(tp,15500)
         
     def testCEUR_WS(self):
         ''' test pyparsing parser with CEUR-WS dataset '''
-        tp=self.getTitleParser("ceur-ws-proceedings.txt",67772,mode='CEUR-WS')
-        self.testParser(tp,65900)
+        tp=self.getTitleParser("proceedings-ceur-ws.txt",3449,mode='CEUR-WS')
+        self.testParser(tp,3000)
         
     def testDBLP(self):
         ''' test pyparsing with DBLP dataset '''
