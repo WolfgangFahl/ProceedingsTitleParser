@@ -28,7 +28,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         titleFile=self.titlesdir+name
         tp=TitleParser.fromFile(titleFile,mode)
         print ("%6d lines found at least %6d expected" % (len(tp.lines),expectedLines))
-        self.assertTrue(expectedLines<len(tp.lines))
+        self.assertTrue(expectedLines<=len(tp.lines))
         return tp 
     
     def getDictionary(self):
@@ -215,7 +215,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
   
     def testTitleParser(self):
         ''' test reading the titles '''
-        showHistogramm=not getpass.getuser()=="travis":
+        showHistogramm=not getpass.getuser()=="travis"
         for tp in [
                 self.getTitleParser("proceedings-ceur-ws.txt",3449,mode='CEUR-WS'),
                 self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
