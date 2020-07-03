@@ -10,6 +10,7 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import networkx as nx
 import os
+import getpass
 
 class TestProceedingsTitleParser(unittest.TestCase):
     """ test the parser for Proceedings titles"""
@@ -26,8 +27,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
     def getTitleParser(self,name,expectedLines,mode="wikidata"):
         titleFile=self.titlesdir+name
         tp=TitleParser.fromFile(titleFile,mode)
-        print ("%6d lines" % len(tp.lines))
-        self.assertEqual(expectedLines,len(tp.lines))
+        print ("%6d lines found at least %6d expected" % (len(tp.lines),expectedLines))
+        self.assertTrue(expectedLines<len(tp.lines))
         return tp 
     
     def getDictionary(self):
@@ -134,7 +135,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
     def testCEUR_WS(self):
         ''' test pyparsing parser with CEUR-WS dataset '''
         tp=self.getTitleParser("proceedings-ceur-ws.txt",3449,mode='CEUR-WS')
-        self.doTestParser(tp,2000)
+        self.doTestParser(tp,2160)
         
     def testDBLP(self):
         ''' test pyparsing with DBLP dataset '''
@@ -156,10 +157,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 tc[title.enum]+=1
         print(tc.most_common(250))     
            
-
-    def testTitleParser(self,limit=100):
-        ''' test reading the titles '''
-        tp=self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp')
+    def doTestTitleParser(self,tp,showHistogramm=False):       
         d=self.getDictionary()
         tc=Counter()
         typeCounters={}
@@ -210,12 +208,21 @@ class TestProceedingsTitleParser(unittest.TestCase):
         print("known: %d of %d %5.1f%%" % (known,total,known/total*100))
         print(tc.most_common(250))   
         print(kc.most_common(250))     
-        showHistogramm=False
         if showHistogramm:
             plt.hist(tclist,bins=45)
             plt.show()    
         pass
-    
+  
+    def testTitleParser(self):
+        ''' test reading the titles '''
+        showHistogramm=not getpass.getuser()=="travis":
+        for tp in [
+                self.getTitleParser("proceedings-ceur-ws.txt",3449,mode='CEUR-WS'),
+                self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
+                self.getTitleParser("proceedings-wikidata.txt",16000)
+            ]:
+            self.doTestTitleParser(tp, showHistogramm)
+      
     def testGraph(self):
         g=nx.Graph()
         g.add_edge('A', 'B', weight=4)
