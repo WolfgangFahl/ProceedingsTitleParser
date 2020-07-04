@@ -30,7 +30,7 @@ then
   cd $tmp
   git clone https://github.com/BITPlan/diagrams
   mv $tmp/diagrams/web $wd/web
-  #rm -rf /tmp/diagrams
+  rm -rf /tmp/diagrams
   cd $wd
 else
   echo "need web files already installed"
