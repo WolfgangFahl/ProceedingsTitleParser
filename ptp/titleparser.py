@@ -130,6 +130,7 @@ class Title(object):
         self.grammar=grammar
         self.info={}
         self.md=None
+        self.event=None
         
     def lookup(self,em):
         ''' look me up with the given event manager '''
