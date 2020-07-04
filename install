@@ -21,7 +21,7 @@ case $os in
 esac
 #$install python3-pip
 $pip --version
-echo "installing required python modules"
+echo "installing required python modules with useroption $useroption"
 $pip install $useroption -r requirements.txt
 
 wd=$(pwd)
