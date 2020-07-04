@@ -1,6 +1,7 @@
 #!/bin/bash
 # WF 2020-03-25
 os=$(uname -a)
+useroption="--user"
 case $os in
   Darwin*)
    pip="sudo -H pip"
@@ -13,6 +14,7 @@ case $os in
      # https://stackoverflow.com/a/20621143/1497139
      echo "environment is travis with python version $TRAVIS_PYTHON_VERSION"
      pip="pip"
+     useroption=""
    fi
    install="sudo apt-get install"
    ;;
@@ -20,7 +22,7 @@ esac
 #$install python3-pip
 $pip --version
 echo "installing required python modules"
-$pip install --user -r requirements.txt
+$pip install $useroption -r requirements.txt
 
 wd=$(pwd)
 if [ ! -d web ]
