@@ -45,3 +45,5 @@ then
    echo "creating user-config.py"
    echo "put_throttle = 0" > $HOME/.pywikibot/user-config.py
 fi
+# make sure there is cache directory
+mkdir -p cache
