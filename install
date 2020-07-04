@@ -19,4 +19,19 @@ case $os in
 esac
 #$install python3-pip
 $pip --version
+echo "installing required python modules"
 $pip install -r requirements.txt
+
+wd=$(pwd)
+if [ ! -d web ]
+then
+  echo "installing needed web files from diagrams.bitplan.com project"
+  tmp=/tmp
+  cd $tmp
+  git clone https://github.com/BITPlan/diagrams
+  mv $tmp/diagrams/web $wd/web
+  #rm -rf /tmp/diagrams
+  cd $wd
+else
+  echo "need web files already installed"
+fi

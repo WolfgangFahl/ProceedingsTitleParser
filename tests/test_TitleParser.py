@@ -31,16 +31,9 @@ class TestProceedingsTitleParser(unittest.TestCase):
         self.assertTrue(expectedLines<=len(tp.lines))
         return tp 
     
-    def getDictionary(self):
-        path=os.path.dirname(__file__)
-        d=Dictionary.fromFile(path+"/../dictionary.yaml")
-        return d
-    
     def getParser(self):
-        d=self.getDictionary()
-        parser=ProceedingsTitleParser(d)
-        return parser
-    
+        return ProceedingsTitleParser.getInstance()
+       
     def tryParse(self,line,parser,tc,qref=None,doprint=False):
         """ try parsing the given line and return the title"""
         title=Title(line,parser.grammar)

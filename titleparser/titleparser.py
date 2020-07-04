@@ -5,6 +5,7 @@ Created on 20.06.2020
 '''
 import yaml
 import io
+import os
 import re
 from collections import OrderedDict
 from pyparsing import Keyword,Group,Word,OneOrMore,Optional,ParseResults,Regex,ZeroOrMore,alphas, nums, oneOf
@@ -51,7 +52,22 @@ class ProceedingsTitleParser(object):
     ''' a pyparsing based parser for Proceedings Titles supported by a dictionary'''
     year=Regex(r'(19|20)?[0123456789][0123456789]')
     acronymGroup=Optional("("+Group(Word(alphas)+Optional(year))("acronym")+")")
+    instance=None
+    
+    @staticmethod
+    def getInstance():
+        ''' get a singleton instance of the ProceedingsTitleParser '''
+        if ProceedingsTitleParser.instance is None:
+            d=ProceedingsTitleParser.getDictionary()
+            ProceedingsTitleParser.instance=ProceedingsTitleParser(d)
+        return ProceedingsTitleParser.instance
    
+    @staticmethod
+    def getDictionary():
+        path=os.path.dirname(__file__)
+        d=Dictionary.fromFile(path+"/../dictionary.yaml")
+        return d
+        
     def __init__(self, dictionary=None):
         ''' constructor '''
         proc=Keyword("Proceedings") | Keyword("proceedings")

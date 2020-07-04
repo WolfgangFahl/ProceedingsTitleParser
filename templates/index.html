@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+        <!--  Material Design Lite -->
+        <script src="md/material.min.js"></script>
+        <link rel="stylesheet" href="md/material.min.css">
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+        <!--  Material design icons see https://materialdesignicons.com/getting-started -->
+        <link href="css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="css/diagrams.css">
+    </head>
+    <body>
+        {% include 'menu.html' %}
+        <div id="navigationbox" title="Proceedings Title Parser-Service">Proceedings Title Parser-Service</div>
+        <div class="container-fluid" id="contentbox">
+            <br>
+            <form action="/parse" method="post">
+               <div class="row">
+                  <div id="parselabel" class="col-md-1 text-right">
+                  </div>
+                  <div id="parsecol" class="col-md-5">
+                    <button type='submit' id="parse">parse</button>
+                  </div>
+                  <div id="parsecounter" class="col-md-6">
+                  </div>
+                </div>
+                <div class="row">
+                    <div id="titleslabel" class="col-md-1 text-right">
+                        <label class="label" for="titles">Paste your Proceedings titles here:</label>
+                    </div>
+                    <div class="col-md-5">
+                        <textarea id="titles" name="titles" rows="23" cols="80">{{ titles }}</textarea>
+                     </div>
+                     <div id="parseresult" class="col-md-6">
+                       {% if result is not none %}
+                       {% for parsedTitle in result %}
+                       {{parsedTitle}}<br>
+                       {% endfor %}
+                       {%endif %}
+                     </div>
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-md-2">
+                    <pre>
+{{ message }}</pre>
+                </div>
+            </div>
+            <!--  end of main content box -->
+            <div id="footerbox"></div>
+        </div>
+        <script>
+        /* onload */
+        initOutputTypesDisplay('graphviz');
+        </script>
+    </body>
+</html>
