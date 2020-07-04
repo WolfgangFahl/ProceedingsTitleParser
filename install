@@ -37,3 +37,11 @@ then
 else
   echo "need web files already installed"
 fi
+
+# make sure pywikibot configuration is available
+if [ -d $HOME/.pywikibot ]
+then  
+   mkdir $HOME/.pywikibot
+   echo "creating user-config.py"
+   echo "put_throttle = 0" > $HOME/.pywikibot/user-config.py
+fi
