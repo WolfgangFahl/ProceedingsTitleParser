@@ -4,7 +4,7 @@ Created on 20.06.2020
 @author: wf
 '''
 import unittest
-from titleparser.titleparser import TitleParser, Title, Dictionary,\
+from titleparser.titleparser import TitleParser, Title, \
     ProceedingsTitleParser
 from collections import Counter
 import matplotlib.pyplot as plt
@@ -151,7 +151,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
     def testSeriesEnumeration(self):
         ''' test getting most often used series enumerations of Proceeding Events '''
         tp=self.getTitleParser("proceedings-wikidata.txt",16000)
-        d=self.getDictionary()
+        d=ProceedingsTitleParser.getDictionary()
         tc=Counter()
         for line in tp.lines:
             title=Title(line["title"],dictionary=d)
@@ -162,8 +162,9 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 tc[title.enum]+=1
         print(tc.most_common(250))     
            
-    def doTestTitleParser(self,tp,showHistogramm=False):       
-        d=self.getDictionary()
+    def doTestTitleParser(self,tp,showHistogramm=False):
+        ''' test the title parser '''       
+        d=ProceedingsTitleParser.getDictionary()
         tc=Counter()
         typeCounters={}
         kc=Counter()
