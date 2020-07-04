@@ -13,15 +13,16 @@ class OpenResearch(object):
     OpenResearch Semantic Media API
     '''
 
-    def __init__(self):
+    def __init__(self,debug=False):
         '''
         Constructor
         '''
         self.smw=self.getSMW()
+        self.debug=debug
         
-    def getAsk(self,condition,limit=50):    
+    def getAsk(self,condition,limit=50,offset=0):    
         ask="""{{#ask: [[%s]]
-|mainlabel=event
+| mainlabel=event
 | ?Acronym = acronym
 | ?Title = title
 | ?Event in series = series
@@ -33,20 +34,37 @@ class OpenResearch(object):
 | ?_CDAT = creation_date
 | ?_MDAT = modification_date
 | limit = %d
+| offset = %d
 }}
-""" % (condition,limit)
+""" % (condition,limit,offset)
         return ask
 
-    def cacheEvents(self,limit=500):
-        ''' get an eventmanager for caching events '''
-        ask=self.getAsk("isA::Event",limit)
-        askResult=self.smw.query(ask)
+    def cacheEvents(self,limit=500,batch=5000):
         em=EventManager()
+        offset=0
+        if self.debug:
+            print("retrieving events for cache")
+        while True:
+            found,event=self.cacheEventBatch(em,limit=batch,offset=offset)
+            if self.debug:
+                print("retrieved events %5d-%5d" % (offset+1,offset+found))
+                print(event.asJson())
+            offset=offset+batch
+            if found<batch or len(em.events)>=limit:
+                break
+     
+        return em
+     
+    def cacheEventBatch(self,em,limit=500,offset=0):
+        ''' get an eventmanager for caching events '''
+        ask=self.getAsk("isA::Event",limit=limit,offset=offset)
+        askResult=self.smw.query(ask)
+        event=None
         for askRecord in askResult.values():
             event=Event()
             event.fromAskResult(askRecord)
             em.add(event)
-        return em
+        return len(askResult.values()),event
         
     def getEvent(self,pageTitle):
         ''' get the event with the given page title (if any) '''

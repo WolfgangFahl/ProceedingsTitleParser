@@ -29,12 +29,8 @@ class TestOpenResearch(unittest.TestCase):
         
     def testOpenResearchCaching(self):
         ''' test caching of open research results '''
-        opr=OpenResearch()
-        limit=20000
-        em=opr.cacheEvents(limit=limit)
-        if TestOpenResearch.debug:
-            print(em.asJson())
-        print("found %d events" % (len(em.events)))
+        opr=OpenResearch(debug=True)
+        em=opr.cacheEvents(limit=20000,batch=2000)
         minexpected=5044
         self.assertTrue(len(em.events)>=minexpected)
         em.store()

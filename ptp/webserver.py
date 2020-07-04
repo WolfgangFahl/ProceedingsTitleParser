@@ -19,8 +19,8 @@ scriptdir=os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,static_url_path='',static_folder=scriptdir+'/../web', template_folder=scriptdir+'/../templates')
 ptp=ProceedingsTitleParser.getInstance()
 if not EventManager.isCached():
-    opr=OpenResearch()
-    em=opr.cacheEvents(limit=20000)
+    opr=OpenResearch(debug=True)
+    em=opr.cacheEvents(limit=20000,batch=2000)
     em.store()
 else:
     em=EventManager.fromStore()    
