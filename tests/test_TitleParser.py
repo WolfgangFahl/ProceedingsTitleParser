@@ -91,16 +91,28 @@ class TestProceedingsTitleParser(unittest.TestCase):
         tc=Counter()
         for line in titlelines:
             self.tryParse(line, parser, tc)
-        self.assertEqual(tc["success"],len(titlelines))    
+        self.assertEqual(tc["success"],len(titlelines))   
+       
+    def testAcronymParsing(self):
+        ''' test acronym parsing '''
+        title=Title("(ATAED 2020)",ProceedingsTitleParser.acronymGroup)
+        title.pyparse()
+        md=title.metadata()
+        self.assertTrue("acronym" in md)
+        self.assertEquals("ATAED 2020",md["acronym"])
+          
         
     def testExampleResult(self):
         ''' test result of example ''' 
         titlelines=[
             'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San Francisco, California, USA',
-            'Selected proceedings of the 2009 Summit on Translational Bioinformatics.']   
+            'Selected proceedings of the 2009 Summit on Translational Bioinformatics.',
+            'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020']   
         expected=[
             {'enum': 'Thirty-First', 'prefix': 'AAAI', 'event': 'Conference', 'topic': 'Artificial Intelligence', 'month': 'February', 'daterange': '4 - 9', 'year': '2017', 'city': 'San Francisco', 'province': 'California', 'country': 'USA'},
-            {'event': 'Summit', 'extract': 'Selected', 'topic': 'Translational Bioinformatics','year': '2009'}]
+            {'event': 'Summit', 'extract': 'Selected', 'topic': 'Translational Bioinformatics','year': '2009'},
+            {'event': 'Workshop', 'location':'virtual','scope': 'International', 'topic': 'Algorithms & Theories for the Analysis of Event Data 2020','acronym':'ATAED 2020'}
+        ]
         parser=self.getParser()
         tc=Counter()
         index=0
@@ -135,7 +147,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
     def testCEUR_WS(self):
         ''' test pyparsing parser with CEUR-WS dataset '''
         tp=self.getTitleParser("proceedings-ceur-ws.txt",3449,mode='CEUR-WS')
-        self.doTestParser(tp,2160)
+        self.doTestParser(tp,2280)
         
     def testDBLP(self):
         ''' test pyparsing with DBLP dataset '''

@@ -50,8 +50,7 @@ getCEURWS() {
   gsub("<BR>","",line)
   gsub("<br>","",line)
   gsub("<sup>2</sup>","2",line)
-  gsub("<TD bgcolor=.#FFFFFF.>","",line)
-  gsub("<td bgcolor=.#FFFFFF.>","",line)
+  gsub("<(td|TD).bgcolor=.#FFFFFF.>","",line)
   # nbsp
   gsub(" </TD>","",line)
   printf ("%s",line)

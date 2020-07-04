@@ -7,7 +7,7 @@ import yaml
 import io
 import re
 from collections import OrderedDict
-from pyparsing import Keyword,Group,Word,OneOrMore,Optional,ParseResults,ZeroOrMore,alphas, nums, oneOf
+from pyparsing import Keyword,Group,Word,OneOrMore,Optional,ParseResults,Regex,ZeroOrMore,alphas, nums, oneOf
 from num2words import num2words
 
 class TitleParser(object):
@@ -49,7 +49,11 @@ class TitleParser(object):
    
 class ProceedingsTitleParser(object):
     ''' a pyparsing based parser for Proceedings Titles supported by a dictionary'''
-    def __init__(self, dictionary):
+    year=Regex(r'(19|20)?[0123456789][0123456789]')
+    acronymGroup=Optional("("+Group(Word(alphas)+Optional(year))("acronym")+")")
+   
+    def __init__(self, dictionary=None):
+        ''' constructor '''
         proc=Keyword("Proceedings") | Keyword("proceedings")
         descWord=~proc + Word(alphas+nums+"™æéç)>/'&—‐") # watch the utf-8 dash! 
         initials="("+OneOrMore(Word(alphas)+".")+")"
@@ -67,7 +71,7 @@ class ProceedingsTitleParser(object):
         extractGroup=dictionary.getGroup("extract")
         dateRangeGroup=Group(Optional(Word(nums)+Optional("-"+Word(nums))))("daterange")
         prefixGroup=Group(ZeroOrMore(~oneOf(eventClause)+Word(alphas+nums)))("prefix")
-        topicGroup=Group(ZeroOrMore(~oneOf("held on")+Word(alphas+nums+"-")))("topic")
+        topicGroup=Group(ZeroOrMore(~oneOf("held on")+Word(alphas+nums+"-&")))("topic")
         part="Part"+oneOf("A B C 1 2 3 4 I II III IV")+"."
         whereAndWhen=Optional(oneOf([".",",","held on"])+dateRangeGroup+monthGroup+dateRangeGroup \
                               +Optional(oneOf(","))+yearGroup \
@@ -88,6 +92,7 @@ class ProceedingsTitleParser(object):
             +Optional(oneOf("Scientific Consensus"))+eventGroup \
             +Optional(oneOf("on of in :")) \
             +topicGroup \
+            +ProceedingsTitleParser.acronymGroup \
             +Optional(oneOf("] )")) \
             +whereAndWhen
         pass     

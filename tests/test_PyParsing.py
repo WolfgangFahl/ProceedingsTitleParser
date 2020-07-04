@@ -12,10 +12,8 @@ class TestPyParsing(unittest.TestCase):
     def setUp(self):
         pass
 
-
     def tearDown(self):
         pass
-
 
     def testParsing(self):
         ''' test py parsing library Word element '''
