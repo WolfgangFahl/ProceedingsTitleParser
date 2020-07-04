@@ -16,4 +16,10 @@ Flask
 # Mediawiki and SMW API
 # https://pypi.org/project/py-3rdparty-mediawiki/
 py-3rdparty-mediawiki>=0.0.8
-#pywikibot>=3.0.20200508
+# https://phabricator.wikimedia.org/T171886
+# https://pypi.org/project/pywikibot/
+pywikibot==3.0.20200306
+#https://pypi.org/project/pycrypto/
+pycrypto
+# https://pypi.org/project/jsonpickle/
+jsonpickle
