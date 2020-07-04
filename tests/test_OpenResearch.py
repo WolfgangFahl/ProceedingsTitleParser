@@ -35,7 +35,7 @@ class TestOpenResearch(unittest.TestCase):
         if TestOpenResearch.debug:
             print(em.asJson())
         print("found %d events" % (len(em.events)))
-        minexpected=4578
+        minexpected=5044
         self.assertTrue(len(em.events)>=minexpected)
         em.store()
         self.assertTrue(EventManager.isCached())
