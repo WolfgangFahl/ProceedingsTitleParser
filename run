@@ -86,6 +86,9 @@ killifrunning() {
   fi
 }
 
+#
+# start in server mode
+#
 startServer() {
   local l_logdir=/var/log/ptp
   local l_logfile=ptp.log
@@ -105,6 +108,8 @@ startServer() {
 pyapp=ptp/webserver.py
 killifrunning $pyapp
 port=5004
+# make sure there is cache directory
+mkdir -p cache
 
 # commandline option
 while [  "$1" != ""  ]

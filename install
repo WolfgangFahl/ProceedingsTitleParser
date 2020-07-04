@@ -20,7 +20,7 @@ esac
 #$install python3-pip
 $pip --version
 echo "installing required python modules"
-$pip install -r requirements.txt
+$pip install --user -r requirements.txt
 
 wd=$(pwd)
 if [ ! -d web ]
