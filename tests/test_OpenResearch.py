@@ -1,18 +1,20 @@
 '''
-Created on 04.07.2020
+Created on 2020-07-04
 
 @author: wf
 '''
 import unittest
-from titleparser.openresearch import OpenResearch
+
+import time
+from ptp.openresearch import OpenResearch
+from ptp.event import EventManager
 
 class TestOpenResearch(unittest.TestCase):
     ''' test accessing open research data '''
-    debug=True
+    debug=False
 
     def setUp(self):
         pass
-
 
     def tearDown(self):
         pass
@@ -23,9 +25,29 @@ class TestOpenResearch(unittest.TestCase):
         result=opr.smw.info()
         if (TestOpenResearch.debug):
             print (result)
-        self.assertTrue('info' in result)   
+        self.assertTrue('info' in result)  
+        
+    def testOpenResearchCaching(self):
+        ''' test caching of open research results '''
+        opr=OpenResearch()
+        limit=20000
+        em=opr.cacheEvents(limit=limit)
+        if TestOpenResearch.debug:
+            print(em.asJson())
+        print("found %d events" % (len(em.events)))
+        minexpected=2204
+        self.assertTrue(len(em.events)>=minexpected)
+        em.store()
+        self.assertTrue(EventManager.isCached())
+        start_time = time.time()
+        em2=EventManager.fromStore()
+        print("fromStore took %5.1f s" % (time.time() - start_time))
+        self.assertEquals(len(em2.events),len(em.events))
+        zeus2018=em2.lookup("ZEUS 2018")
+        self.assertTrue(zeus2018 is not None)
+        print (zeus2018.asJson())
             
-    def testGetEvents(self):
+    def testGetEvent(self):
         ''' get the events from OpenResearch '''
         opr=OpenResearch()
         event=opr.getEvent("ZEUS 2010")

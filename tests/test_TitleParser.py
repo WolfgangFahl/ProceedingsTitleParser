@@ -4,7 +4,7 @@ Created on 20.06.2020
 @author: wf
 '''
 import unittest
-from titleparser.titleparser import TitleParser, Title, \
+from ptp.titleparser import TitleParser, Title, \
     ProceedingsTitleParser
 from collections import Counter
 import matplotlib.pyplot as plt

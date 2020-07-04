@@ -38,7 +38,11 @@
                      <div id="parseresult" class="col-md-6">
                        {% if result is not none %}
                        {% for parsedTitle in result %}
-                       {{parsedTitle}}<br>
+                       {{parsedTitle.metadata()}}
+                       <br>
+                       {% if parsedTitle.event is not none %}
+                       {{parsedTitle.event.asJson()}}  
+                       {%endif %}
                        {% endfor %}
                        {%endif %}
                      </div>

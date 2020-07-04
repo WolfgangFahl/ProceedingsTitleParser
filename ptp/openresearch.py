@@ -6,7 +6,7 @@ Created on 04.07.2020
 from wikibot.smw import SMW
 import os
 from wikibot.wikibot import WikiBot
-from titleparser.event import Event
+from ptp.event import Event, EventManager
 
 class OpenResearch(object):
     '''
@@ -19,19 +19,38 @@ class OpenResearch(object):
         '''
         self.smw=self.getSMW()
         
-    def getEvent(self,pageTitle):
-        ''' get the event with the given page title (if any) '''
-        ask="""{{#ask: [["""+pageTitle+"""]]
-|mainlabel=Event
+    def getAsk(self,condition,limit=50):    
+        ask="""{{#ask: [[%s]]
+|mainlabel=event
 | ?Acronym = acronym
+| ?Title = title
 | ?Event in series = series
 | ?Homepage = homepage
 | ?Has location city = city
 | ?Has_location_country = country
+| ?End_date = end_date
+| ?Start_date = start_date
 | ?_CDAT = creation_date
 | ?_MDAT = modification_date
+| limit = %d
 }}
-"""
+""" % (condition,limit)
+        return ask
+
+    def cacheEvents(self,limit=500):
+        ''' get an eventmanager for caching events '''
+        ask=self.getAsk("isA::Event",limit)
+        askResult=self.smw.query(ask)
+        em=EventManager()
+        for askRecord in askResult.values():
+            event=Event()
+            event.fromAskResult(askRecord)
+            em.add(event)
+        return em
+        
+    def getEvent(self,pageTitle):
+        ''' get the event with the given page title (if any) '''
+        ask=self.getAsk(pageTitle)      
         askResult=self.smw.query(ask)
         if len(askResult)==1:
             event=Event()

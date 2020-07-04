@@ -129,6 +129,15 @@ class Title(object):
         self.parseResult=None
         self.grammar=grammar
         self.info={}
+        self.md=None
+        
+    def lookup(self,em):
+        ''' look me up with the given event manager '''
+        if "acronym" in self.metadata():
+            acronym=self.md["acronym"] 
+            if acronym is not None:
+                self.event=em.lookup(acronym)
+                pass
         
     def __str__(self):
         ''' create a string representation of this title '''    
@@ -142,13 +151,14 @@ class Title(object):
     
     def metadata(self):
         ''' extract the metadata of the given title '''
-        md={}
-        for pitem in self.parseResult:
-            if isinstance(pitem,ParseResults):
-                value=" ".join(pitem.asList())
-                if value:
-                    md[pitem.getName()]=value
-        return md         
+        if self.md is None:
+            self.md={}
+            for pitem in self.parseResult:
+                if isinstance(pitem,ParseResults):
+                    value=" ".join(pitem.asList())
+                    if value:
+                        self.md[pitem.getName()]=value
+        return self.md    
         
     def dump(self):
         ''' debug print my parseResult '''
