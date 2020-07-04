@@ -74,7 +74,10 @@ class Event(object):
         if self.acronym is None:
             self.acronym=self.event
         if self.country is not None:
-            self.country=self.country.replace("Category:","")     
+            if type(self.country) is list:
+                print("warning country for %s is a list: %s" % (self.event,self.country))
+            else:
+                self.country=self.country.replace("Category:","")     
         self.url="https://www.openresearch.org/wiki/%s" % (self.event)       
     
     def asJson(self):

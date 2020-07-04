@@ -39,7 +39,7 @@ else
 fi
 
 # make sure pywikibot configuration is available
-if [ -d $HOME/.pywikibot ]
+if [ ! -d $HOME/.pywikibot ]
 then  
    mkdir $HOME/.pywikibot
    echo "creating user-config.py"
