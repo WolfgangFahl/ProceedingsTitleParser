@@ -236,7 +236,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
         #nx.write_graphml_lxml(g,'g_test1.graphml')
         
     def testDictionary(self):
-        d=self.getDictionary()
+        ''' test the dictionary '''
+        d=ProceedingsTitleParser.getDictionary()
         print (d.tokens)
         d.addEnums()
         d.addYears()
