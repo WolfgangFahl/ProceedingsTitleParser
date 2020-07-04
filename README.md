@@ -7,6 +7,8 @@ Shallow Semantic Parser to extract metadata from scientific proceedings titles
 [![GitHub issues](https://img.shields.io/github/issues-closed/WolfgangFahl/ProceedingsTitleParser.svg)](https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/?q=is%3Aissue+is%3Aclosed)
 [![GitHub](https://img.shields.io/github/license/BITPlan/com.bitplan.fritzbox.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+## Demo
+* [Proceedings Title Parser Service](https://ptp.bitplan.com) 
 ## Links
 * [Python](https://www.python.org/)
 
