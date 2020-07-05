@@ -10,6 +10,8 @@ from ptp.openresearch import OpenResearch
 from ptp.event import EventManager
 from ptp.plot import Plot
 import pyparsing as pp
+from tests.test_PyParsing import TestPyParsing
+
 
 class TestOpenResearch(unittest.TestCase):
     ''' test accessing open research data '''
@@ -60,23 +62,24 @@ class TestOpenResearch(unittest.TestCase):
         ''' get a histogram of acronyms '''
         em=OpenResearch.getEventManager()
         acLenList=[]
-        matchCount=0
-        acronym4LetterPlusYear=pp.Regex(r'[A-Z]{4} \d{4}')
+        grammars={
+            '  with 4digit year': pp.Regex(r'^.{0,10}(19|20)[0-9][0-9].{0,10}$'),
+            '      4 UpperCase+blank+4Year Digits'  : pp.Regex(r'^[A-Z]{4} \d{4}$'),
+            '    2-3 UpperCase+blank+4Year Digits'  : pp.Regex(r'^[A-Z]{2,3} \d{4}$'),
+            '    2-7 UpperCase+blank or dash+2-4 Digits': pp.Regex(r'^[A-Z]{2,7}[ -]+\d{2,4}$'),
+            'nth 4-6 Uppercase 20##': pp.Regex(r'^(([1-9][0-9]?)th\s)?[A-Z]{4,6}\s20[0-9][0-9]$'),
+            ' full monty': pp.Regex(r'^(([1-9][0-9]?)th\s)?[A-Z/_-]{2,10}[ -]*(19|20)[0-9][0-9]$') 
+            }
+        examples=[]
         for event in em.events.values():
             if event.acronym is not None:
                 acLen=len(event.acronym)
                 acLenList.append(acLen)
-                if acLen==9:
-                    try:
-                        val=acronym4LetterPlusYear.parseString(event.acronym)
-                        matchCount+=1
-                    except pp.ParseException as pe:    
-                        print (event.acronym)
+                examples.append(event.acronym)
         plot=Plot(acLenList,"acronym length",debug=True)     
         plot.hist(mode='save')
         print (plot.counter.most_common(10))
         total=len(acLenList)
-        print ("matched: %d (%3.1f%%)" % (matchCount,matchCount/2808*100))
         for common in [3,5,7,9,11,13]:
             aclensum=0
             for e in sorted(plot.counter.most_common(common)):
@@ -84,6 +87,8 @@ class TestOpenResearch(unittest.TestCase):
                 print ("%2d: %4d (%3.1f %%)" % (aclen,acLenCount,acLenCount/total*100))
                 aclensum=aclensum+acLenCount
             print ("most common %d of %d: %3.1f %%" % (common,total,aclensum/total*100))
+            
+        TestPyParsing.doTestGrammars(examples, grammars)
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
