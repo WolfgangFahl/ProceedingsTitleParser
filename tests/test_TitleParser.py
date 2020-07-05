@@ -229,7 +229,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
                 self.getTitleParser("proceedings-wikidata.txt",16000)
             ]:
-            self.doTestTitleParser(tp, showHistogramm)
+            self.doTestTitleParser(tp, showHistogramm)   
       
     def testGraph(self):
         g=nx.Graph()

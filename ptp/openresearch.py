@@ -91,3 +91,13 @@ class OpenResearch(object):
             WikiBot.writeIni(wikiId,"OpenResearch.org","https://www.openresearch.org","/mediawiki/","MediaWiki 1.31.1")    
         wikibot=WikiBot.ofWikiId(wikiId)
         return  wikibot
+    
+    @staticmethod
+    def getEventManager():
+        if not EventManager.isCached():
+            opr=OpenResearch(debug=True)
+            em=opr.cacheEvents(limit=20000,batch=2000)
+            em.store()
+        else:
+            em=EventManager.fromStore()    
+        return em
