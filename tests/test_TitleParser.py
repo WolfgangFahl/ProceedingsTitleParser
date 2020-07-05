@@ -140,7 +140,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         
     def testCEUR_WS(self):
         ''' test pyparsing parser with CEUR-WS dataset '''
-        tp=self.getTitleParser("proceedings-ceur-ws.txt",3449,mode='CEUR-WS')
+        tp=self.getTitleParser("proceedings-ceur-ws.txt",2629,mode='CEUR-WS')
         self.doTestParser(tp,2280)
         
     def testDBLP(self):
