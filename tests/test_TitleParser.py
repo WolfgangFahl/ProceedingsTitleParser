@@ -11,6 +11,7 @@ from ptp.plot import Plot
 import networkx as nx
 import os
 import getpass
+from ptp.openresearch import OpenResearch
 
 class TestProceedingsTitleParser(unittest.TestCase):
     """ test the parser for Proceedings titles"""
@@ -131,8 +132,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
             self.tryParse(line["title"],parser,tc,qref=qref,doprint=lineCount<=limit)
         print(tc.most_common(2))   
         self.assertGreater(tc["success"], minSuccess)     
-            
-                
+               
     def testPyParseWikiData(self):
         ''' test pyparsing parser '''
         tp=self.getTitleParser("proceedings-wikidata.txt",16000)
@@ -163,7 +163,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 tc[title.enum]+=1
         print(tc.most_common(250))     
            
-    def doTestTitleParser(self,tp,showHistogramm=False):
+    def doTestTitleParser(self,tp,em,showHistogramm=False):
         ''' test the title parser '''       
         d=ProceedingsTitleParser.getDictionary()
         tc=Counter()
@@ -178,6 +178,11 @@ class TestProceedingsTitleParser(unittest.TestCase):
             for token in title.tokens:
                 total+=1
                 dtoken=d.getToken(token)
+                if dtoken is None:
+                    if token in em.eventsByAcronym:
+                        dtoken={}
+                        dtoken["type"]="acronym"
+                        dtoken["label"]=token
                 if dtoken is None:
                     tc[token]+=1
                 else: 
@@ -223,13 +228,14 @@ class TestProceedingsTitleParser(unittest.TestCase):
   
     def testTitleParser(self):
         ''' test reading the titles '''
-        showHistogramm=not getpass.getuser()=="travis"
+        showHistogram=True
+        em=OpenResearch.getEventManager()
         for tp in [
                 self.getTitleParser("proceedings-ceur-ws.txt",2629,mode='CEUR-WS'),
                 self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
                 self.getTitleParser("proceedings-wikidata.txt",16000)
             ]:
-            self.doTestTitleParser(tp, showHistogramm)   
+            self.doTestTitleParser(tp,em,showHistogram)   
       
     def testGraph(self):
         g=nx.Graph()

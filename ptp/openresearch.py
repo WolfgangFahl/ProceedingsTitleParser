@@ -8,6 +8,7 @@ import os
 from wikibot.wikibot import WikiBot
 from ptp.event import Event, EventManager
 
+
 class OpenResearch(object):
     '''
     OpenResearch Semantic Media API
@@ -100,4 +101,5 @@ class OpenResearch(object):
             em.store()
         else:
             em=EventManager.fromStore()    
+        em.extractAcronyms()
         return em

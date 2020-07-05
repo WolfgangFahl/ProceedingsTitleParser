@@ -7,16 +7,19 @@ import json
 import os
 from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
+import pyparsing as pp
 
 class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
+    debug=False
     
     def __init__(self):
         '''
         Constructor
         '''
         self.events={}
-        
+        self.eventsByAcronym={}
+  
     def add(self,event):
         self.events[event.event]=event
         
@@ -26,6 +29,26 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         if event in self.events:
             result=self.events[event]
         return result    
+    
+    def extractAcronyms(self):
+        self.eventsByAcronym={}
+        grammar= pp.Regex(r'^(([1-9][0-9]?)th\s)?(?P<acronym>[A-Z/_-]{2,10})[ -]*(19|20)[0-9][0-9]$')
+        for event in self.events.values():
+            if event.acronym is not None:
+                try:
+                    val=grammar.parseString(event.acronym).asDict()
+                    if "acronym" in val:
+                        acronym=val['acronym']
+                        if acronym in self.eventsByAcronym:
+                            self.eventsByAcronym[acronym].append(event)
+                        else:
+                            self.eventsByAcronym[acronym]=[event]    
+                except pp.ParseException as pe:
+                    if EventManager.debug:
+                        print(event.acronym)
+                        print(pe)
+                    pass
+    
     
     @staticmethod
     def isCached(mode='json'):

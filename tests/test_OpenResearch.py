@@ -12,7 +12,6 @@ from ptp.plot import Plot
 import pyparsing as pp
 from tests.test_PyParsing import TestPyParsing
 
-
 class TestOpenResearch(unittest.TestCase):
     ''' test accessing open research data '''
     debug=False
@@ -58,7 +57,14 @@ class TestOpenResearch(unittest.TestCase):
         self.assertEqual("http://www2.informatik.hu-berlin.de/top/zeus/", event.homepage)    
         pass
     
-    def testAcronyms(self):
+    def testExtractAcronyms(self):
+        em=OpenResearch.getEventManager()
+        found=len(em.eventsByAcronym)
+        expected=3000
+        self.assertTrue(found>=expected)        
+        
+    
+    def testAcronymStructure(self):
         ''' get a histogram of acronyms '''
         em=OpenResearch.getEventManager()
         acLenList=[]
