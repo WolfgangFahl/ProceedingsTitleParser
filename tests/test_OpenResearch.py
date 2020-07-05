@@ -35,7 +35,7 @@ class TestOpenResearch(unittest.TestCase):
         ''' test caching of open research results '''
         opr=OpenResearch(debug=True)
         em=opr.cacheEvents(limit=20000,batch=2000)
-        minexpected=8700
+        minexpected=8500
         self.assertTrue(len(em.events)>=minexpected)
         em.store()
         self.assertTrue(EventManager.isCached())
