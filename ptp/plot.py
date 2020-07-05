@@ -13,7 +13,7 @@ class Plot(object):
     create Plot based on counters
     see https://stackoverflow.com/questions/19198920/using-counter-in-python-to-build-histogram
     '''
-    def __init__(self, valueList,title,xlabel=None,ylabel=None,fontsize=12,plotdir=None,debug=False):
+    def __init__(self, valueList,title,xlabel=None,ylabel=None,gformat='.png',fontsize=12,plotdir=None,debug=False):
         '''
         Constructor
         '''
@@ -23,6 +23,7 @@ class Plot(object):
         self.xlabel=xlabel
         self.ylabel=ylabel
         self.fontsize=fontsize
+        self.gformat=gformat
         self.debug=debug
         path=os.path.dirname(__file__)
         if plotdir is not None:
@@ -31,7 +32,8 @@ class Plot(object):
             self.plotdir=path+"/../plots/"
             os.makedirs(self.plotdir,exist_ok=True)
             
-    def titleMe(self):        
+    def titleMe(self):   
+        ''' set my title and labels '''     
         plt.title(self.title, fontsize=self.fontsize)
         if self.xlabel is not None:
             plt.xlabel(self.xlabel)
@@ -43,7 +45,7 @@ class Plot(object):
         if mode=="show":
             plt.show() 
         else:
-            plt.savefig(self.plotdir+self.title+".jpg")
+            plt.savefig(self.plotdir+self.title+self.gformat)
         if close:    
             plt.close()    
             
