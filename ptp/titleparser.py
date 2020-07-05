@@ -16,10 +16,11 @@ class TitleParser(object):
     parser for Proceeding titles
     '''
 
-    def __init__(self):
+    def __init__(self,name=None):
         '''
         Constructor
         '''
+        self.name=name
     
     @staticmethod    
     def fromFile(filePath,mode='wikidata'):

@@ -54,7 +54,7 @@ getCEURWS() {
   # nbsp
   gsub(" </TD>","",line)
   printf ("%s",line)
-}' > $sampletxt
+}' | sed  '/^$/d'  > $sampletxt
  else
     echo "$sampletxt already filtered from $samplehtml"
  fi

@@ -135,3 +135,7 @@ sampledata
 web
 # cache
 cache
+# plots
+plots
+# Mac OS
+.DS_Store

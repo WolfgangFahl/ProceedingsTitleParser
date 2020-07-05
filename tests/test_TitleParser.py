@@ -1,5 +1,5 @@
 '''
-Created on 20.06.2020
+Created on 2020-06-20
 
 @author: wf
 '''
@@ -7,7 +7,7 @@ import unittest
 from ptp.titleparser import TitleParser, Title, \
     ProceedingsTitleParser
 from collections import Counter
-import matplotlib.pyplot as plt
+from ptp.plot import Plot
 import networkx as nx
 import os
 import getpass
@@ -27,6 +27,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
     def getTitleParser(self,name,expectedLines,mode="wikidata"):
         titleFile=self.titlesdir+name
         tp=TitleParser.fromFile(titleFile,mode)
+        tp.name=name
         print ("%6d lines found at least %6d expected" % (len(tp.lines),expectedLines))
         self.assertTrue(expectedLines<=len(tp.lines))
         return tp 
@@ -215,15 +216,16 @@ class TestProceedingsTitleParser(unittest.TestCase):
         print(tc.most_common(250))   
         print(kc.most_common(250))     
         if showHistogramm:
-            plt.hist(tclist,bins=45)
-            plt.show()    
+            title=tp.name.replace(".txt","")
+            plot=Plot(tclist,title)
+            plot.hist(mode="save")
         pass
   
     def testTitleParser(self):
         ''' test reading the titles '''
         showHistogramm=not getpass.getuser()=="travis"
         for tp in [
-                self.getTitleParser("proceedings-ceur-ws.txt",3449,mode='CEUR-WS'),
+                self.getTitleParser("proceedings-ceur-ws.txt",2629,mode='CEUR-WS'),
                 self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
                 self.getTitleParser("proceedings-wikidata.txt",16000)
             ]:
