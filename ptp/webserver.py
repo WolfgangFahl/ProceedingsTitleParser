@@ -19,8 +19,8 @@ lookup=Lookup("webserver")
 @app.route('/')
 def home():
     return index()
-    
-def index(titles="",tc=None,errs=None,result=None,message=None):    
+
+def index(titles="",tc=None,errs=None,result=None,message=None):
     """ render index page with the given parameters"""
     return render_template('index.html',titles=titles,tc=tc,errs=errs,result=result,message=message)
 
@@ -29,7 +29,7 @@ def parseTitles():
     """ endpoint for proceedings title parsing"""
     titleLines=request.form.get('titles')
     tp=lookup.tp
-    tp.fromLines(titleLines.split(), 'line')
+    tp.fromLines(titleLines.splitlines(), 'line')
     tc,errs,result=tp.parseAll()
     return index(titleLines,tc,errs,result)
 
@@ -46,4 +46,4 @@ if __name__ == '__main__':
                                  default="0.0.0.0",
                                  help="the host to serve for")
     args=parser.parse_args(sys.argv[1:])
-    app.run(debug=args.debug,port=args.port,host=args.host)   
+    app.run(debug=args.debug,port=args.port,host=args.host)
