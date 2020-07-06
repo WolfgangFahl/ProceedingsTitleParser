@@ -24,21 +24,22 @@ class TitleParser(object):
         self.name=name
         
     @staticmethod
-    def fromLines(ptp,em,titles):
+    def fromLines(ptp,dictionary,em,titles):
         ''' get parse result with the given proceedings title parser, entity manager and list of titles '''
         errs=[]
         result=[]
         tc=Counter()
         for line in titles.splitlines():
-            title=Title(line,ptp.grammar)
-        try: 
-            title.pyparse()
-            title.lookup(em)
-            result.append(title)    
-            tc["success"]+=1
-        except Exception as ex:
-            tc["fail"]+=1
-            errs.append(ex)   
+            title=Title(line,ptp.grammar,dictionary=dictionary)
+            try: 
+                notfound=title.parse()
+                title.pyparse()
+                tc["success"]+=1
+            except Exception as ex:
+                tc["fail"]+=1
+                errs.append(ex)
+            title.lookup(em,notfound)
+            result.append(title) 
         return tc,errs,result     
  
     
@@ -153,33 +154,47 @@ class Title(object):
         self.md=None
         self.event=None
         
-    def lookup(self,em):
-        ''' look me up with the given event manager '''
+    def lookup(self,em,wordList=None):
+        ''' look me up with the given event manager use my acronym or optionally a list of Words'''
         if "acronym" in self.metadata():
             acronym=self.md["acronym"] 
             if acronym is not None:
                 self.event=em.lookup(acronym)
                 pass
+        if wordList is not None and "year" in self.info:
+            year=self.info["year"]
+            for word in wordList:
+                event=em.lookup(word+" "+year)
+                if event is not None:
+                    self.event=event
+                    return
         
     def __str__(self):
         ''' create a string representation of this title '''    
         text=""
         delim=""
-        for pitem in self.parseResult:
-            if isinstance(pitem,ParseResults):
-                text+="%s%s=%s" % (delim,pitem.getName(),pitem)
-                delim="\n"
+        if self.parseResult is not None:
+            for pitem in self.parseResult:
+                if isinstance(pitem,ParseResults):
+                    text+="%s%s=%s" % (delim,pitem.getName(),pitem)
+                    delim="\n"
         return text    
     
     def metadata(self):
         ''' extract the metadata of the given title '''
         if self.md is None:
             self.md={}
-            for pitem in self.parseResult:
-                if isinstance(pitem,ParseResults):
-                    value=" ".join(pitem.asList())
-                    if value:
-                        self.md[pitem.getName()]=value
+            if self.parseResult is not None:
+                for pitem in self.parseResult:
+                    if isinstance(pitem,ParseResults):
+                        value=" ".join(pitem.asList())
+                        if value:
+                            self.md[pitem.getName()]=value
+            if self.info is not None:
+                for name in self.info:
+                    value=self.info[name]
+                    if not name in self.md:
+                        self.md[name]=value                
         return self.md    
         
     def dump(self):
@@ -193,17 +208,21 @@ class Title(object):
         pass        
     
     def parse(self):
+        self.notfound=[]
         for token in self.tokens:
             dtoken=self.dictionary.getToken(token)
             if dtoken is not None:
                 if dtoken["type"]=="enum":
                     self.enum=dtoken["value"] 
+                    self.info["ordinal"]=self.enum
                 self.info[dtoken["type"]]=token
+            else:
+                self.notfound.append(token)
+        return self.notfound            
     
     def pyparse(self):
         if self.grammar is not None:
-            self.parseResult=self.grammar.parseString(self.line)
-                    
+            self.parseResult=self.grammar.parseString(self.line)  
         
 class Dictionary(object):
     ''' a dictionary to support title parsing '''

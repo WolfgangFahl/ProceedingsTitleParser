@@ -37,22 +37,48 @@
                      </div>
                      <div id="parseresult" class="col-md-6">
                      	<div class='row'>
-                       {% if result is not none %}
-                       {% for parsedTitle in result %}
-                       {{parsedTitle.metadata()}}
-                       <br>
-                       {% if parsedTitle.event is not none %}
-                       {{parsedTitle.event.asJson()}}  
-                       {%endif %}
-                       {% endfor %}
-                       {%endif %}
+	                       {% if result is not none %}
+	                       <table class="table">
+							  <thead>
+							    <tr>
+							      <th scope="col">#</th>
+							      <th scope="col">Acronym</th>
+							      <th scope="col">Url</th>
+							    </tr>
+							  </thead>
+							  <tbody>
+	                       {% for parsedTitle in result %}
+	                       {% if parsedTitle.event is not none %}
+							    <tr>
+							      <th scope="row">{{ loop.index }}</th>
+							      <td>{{parsedTitle.event.acronym}}</td>
+							      <td><a href='{{parsedTitle.event.url}}'>{{parsedTitle.event.url}}</a></td>
+							    </tr>
+	                       {%endif %}
+	                       {% endfor %}
+							  </tbody>
+							</table>
+	                       {%endif %}
+	                    </div>   
+                     	<!-- raw results /metadata -->
+                     	<div class='row'>
+                     	   <h3>metadata (debug)</h3>
+	                       {% if result is not none %}
+	                       {% for parsedTitle in result %}
+	                       {{parsedTitle.metadata()}}<br>
+	                       {% if parsedTitle.event is not none %}
+	                       {{parsedTitle.event.asJson()}}<br>
+	                       {%endif %}
+	                       {% endfor %}
+	                       {%endif %}
                        </div>
+                       <!-- errors -->
 		                <div class='row'>
-		                {% if errs is not none %}
-		                {% for err in errs %}
-		                <pre><span style="color:red">{{ err }}</span></pre>
-		                {% endfor %}
-		                {%endif %}
+			                {% if errs is not none %}
+			                {% for err in errs %}
+			                <pre><span style="color:red">{{ err }}</span></pre>
+			                {% endfor %}
+			                {%endif %}
 		                </div>
 		             </div>
                 </div>

@@ -17,6 +17,7 @@ from ptp.event import EventManager
 scriptdir=os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,static_url_path='',static_folder=scriptdir+'/../web', template_folder=scriptdir+'/../templates')
 ptp=ProceedingsTitleParser.getInstance()
+dictionary=ProceedingsTitleParser.getDictionary()
 # get the open research EventManager
 em=OpenResearch.getEventManager()
   
@@ -33,7 +34,7 @@ def index(titles="",tc=None,errs=None,result=None,message=None):
 def parseTitles():
     """ endpoint for proceedings title parsing"""
     titles=request.form.get('titles')
-    tc,errs,result=TitleParser.fromLines(ptp,em,titles)
+    tc,errs,result=TitleParser.fromLines(ptp,dictionary,em,titles)
     return index(titles,tc,errs,result)
 
 if __name__ == '__main__':

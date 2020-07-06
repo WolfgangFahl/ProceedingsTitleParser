@@ -256,16 +256,38 @@ class TestProceedingsTitleParser(unittest.TestCase):
     def testError(self):
         ''' test error handling according to https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/4 '''
         ptp=ProceedingsTitleParser.getInstance()
+        dictionary=ProceedingsTitleParser.getDictionary()
         # get the open research EventManager
         em=OpenResearch.getEventManager()  
         titles='Tagungsband des 17. Workshops "Software Engineering im Unterricht der Hochschulen" 2020 (SEUH 2020),Innsbruck, Österreich, 26. - 27.02.2020.'
-        tc,errs,result=TitleParser.fromLines(ptp,em,titles)  
+        tc,errs,result=TitleParser.fromLines(ptp,dictionary,em,titles)  
         # there should be a faile dline
         self.assertEquals(1,tc["fail"])
         self.assertEquals(1,len(errs))
         err=errs[0]
         self.assertTrue("Expected" in str(err))
         self.assertEquals(0,len(result))
+        
+    def testNERMode(self):
+        ''' test named entity recognition mode '''
+        ptp=ProceedingsTitleParser.getInstance()
+        dictionary=ProceedingsTitleParser.getDictionary()
+        em=OpenResearch.getEventManager()
+        titles='ATVA 2020 18th International Symposium on Automated Technology for Verification and Analysis'
+        tc,errs,result=TitleParser.fromLines(ptp,dictionary,em,titles)  
+        print (tc)
+        print (errs)
+        print (result)
+        # make sure we have exactly one result
+        self.assertEquals(1,len(result))
+        title=result[0]
+        print (title)
+        print (title.info)
+        print (title.metadata())
+        print (title.notfound)
+        # make sure we found the relevant event
+        self.assertTrue(title.event is not None)
+        
    
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

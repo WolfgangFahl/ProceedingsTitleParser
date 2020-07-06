@@ -23,11 +23,13 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     def add(self,event):
         self.events[event.event]=event
         
-    def lookup(self,event):
+    def lookup(self,acronym):
         ''' lookup the given event '''
         result=None
-        if event in self.events:
-            result=self.events[event]
+        if acronym in self.events:
+            result=self.events[acronym]
+        elif acronym in self.eventsByAcronym:
+            result=self.eventsByAcronym[acronym] 
         return result    
     
     def extractAcronyms(self):
