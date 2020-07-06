@@ -31,6 +31,8 @@ Edinburgh:
   type: city
 Geneva:
   type: city
+Innsbruck:
+  type: city
 Helsinki:
   type: city
 Houston:
@@ -148,6 +150,8 @@ Italy:
 Japan:
   type: country
 Netherlands:
+  type: country
+Österreich: 
   type: country
 Panama:
   type: country

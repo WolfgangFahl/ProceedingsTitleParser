@@ -266,7 +266,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         self.assertEquals(1,len(errs))
         err=errs[0]
         self.assertTrue("Expected" in str(err))
-        self.assertEquals(0,len(result))
+        self.assertEquals(1,len(result))
         
     def testNERMode(self):
         ''' test named entity recognition mode '''
