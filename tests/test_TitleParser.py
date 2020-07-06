@@ -79,8 +79,9 @@ class TestProceedingsTitleParser(unittest.TestCase):
             "(L.) Bricault and (M.J.) Versluys Eds Power, Politics, and the Cults of Isis: Proceedings of the Vth International Conference of Isis Studies (Religions in the Graeco-Roman World 180). Leiden: Brill, 2014. Pp. xvii + 364. €139/$180. 9789004277182",
             "Kunaitupii: Coming Together on Native Sacred Sites—Their Sacredness, Conservation and Interpretation. Brian O. K. Reeves and Margaret A. Kennedy, editors. Proceedings of the First Joint Meeting of the Archaeological Society of Alberta and the Monta",
             "Jan Apel and Kjel Knutsson: Skilled Production and Social Reproduction. Aspects of Traditional Stone‐Tool Technologies. Proceedings of a Symposium in Uppsala, August 20–24, 2003",
-            "Developing ambient intelligence - proceedings of the first international conference on ambient intelligence developments."
+            "Developing ambient intelligence - proceedings of the first international conference on ambient intelligence developments.",
             #"Sea Lice 2003 - Proceedings of the sixth international conference on sea lice biology and control"
+            #'Tagungsband des 17. Workshops "Software Engineering im Unterricht der Hochschulen" 2020 (SEUH 2020),Innsbruck, Österreich, 26. - 27.02.2020.'
             ]
         parser=self.getParser()
         tc=Counter()

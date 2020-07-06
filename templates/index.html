@@ -36,6 +36,7 @@
                         <textarea id="titles" name="titles" rows="23" cols="80">{{ titles }}</textarea>
                      </div>
                      <div id="parseresult" class="col-md-6">
+                     	<div class='row'>
                        {% if result is not none %}
                        {% for parsedTitle in result %}
                        {{parsedTitle.metadata()}}
@@ -45,13 +46,20 @@
                        {%endif %}
                        {% endfor %}
                        {%endif %}
-                     </div>
+                       </div>
+		                <div class='row'>
+		                {% if errs is not none %}
+		                {% for err in errs %}
+		                <pre><span style="color:red">{{ err }}</span></pre>
+		                {% endfor %}
+		                {%endif %}
+		                </div>
+		             </div>
                 </div>
             </form>
             <div class="row">
                 <div class="col-md-2">
-                    <pre>
-{{ message }}</pre>
+                    <pre>{{ message }}</pre>
                 </div>
             </div>
             <!--  end of main content box -->
