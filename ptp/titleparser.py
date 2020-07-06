@@ -10,6 +10,7 @@ import re
 from collections import OrderedDict
 from pyparsing import Keyword,Group,Word,OneOrMore,Optional,ParseResults,Regex,ZeroOrMore,alphas, nums, oneOf
 from num2words import num2words
+from collections import Counter
 
 class TitleParser(object):
     '''
@@ -21,6 +22,25 @@ class TitleParser(object):
         Constructor
         '''
         self.name=name
+        
+    @staticmethod
+    def fromLines(ptp,em,titles):
+        ''' get parse result with the given proceedings title parser, entity manager and list of titles '''
+        errs=[]
+        result=[]
+        tc=Counter()
+        for line in titles.splitlines():
+            title=Title(line,ptp.grammar)
+        try: 
+            title.pyparse()
+            title.lookup(em)
+            result.append(title)    
+            tc["success"]+=1
+        except Exception as ex:
+            tc["fail"]+=1
+            errs.append(ex)   
+        return tc,errs,result     
+ 
     
     @staticmethod    
     def fromFile(filePath,mode='wikidata'):

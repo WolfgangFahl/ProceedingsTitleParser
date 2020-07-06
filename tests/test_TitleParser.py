@@ -252,7 +252,21 @@ class TestProceedingsTitleParser(unittest.TestCase):
         d.addYears()
         print (d.tokens)
         d.write()
-
+        
+    def testError(self):
+        ''' test error handling according to https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/4 '''
+        ptp=ProceedingsTitleParser.getInstance()
+        # get the open research EventManager
+        em=OpenResearch.getEventManager()  
+        titles='Tagungsband des 17. Workshops "Software Engineering im Unterricht der Hochschulen" 2020 (SEUH 2020),Innsbruck, Österreich, 26. - 27.02.2020.'
+        tc,errs,result=TitleParser.fromLines(ptp,em,titles)  
+        # there should be a faile dline
+        self.assertEquals(1,tc["fail"])
+        self.assertEquals(1,len(errs))
+        err=errs[0]
+        self.assertTrue("Expected" in str(err))
+        self.assertEquals(0,len(result))
+   
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

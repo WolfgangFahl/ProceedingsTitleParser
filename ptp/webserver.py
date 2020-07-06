@@ -10,10 +10,9 @@ import os
 from flask.helpers import send_from_directory
 import argparse
 import sys
-from ptp.titleparser import ProceedingsTitleParser, Title
+from ptp.titleparser import ProceedingsTitleParser, TitleParser
 from ptp.openresearch import OpenResearch
 from ptp.event import EventManager
-from collections import Counter
 
 scriptdir=os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,static_url_path='',static_folder=scriptdir+'/../web', template_folder=scriptdir+'/../templates')
@@ -34,19 +33,7 @@ def index(titles="",tc=None,errs=None,result=None,message=None):
 def parseTitles():
     """ endpoint for proceedings title parsing"""
     titles=request.form.get('titles')
-    errs=[]
-    result=[]
-    tc=Counter()
-    for line in titles.splitlines():
-        title=Title(line,ptp.grammar)
-        try: 
-            title.pyparse()
-            title.lookup(em)
-            result.append(title)    
-            tc["success"]+=1
-        except Exception as ex:
-            tc["fail"]+=1
-            errs.append(ex)        
+    tc,errs,result=TitleParser.fromLines(ptp,em,titles)
     return index(titles,tc,errs,result)
 
 if __name__ == '__main__':
