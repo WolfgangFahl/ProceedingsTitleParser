@@ -35,7 +35,7 @@ getCEURWS() {
   if [ ! -f $sampletxt ]
   then
     echo "filtering proceeding titles from $samplehtml into $sampletxt"
-    cat $samplehtml  | python3 -c 'import html, sys; [print(html.unescape(l), end="") for l in sys.stdin]' | awk '
+    cat $samplehtml  | python3 -c 'import html, sys; [print(html.unescape(l), end="") for l in sys.stdin]' | gawk '
 BEGIN {
  ignorelines=1
 }
