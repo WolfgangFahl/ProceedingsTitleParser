@@ -35,14 +35,42 @@ getCEURWS() {
   if [ ! -f $sampletxt ]
   then
     echo "filtering proceeding titles from $samplehtml into $sampletxt"
-    cat $samplehtml | grep "#FFFFFF" -A3 | grep -vi "edited by:" | python3 -c 'import html, sys; [print(html.unescape(l), end="") for l in sys.stdin]' | awk '
+    cat $samplehtml  | python3 -c 'import html, sys; [print(html.unescape(l), end="") for l in sys.stdin]' | awk '
+BEGIN {
+ ignorelines=1
+}
+/MAINTABLE/ { ignorelines=0; next }
+ignorelines { next }
 # ignore
+# get Vol from e.g.
+# <a href="http://ceur-ws.org/Vol-2632/">MIning and REasoning with Legal texts.</a>
+/ONLINE:.*<[Aa]\s+(HREF|href)=".*">.*<\/[aA]>/ {
+  found=match($0,/[#/]Vol-[0-9]{1,4}/)
+  if (found) {
+     vol=substr($0, RSTART+1, RLENGTH-1)
+     printf("|id=%s\n",vol)
+     if (vol=="Vol-1")
+       ignorelines=1
+  }
+  next
+}
+/<[Aa]\s+(HREF|href)=".*">/,/<\/[aA]>/ { next }
+/ftp\/pub/ { next }
+/ARCHIVE:/ {next }
+/Published on CEUR-WS:/ { next }
+/<[aA]\sname/ { next }
 /Edited by: / { next }
 /<font>/ { next }
 /<font size=.?-2.?>/ { next }
 /<\/font>/ { next }
+/<TD\salign="left"\sbgcolor="#DCDBD7">/ { next }
+/#00000/ { next }
+/#CCEBC7/ { next }
+/#F0D2F5/ { next }
 /<\/TD>/ { next }
-/<[Aa] (HREF|href)=".*">.*<\/[aA]>/ { next }
+/<\/td>/ { next }
+/<[\/]?table|TABLE>/ { next }
+/<[\/]?tr|TR>/ { next }
 /--/ { print ""; next }
 # FILTER raw html
 {

@@ -17,20 +17,24 @@ class TitleParser(object):
     parser for Proceeding titles
     '''
 
-    def __init__(self,name=None):
+    def __init__(self,name=None,ptp=None,dictionary=None,em=None):
         '''
         Constructor
         '''
         self.name=name
+        self.ptp=ptp
+        self.dictionary=dictionary
+        self.em=em
+        self.records=[]
         
-    @staticmethod
-    def fromLines(ptp,dictionary,em,titles):
+    def parseAll(self):
         ''' get parse result with the given proceedings title parser, entity manager and list of titles '''
         errs=[]
         result=[]
         tc=Counter()
-        for line in titles.splitlines():
-            title=Title(line,ptp.grammar,dictionary=dictionary)
+        for record in self.records:
+            eventTitle=record['title']
+            title=Title(eventTitle,self.ptp.grammar,dictionary=self.dictionary)
             try: 
                 notfound=title.parse()
                 title.pyparse()
@@ -38,18 +42,12 @@ class TitleParser(object):
             except Exception as ex:
                 tc["fail"]+=1
                 errs.append(ex)
-            title.lookup(em,notfound)
+            title.lookup(self.em,notfound)
             result.append(title) 
         return tc,errs,result     
  
-    
-    @staticmethod    
-    def fromFile(filePath,mode='wikidata'):
-        ''' read all lines from the given filePath and return a Parser '''
-        tp=TitleParser()
-        with open(filePath) as f:
-            lines=f.readlines()
-        tp.lines=[]
+    def fromLines(self,lines,mode='wikidata'):
+        ''' add records from the given lines '''
         for line in lines:
             if mode=="wikidata":
                 if "@en" in line and "Proceedings of" in line:
@@ -59,16 +57,30 @@ class TitleParser(object):
                     qref=subject.split("<")[1]
                     qref=qref.split(">")[0]
                     title=parts[1]
-                    tp.lines.append({'q': qref, 'title': title})
+                    self.records.append({'source':'wikidata','id': qref, 'title': title})
             elif mode=="dblp":
                 m=re.match("<title>(.*)</title>",line)
                 if m:
                     title=m.groups()[0]
-                    tp.lines.append({'title': title})        
-            else:
+                    self.records.append({'title': title})        
+            elif mode=="CEUR-WS":
+                parts=line.strip().split("|")
+                title=parts[0]
+                vol=None
+                if len(parts)>1:
+                    vol=parts[1]
+                self.records.append({'source':'CEUR-WS','id': vol,'title': title})
+            elif mode=="line":
                 title=line.strip()
-                tp.lines.append({'title': title})
-        return tp   
+                self.records.append({'source':'line', 'title': title})    
+            else:
+                raise Exception("unknown mode %s" % (mode))  
+        
+    def fromFile(self,filePath,mode='wikidata'):
+        ''' read all lines from the given filePath and return a Parser '''
+        with open(filePath) as f:
+            lines=f.readlines()
+        self.fromLines(lines,mode)
    
 class ProceedingsTitleParser(object):
     ''' a pyparsing based parser for Proceedings Titles supported by a dictionary'''
@@ -137,6 +149,7 @@ class ProceedingsTitleParser(object):
         
 class Title(object):
     ''' a single Proceedings title '''
+    special=['.',',',':','[',']','"','(',')']
    
     def __init__(self,line,grammar=None,dictionary=None):
         ''' construct me from the given line and dictionary '''
@@ -145,7 +158,7 @@ class Title(object):
             for blanktoken in dictionary.blankTokens:
                 blankless=blanktoken.replace(" ","_")
                 line=line.replace(blanktoken,blankless) 
-        self.tokens=line.split(' ')
+        self.tokens=re.split(r'[ ,.()"\[\]]',line)
         self.dictionary=dictionary
         self.enum=None
         self.parseResult=None
@@ -217,7 +230,7 @@ class Title(object):
                     self.info["ordinal"]=self.enum
                 self.info[dtoken["type"]]=token
             else:
-                self.notfound.append(token)
+                self.notfound.append(self.dictionary.searchToken(token))
         return self.notfound            
     
     def pyparse(self):
@@ -249,16 +262,22 @@ class Dictionary(object):
         clause=self.getClause(tokenType)
         group=Group(Optional(oneOf(clause)))(tokenType)
         return group
-        
+    
+    def searchToken(self,token): 
+        ''' replace the given token with it's search equivalent by removing special chars '''
+        search=token
+        for special in Title.special:
+            search=token.replace(special,'')
+        return search
+    
     def getToken(self,token):
         ''' check if this dictionary contains the given token '''
         token=token.replace('_',' ') # restore blank
-        for postfix in ['','.',',',':','[',']']:
-            search=token.replace(postfix,'')
-            if search in self.tokens:
-                dtoken=self.tokens[search]
-                dtoken["label"]=search
-                return dtoken
+        search=self.searchToken(token)
+        if search in self.tokens:
+            dtoken=self.tokens[search]
+            dtoken["label"]=search
+            return dtoken
         return None
     
     @staticmethod

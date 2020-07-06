@@ -10,17 +10,11 @@ import os
 from flask.helpers import send_from_directory
 import argparse
 import sys
-from ptp.titleparser import ProceedingsTitleParser, TitleParser
-from ptp.openresearch import OpenResearch
-from ptp.event import EventManager
+from ptp.lookup import Lookup
 
 scriptdir=os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,static_url_path='',static_folder=scriptdir+'/../web', template_folder=scriptdir+'/../templates')
-ptp=ProceedingsTitleParser.getInstance()
-dictionary=ProceedingsTitleParser.getDictionary()
-# get the open research EventManager
-em=OpenResearch.getEventManager()
-  
+lookup=Lookup("webserver")
 
 @app.route('/')
 def home():
@@ -33,9 +27,11 @@ def index(titles="",tc=None,errs=None,result=None,message=None):
 @app.route('/parse', methods=['POST'])
 def parseTitles():
     """ endpoint for proceedings title parsing"""
-    titles=request.form.get('titles')
-    tc,errs,result=TitleParser.fromLines(ptp,dictionary,em,titles)
-    return index(titles,tc,errs,result)
+    titleLines=request.form.get('titles')
+    tp=lookup.tp
+    tp.fromLines(titleLines.split(), 'line')
+    tc,errs,result=tp.parseAll()
+    return index(titleLines,tc,errs,result)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Proceedings Title Parser webservice")

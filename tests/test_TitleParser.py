@@ -12,6 +12,7 @@ import networkx as nx
 import os
 import getpass
 from ptp.openresearch import OpenResearch
+from ptp.lookup import Lookup
 
 class TestProceedingsTitleParser(unittest.TestCase):
     """ test the parser for Proceedings titles"""
@@ -24,23 +25,24 @@ class TestProceedingsTitleParser(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-    def getTitleParser(self,name,expectedLines,mode="wikidata"):
+    
+    def getTitleParser(self,name,expectedRecords,mode="wikidata"):
+        ''' get a title parser for the given name '''
         titleFile=self.titlesdir+name
-        tp=TitleParser.fromFile(titleFile,mode)
-        tp.name=name
-        print ("%6d lines found at least %6d expected" % (len(tp.lines),expectedLines))
-        self.assertTrue(expectedLines<=len(tp.lines))
+        tp=TitleParser(name=name)
+        tp.fromFile(titleFile,mode)
+        print ("%6d records found at least %6d expected" % (len(tp.records),expectedRecords))
+        self.assertTrue(expectedRecords<=len(tp.records))
         return tp 
     
     def getParser(self):
         return ProceedingsTitleParser.getInstance()
        
-    def tryParse(self,line,parser,tc,qref=None,doprint=False):
+    def tryParse(self,line,parser,tc,eventId=None,doprint=False):
         """ try parsing the given line and return the title"""
         title=Title(line,parser.grammar)
-        if qref is not None and self.debug:
-            print (qref) 
+        if eventId is not None and self.debug:
+            print ("id=%s" % (eventId)) 
         if doprint:    
             print (line)
         try: 
@@ -125,12 +127,12 @@ class TestProceedingsTitleParser(unittest.TestCase):
         parser=self.getParser()
         tc=Counter()
         lineCount=0
-        for line in tp.lines:
-            qref=None
-            if "q" in line:
-                qref=line["q"]
+        for record in tp.records:
+            eventId=None
+            if "id" in record:
+                eventId=record["id"]
             lineCount=lineCount+1    
-            self.tryParse(line["title"],parser,tc,qref=qref,doprint=lineCount<=limit)
+            self.tryParse(record["title"],parser,tc,eventId=eventId,doprint=lineCount<=limit)
         print(tc.most_common(2))   
         self.assertGreater(tc["success"], minSuccess)     
                
@@ -155,11 +157,11 @@ class TestProceedingsTitleParser(unittest.TestCase):
         tp=self.getTitleParser("proceedings-wikidata.txt",16000)
         d=ProceedingsTitleParser.getDictionary()
         tc=Counter()
-        for line in tp.lines:
-            title=Title(line["title"],dictionary=d)
+        for record in tp.records:
+            title=Title(record["title"],dictionary=d)
             title.parse()
             if title.enum is not None:
-                print ("%d: %s" % (title.enum,line))
+                print ("%d: %s" % (title.enum,record))
                 print ("    %s" % title.info)
                 tc[title.enum]+=1
         print(tc.most_common(250))     
@@ -173,8 +175,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
         known=0
         total=0
         tclist=[]
-        for line in tp.lines:
-            title=Title(line["title"],d)
+        for record in tp.records:
+            title=Title(record["title"],d)
             tclist.append(len(title.tokens))
             for token in title.tokens:
                 total+=1
@@ -255,40 +257,45 @@ class TestProceedingsTitleParser(unittest.TestCase):
         
     def testError(self):
         ''' test error handling according to https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/4 '''
-        ptp=ProceedingsTitleParser.getInstance()
-        dictionary=ProceedingsTitleParser.getDictionary()
-        # get the open research EventManager
-        em=OpenResearch.getEventManager()  
-        titles='Tagungsband des 17. Workshops "Software Engineering im Unterricht der Hochschulen" 2020 (SEUH 2020),Innsbruck, Österreich, 26. - 27.02.2020.'
-        tc,errs,result=TitleParser.fromLines(ptp,dictionary,em,titles)  
-        # there should be a faile dline
+        lookup=Lookup("testError")
+        tp=lookup.tp
+        self.assertTrue("Innsbruck" in tp.dictionary.tokens)
+        titles=['Tagungsband des 17. Workshops "Software Engineering im Unterricht der Hochschulen" 2020 (SEUH 2020),Innsbruck, Österreich, 26. - 27.02.2020.']
+        tp.fromLines(titles, 'line')
+        tc,errs,result=tp.parseAll()
+        # there should be a failed entry in the counter
         self.assertEquals(1,tc["fail"])
         self.assertEquals(1,len(errs))
         err=errs[0]
         self.assertTrue("Expected" in str(err))
         self.assertEquals(1,len(result))
+        title=result[0]
+        print (title.metadata())
+        self.assertTrue('city' in title.metadata())
+        print (title.notfound)
         
     def testNERMode(self):
         ''' test named entity recognition mode '''
-        ptp=ProceedingsTitleParser.getInstance()
-        dictionary=ProceedingsTitleParser.getDictionary()
-        em=OpenResearch.getEventManager()
-        titles='ATVA 2020 18th International Symposium on Automated Technology for Verification and Analysis'
-        tc,errs,result=TitleParser.fromLines(ptp,dictionary,em,titles)  
+        lookup=Lookup("testNerMode")
+        tp=lookup.tp
+        titles=['ATVA 2020 18th International Symposium on Automated Technology for Verification and Analysis',
+        'Proceedings of the 8th International Workshop on Bibliometric-enhanced Information Retrieval (BIR)co-located with the 41st European Conference on Information Retrieval (ECIR 2019)Cologne, Germany, April 14th, 2019.']
+        tp.fromLines(titles,'line')  
+        tc,errs,result=tp.parseAll()
         print (tc)
         print (errs)
         print (result)
         # make sure we have exactly one result
-        self.assertEquals(1,len(result))
-        title=result[0]
-        print (title)
-        print (title.info)
-        print (title.metadata())
-        print (title.notfound)
-        # make sure we found the relevant event
-        self.assertTrue(title.event is not None)
-        
-   
+        self.assertEquals(2,len(result))
+        for title in result:
+            print (title)
+            print (title.info)
+            print (title.metadata())
+            print (title.notfound)
+            # make sure we found the relevant event
+            self.assertTrue(title.event is not None)
+            print (title.event.url)
+       
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
