@@ -29,7 +29,7 @@ def parseTitles():
     """ endpoint for proceedings title parsing"""
     titleLines=request.form.get('titles')
     tp=lookup.tp
-    tp.fromLines(titleLines.splitlines(), 'line')
+    tp.fromLines(titleLines.splitlines(), 'line',clear=True)
     tc,errs,result=tp.parseAll()
     return index(titleLines,tc,errs,result)
 
