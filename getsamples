@@ -160,6 +160,7 @@ then
 else
   echo "$sampledir directory already exists"
 fi
-#getCEURWS
-#getText
+
 getCrossRef
+getCEURWS
+getText
