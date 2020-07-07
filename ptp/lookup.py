@@ -18,6 +18,7 @@ class Lookup(object):
         self.ptp=ProceedingsTitleParser.getInstance()
         self.dictionary=ProceedingsTitleParser.getDictionary()
         # get the open research EventManager
-        self.em=OpenResearch.getEventManager()
-        self.tp=TitleParser(name=name,ptp=self.ptp,dictionary=self.dictionary,em=self.em) 
+        self.opr=OpenResearch()
+        self.opr.initEventManager()
+        self.tp=TitleParser(name=name,ptp=self.ptp,dictionary=self.dictionary,em=self.opr.em) 
         

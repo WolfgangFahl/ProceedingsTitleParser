@@ -13,10 +13,12 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self):
+    def __init__(self,name,mode='json'):
         '''
         Constructor
         '''
+        self.name=name
+        self.mode=mode
         self.events={}
         self.eventsByAcronym={}
   
@@ -51,32 +53,37 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                         print(pe)
                     pass
     
-    
-    @staticmethod
-    def isCached(mode='json'):
-        if mode=='json':
-            result=os.path.isfile(EventManager.getCacheFile()+".json")
+    def isCached(self):
+        ''' check whether there is a file containing cached 
+        data for me '''
+        result=os.path.isfile(self.getCacheFile())
         return result
         
-    @staticmethod
-    def getCacheFile():    
+    def getCacheFile(self):
+        ''' get the path to the file for my cached data '''    
         path=os.path.dirname(__file__)
         cachedir=path+"/../cache/"
-        return cachedir+"events"
+        cachepath="%s/%s-%s.%s" % (cachedir,self.name,"events",self.mode)
+        return cachepath
     
-    @staticmethod
-    def fromStore(mode='json'):
-        cacheFile=EventManager.getCacheFile()
+    def fromStore(self):
+        cacheFile=self.getCacheFile()
         em=None
-        if mode=="json":   
+        if self.mode=="json":   
             em=JsonAbleMixin.readJson(cacheFile)
-        return em
+        else:
+            raise Exception("unsupported store mode %s",self.mode)
+        if em is not None:
+            if em.events is not None:
+                self.events=em.events     
         
-    def store(self,mode="json"):
+    def store(self):
         ''' store me '''
-        cacheFile=EventManager.getCacheFile()
-        if mode=="json":    
+        cacheFile=self.getCacheFile()
+        if self.mode=="json":    
             self.writeJson(cacheFile)
+        else:
+            raise Exception("unsupported store mode %s",self.mode)    
     
 
 class Event(object):

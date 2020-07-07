@@ -33,16 +33,17 @@ class TestOpenResearch(unittest.TestCase):
     def testOpenResearchCaching(self):
         ''' test caching of open research results '''
         opr=OpenResearch(debug=True)
-        em=opr.cacheEvents(limit=20000,batch=2000)
+        opr.cacheEvents(opr.em,limit=20000,batch=2000)
         minexpected=8500
-        self.assertTrue(len(em.events)>=minexpected)
-        em.store()
-        self.assertTrue(EventManager.isCached())
+        self.assertTrue(len(opr.em.events)>=minexpected)
+        opr.em.store()
+        self.assertTrue(opr.em.isCached())
         start_time = time.time()
-        em2=EventManager.fromStore()
+        opr2=OpenResearch(debug=True)
+        opr2.em.fromStore()
         print("fromStore took %5.1f s" % (time.time() - start_time))
-        self.assertEquals(len(em2.events),len(em.events))
-        zeus2018=em2.lookup("ZEUS 2018")
+        self.assertEquals(len(opr2.em.events),len(opr.em.events))
+        zeus2018=opr2.em.lookup("ZEUS 2018")
         self.assertTrue(zeus2018 is not None)
         print (zeus2018.asJson())
             
@@ -58,15 +59,19 @@ class TestOpenResearch(unittest.TestCase):
         pass
     
     def testExtractAcronyms(self):
-        em=OpenResearch.getEventManager()
-        found=len(em.eventsByAcronym)
+        ''' test acronym extraction from openresearch '''
+        opr=OpenResearch()
+        opr.initEventManager()
+        found=len(opr.em.eventsByAcronym)
+        print ("found %d acronyms" % (found))
         expected=3000
         self.assertTrue(found>=expected)        
         
     
     def testAcronymStructure(self):
         ''' get a histogram of acronyms '''
-        em=OpenResearch.getEventManager()
+        opr=OpenResearch()
+        opr.initEventManager()
         acLenList=[]
         grammars={
             '  with 4digit year': pp.Regex(r'^.{0,10}(19|20)[0-9][0-9].{0,10}$'),
@@ -77,7 +82,7 @@ class TestOpenResearch(unittest.TestCase):
             ' full monty': pp.Regex(r'^(([1-9][0-9]?)th\s)?[A-Z/_-]{2,10}[ -]*(19|20)[0-9][0-9]$') 
             }
         examples=[]
-        for event in em.events.values():
+        for event in opr.em.events.values():
             if event.acronym is not None:
                 acLen=len(event.acronym)
                 acLenList.append(acLen)

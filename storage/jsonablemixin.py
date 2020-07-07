@@ -35,7 +35,10 @@ class JsonAbleMixin(object):
 
     # write me to the json file with the given name (without postfix)
     def writeJson(self, name, postfix=".json"):
-        jsonFileName = name + postfix
+        if not name.endswith(postfix):
+            jsonFileName = name + postfix
+        else:
+            jsonFileName = name    
         json = self.asJson()
         if JsonAbleMixin.debug:
             print("writing %s" % (jsonFileName))

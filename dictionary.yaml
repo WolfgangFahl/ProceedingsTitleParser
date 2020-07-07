@@ -15,6 +15,8 @@ Berlin:
   type: city
 Bethesda:
   type: city
+Bologna:
+  type: city
 Boston:
   type: city
 Brussels:
@@ -25,13 +27,19 @@ Cambridge:
   type: city
 Chicago:
   type: city
+Cologne:
+  type: city
 Copenhagen:
   type: city
 Edinburgh:
   type: city
+Frankfurt:
+  type: city
 Geneva:
   type: city
 Innsbruck:
+  type: city
+Hamburg:
   type: city
 Helsinki:
   type: city
@@ -43,7 +51,13 @@ Kyoto:
   type: city
 Las Vegas:
   type: city
+Leipzig:
+  type: city
 London:
+  type: city
+Lyon:
+  type: city
+Luzern:
   type: city
 Madrid:
   type: city

@@ -232,7 +232,9 @@ class TestProceedingsTitleParser(unittest.TestCase):
     def testTitleParser(self):
         ''' test reading the titles '''
         showHistogram=True
-        em=OpenResearch.getEventManager()
+        opr=OpenResearch()
+        opr.initEventManager()
+        em=opr.em
         for tp in [
                 self.getTitleParser("proceedings-ceur-ws.txt",2629,mode='CEUR-WS'),
                 self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),

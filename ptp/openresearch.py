@@ -20,6 +20,7 @@ class OpenResearch(object):
         '''
         self.smw=self.getSMW()
         self.debug=debug
+        self.em=EventManager('or')
         
     def getAsk(self,condition,limit=50,offset=0):    
         ask="""{{#ask: [[%s]]
@@ -40,11 +41,10 @@ class OpenResearch(object):
 """ % (condition,limit,offset)
         return ask
 
-    def cacheEvents(self,limit=500,batch=5000):
-        em=EventManager()
+    def cacheEvents(self,em,limit=500,batch=5000):
         offset=0
         if self.debug:
-            print("retrieving events for cache")
+            print("retrieving events for openresearch.org cache")
         while True:
             found,event=self.cacheEventBatch(em,limit=batch,offset=offset)
             if self.debug:
@@ -93,13 +93,10 @@ class OpenResearch(object):
         wikibot=WikiBot.ofWikiId(wikiId)
         return  wikibot
     
-    @staticmethod
-    def getEventManager():
-        if not EventManager.isCached():
-            opr=OpenResearch(debug=True)
-            em=opr.cacheEvents(limit=20000,batch=2000)
-            em.store()
+    def initEventManager(self):
+        if not self.em.isCached():
+            self.cacheEvents(self.em,limit=20000,batch=2000)
+            self.em.store()
         else:
-            em=EventManager.fromStore()    
-        em.extractAcronyms()
-        return em
+            self.em.fromStore()    
+        self.em.extractAcronyms()
