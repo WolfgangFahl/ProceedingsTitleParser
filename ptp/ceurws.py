@@ -31,9 +31,10 @@ class CEURWS(object):
             print(tc)
             print("%d errs %d titles" % (len(errs),len(result)))
         self.em=EventManager("ceur-ws")
-        if self.debug:
-            for title in result:
-                if 'acronym' in title.metadata():
+        for title in result:
+            if 'acronym' in title.metadata():
+                if self.debug:
                     print(title.metadata())
+                    
                     
         

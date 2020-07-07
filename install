@@ -2,6 +2,18 @@
 # WF 2020-03-25
 os=$(uname -a)
 useroption="--user"
+
+autoinstall() {
+  local l_cmd="$1"
+  local l_package="$2"
+  echo "checking whether $_lcmd is installed ..."
+  which $_lcmd 
+  if [ $? -ne 0 ]
+  then
+    echo  "installing $l_cmd from package $l_package ..."
+    $install $l_package
+  fi
+}
 case $os in
   Darwin*)
    pip="sudo -H pip"
@@ -20,6 +32,7 @@ case $os in
    ;;
 esac
 #$install python3-pip
+autoinstall jq jq
 $pip --version
 echo "installing required python modules with useroption $useroption"
 $pip install $useroption -r requirements.txt

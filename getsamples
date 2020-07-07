@@ -100,6 +100,59 @@ getText() {
   done
 }
 
+#
+# download from crossref RESTful API via cursor
+#
+downloadWithCursor() {
+  local l_rows="$1"
+  local l_index="$2"
+  # remove quotes of cursor
+  local l_cursor=$3
+  target=$sampledir/crossref-$l_index.json
+  src="https://api.crossref.org/types/proceedings/works?select=event,title,DOI&rows=$l_rows&cursor=$l_cursor"
+  download $src $target
+}
+
+#
+# get Crossref data
+# see also https://github.com/TIBHannover/confIDent-dataScraping
+#
+getCrossRef() {
+  rows=1000
+  index=1
+  totalRows=0
+  # force while entry
+  total=$rows
+  downloadWithCursor $rows $index "*"
+  while [ $totalRows -lt $total ]
+  do
+    target=$sampledir/crossref-$index.json
+    status=$(jq '.status' $target | tr -d '"')
+    total=$(jq '.message["total-results"]' $target)
+    # get and remove quotes from cursor
+    cursor=$(jq '.message["next-cursor"]' $target | tr -d '"')
+    startindex=$(jq '.message.query["start-index"]' $target)
+    perpage=$(jq '.message["items-per-page"]' $target)
+    index=$[$index+1]
+    if [ "$status" == "ok" ]
+    then
+      totalRows=$[$totalRows+$rows]
+    else
+      # force while exit
+      totalRows=1
+      total=0
+      # remove invalid
+      mv $target $target.err
+    fi
+    echo "status: $status index: $index $totalRows of $total startindex: $startindex perpage=$perpage"
+    if [ $totalRows -lt $total ]
+    then
+      downloadWithCursor $rows $index $cursor
+    fi
+  done
+  cat $sampledir/crossref-*.json | jq .message.items[].title | cut -f2 -d'[' | cut -f2 -d'"' | grep -v "]" | tr -s '\n' > $sampledir/proceedings-crossref.txt
+}
+
 if [ ! -d $sampledir ]
 then
   echo  "creating $sampledir directory"
@@ -107,5 +160,6 @@ then
 else
   echo "$sampledir directory already exists"
 fi
-getCEURWS
-getText
+#getCEURWS
+#getText
+getCrossRef

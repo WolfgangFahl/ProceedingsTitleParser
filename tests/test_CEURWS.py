@@ -6,7 +6,7 @@ Created on 2020-07-06
 import unittest
 from ptp.ceurws import CEURWS
 
-class TestCEUWS(unittest.TestCase):
+class TestCEURWS(unittest.TestCase):
     ''' test handling proceeding titles retrieved
     from http://ceur-ws.org/ Volumes '''
 
