@@ -106,8 +106,7 @@ getText() {
 downloadWithCursor() {
   local l_rows="$1"
   local l_index="$2"
-  # remove quotes of cursor
-  local l_cursor=$3
+  local l_cursor="$3"
   target=$sampledir/crossref-$l_index.json
   src="https://api.crossref.org/types/proceedings/works?select=event,title,DOI&rows=$l_rows&cursor=$l_cursor"
   download $src $target
@@ -144,10 +143,12 @@ getCrossRef() {
       # remove invalid
       mv $target $target.err
     fi
-    echo "status: $status index: $index $totalRows of $total startindex: $startindex perpage=$perpage"
+    echo "status: $status index: $index $totalRows of $total startindex: $startindex perpage=$perpage cursor:$cursor"
     if [ $totalRows -lt $total ]
     then
-      downloadWithCursor $rows $index $cursor
+      # wait a bit
+      sleep 2
+      downloadWithCursor $rows $index "$cursor"
     fi
   done
   cat $sampledir/crossref-*.json | jq .message.items[].title | cut -f2 -d'[' | cut -f2 -d'"' | grep -v "]" | tr -s '\n' > $sampledir/proceedings-crossref.txt
