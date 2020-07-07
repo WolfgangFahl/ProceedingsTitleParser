@@ -26,7 +26,7 @@ class TitleParser(object):
         self.dictionary=dictionary
         self.em=em
         self.records=[]
-        
+
     def parseAll(self):
         ''' get parse result with the given proceedings title parser, entity manager and list of titles '''
         errs=[]
@@ -35,7 +35,7 @@ class TitleParser(object):
         for record in self.records:
             eventTitle=record['title']
             title=Title(eventTitle,self.ptp.grammar,dictionary=self.dictionary)
-            try: 
+            try:
                 notfound=title.parse()
                 title.pyparse()
                 tc["success"]+=1
@@ -43,10 +43,12 @@ class TitleParser(object):
                 tc["fail"]+=1
                 errs.append(ex)
             title.lookup(self.em,notfound)
-            result.append(title) 
-        return tc,errs,result     
- 
-    def fromLines(self,lines,mode='wikidata'):
+            result.append(title)
+        return tc,errs,result
+
+    def fromLines(self,lines,mode='wikidata',clear=True):
+        if clear:
+            self.records=[]
         ''' add records from the given lines '''
         for line in lines:
             if mode=="wikidata":
@@ -62,7 +64,7 @@ class TitleParser(object):
                 m=re.match("<title>(.*)</title>",line)
                 if m:
                     title=m.groups()[0]
-                    self.records.append({'title': title})        
+                    self.records.append({'title': title})
             elif mode=="CEUR-WS":
                 parts=line.strip().split("|")
                 title=parts[0]
@@ -72,22 +74,22 @@ class TitleParser(object):
                 self.records.append({'source':'CEUR-WS','id': vol,'title': title})
             elif mode=="line":
                 title=line.strip()
-                self.records.append({'source':'line', 'title': title})    
+                self.records.append({'source':'line', 'title': title})
             else:
-                raise Exception("unknown mode %s" % (mode))  
-        
+                raise Exception("unknown mode %s" % (mode))
+
     def fromFile(self,filePath,mode='wikidata'):
         ''' read all lines from the given filePath and return a Parser '''
         with open(filePath) as f:
             lines=f.readlines()
         self.fromLines(lines,mode)
-   
+
 class ProceedingsTitleParser(object):
     ''' a pyparsing based parser for Proceedings Titles supported by a dictionary'''
     year=Regex(r'(19|20)?[0123456789][0123456789]')
     acronymGroup=Optional("("+Group(Word(alphas)+Optional(year))("acronym")+")")
     instance=None
-    
+
     @staticmethod
     def getInstance():
         ''' get a singleton instance of the ProceedingsTitleParser '''
@@ -95,17 +97,17 @@ class ProceedingsTitleParser(object):
             d=ProceedingsTitleParser.getDictionary()
             ProceedingsTitleParser.instance=ProceedingsTitleParser(d)
         return ProceedingsTitleParser.instance
-   
+
     @staticmethod
     def getDictionary():
         path=os.path.dirname(__file__)
         d=Dictionary.fromFile(path+"/../dictionary.yaml")
         return d
-        
+
     def __init__(self, dictionary=None):
         ''' constructor '''
         proc=Keyword("Proceedings") | Keyword("proceedings")
-        descWord=~proc + Word(alphas+nums+"™æéç)>/'&—‐") # watch the utf-8 dash! 
+        descWord=~proc + Word(alphas+nums+"™æéç)>/'&—‐") # watch the utf-8 dash!
         initials="("+OneOrMore(Word(alphas)+".")+")"
         desc=Optional("[")+OneOrMore(descWord|initials)+oneOf(". ? : ( , ; -")
         enumGroup=dictionary.getGroup("enum")
@@ -145,19 +147,19 @@ class ProceedingsTitleParser(object):
             +ProceedingsTitleParser.acronymGroup \
             +Optional(oneOf("] )")) \
             +whereAndWhen
-        pass     
-        
+        pass
+
 class Title(object):
     ''' a single Proceedings title '''
     special=['.',',',':','[',']','"','(',')']
-   
+
     def __init__(self,line,grammar=None,dictionary=None):
         ''' construct me from the given line and dictionary '''
         self.line=line
         if dictionary is not None:
             for blanktoken in dictionary.blankTokens:
                 blankless=blanktoken.replace(" ","_")
-                line=line.replace(blanktoken,blankless) 
+                line=line.replace(blanktoken,blankless)
         self.tokens=re.split(r'[ ,.()"\[\]]',line)
         self.dictionary=dictionary
         self.enum=None
@@ -166,11 +168,11 @@ class Title(object):
         self.info={}
         self.md=None
         self.event=None
-        
+
     def lookup(self,em,wordList=None):
         ''' look me up with the given event manager use my acronym or optionally a list of Words'''
         if "acronym" in self.metadata():
-            acronym=self.md["acronym"] 
+            acronym=self.md["acronym"]
             if acronym is not None:
                 self.event=em.lookup(acronym)
                 pass
@@ -181,9 +183,9 @@ class Title(object):
                 if event is not None:
                     self.event=event
                     return
-        
+
     def __str__(self):
-        ''' create a string representation of this title '''    
+        ''' create a string representation of this title '''
         text=""
         delim=""
         if self.parseResult is not None:
@@ -191,8 +193,8 @@ class Title(object):
                 if isinstance(pitem,ParseResults):
                     text+="%s%s=%s" % (delim,pitem.getName(),pitem)
                     delim="\n"
-        return text    
-    
+        return text
+
     def metadata(self):
         ''' extract the metadata of the given title '''
         if self.md is None:
@@ -207,47 +209,47 @@ class Title(object):
                 for name in self.info:
                     value=self.info[name]
                     if not name in self.md:
-                        self.md[name]=value                
-        return self.md    
-        
+                        self.md[name]=value
+        return self.md
+
     def dump(self):
         ''' debug print my parseResult '''
         print (self.parseResult)
         for pitem in self.parseResult:
             if isinstance(pitem,ParseResults):
                 print ("%s=%s" % (pitem.getName(),pitem))
-            else:     
-                print (pitem)   
-        pass        
-    
+            else:
+                print (pitem)
+        pass
+
     def parse(self):
         self.notfound=[]
         for token in self.tokens:
             dtoken=self.dictionary.getToken(token)
             if dtoken is not None:
                 if dtoken["type"]=="enum":
-                    self.enum=dtoken["value"] 
+                    self.enum=dtoken["value"]
                     self.info["ordinal"]=self.enum
                 self.info[dtoken["type"]]=token
             else:
                 self.notfound.append(self.dictionary.searchToken(token))
-        return self.notfound            
-    
+        return self.notfound
+
     def pyparse(self):
         if self.grammar is not None:
-            self.parseResult=self.grammar.parseString(self.line)  
-        
+            self.parseResult=self.grammar.parseString(self.line)
+
 class Dictionary(object):
     ''' a dictionary to support title parsing '''
-    
+
     def __init__(self):
         self.blankTokens={}
-        pass     
-    
+        pass
+
     def countType(self,tokenType):
         clause=self.getClause(tokenType)
         return len(clause)
-    
+
     def getClause(self,tokenType):
         ''' get a clause to be used for OneOf pyparsing Operator from dictionary for the given type'''
         clause=[]
@@ -256,20 +258,20 @@ class Dictionary(object):
             if entry["type"]==tokenType:
                 clause.append(key)
         return clause
-    
+
     def getGroup(self,tokenType):
         ''' get a group for the given token Type'''
         clause=self.getClause(tokenType)
         group=Group(Optional(oneOf(clause)))(tokenType)
         return group
-    
-    def searchToken(self,token): 
+
+    def searchToken(self,token):
         ''' replace the given token with it's search equivalent by removing special chars '''
         search=token
         for special in Title.special:
             search=token.replace(special,'')
         return search
-    
+
     def getToken(self,token):
         ''' check if this dictionary contains the given token '''
         token=token.replace('_',' ') # restore blank
@@ -279,7 +281,7 @@ class Dictionary(object):
             dtoken["label"]=search
             return dtoken
         return None
-    
+
     @staticmethod
     def fromFile(yamlPath):
         d=Dictionary()
@@ -287,13 +289,13 @@ class Dictionary(object):
         d.read()
         d.blankHandling()
         return d
-    
+
     def blankHandling(self):
         ''' handle tokens that contain spaces e.g. "Great Britain", "San Francisco", "New York", "United States"'''
         for token in self.tokens:
             if " " in token:
                 self.blankTokens[token]=token
-        
+
     def read(self,yamlPath=None):
         ''' read the dictionary from the given yaml path'''
         if yamlPath is None:
@@ -301,23 +303,23 @@ class Dictionary(object):
         with open(yamlPath, 'r') as stream:
             self.tokens = yaml.safe_load(stream)
         pass
-        
-    def write(self,yamlPath=None):   
-        ''' write the dictionary to a yaml file given py the yamlPath ''' 
+
+    def write(self,yamlPath=None):
+        ''' write the dictionary to a yaml file given py the yamlPath '''
         if yamlPath is None:
             yamlPath=self.yamlPath
-        sortedTokens=OrderedDict(sorted(self.tokens.items(), key=lambda x: x[1]['type']))    
+        sortedTokens=OrderedDict(sorted(self.tokens.items(), key=lambda x: x[1]['type']))
         self.tokens=dict(sortedTokens)
         # Write YAML file
         with io.open(yamlPath, 'w', encoding='utf8') as outfile:
             yaml.dump(self.tokens, outfile, default_flow_style=False, sort_keys=False,allow_unicode=True)
         with open(yamlPath, 'r') as original: data = original.read()
-        comment="""# 
+        comment="""#
 #  Proceedings title dictionary
-# 
+#
 """
-        with open(yamlPath, 'w') as modified: modified.write(comment + data)    
-            
+        with open(yamlPath, 'w') as modified: modified.write(comment + data)
+
     def add(self,token,tokenType,value=None):
         ''' add or replace the token with the given type to the dictionary '''
         lookup={}
@@ -325,7 +327,7 @@ class Dictionary(object):
         if value is not None:
             lookup['value']=value
         self.tokens[token]=lookup
-        
+
     def addEnums(self):
         ''' add enumerations '''
         # https://stackoverflow.com/a/20007730/1497139
@@ -339,21 +341,21 @@ class Dictionary(object):
             self.add(ordinal4i,'enum',i)
             title=ordinal4i.title()
             self.add(title,'enum',i)
-            
+
     def addYears(self):
         for year in range(1960,2030):
             self.add("%d" % year,'year',year)
-    
+
     def toRoman(self,number):
         ''' https://stackoverflow.com/a/11749642/1497139 '''
-        if (number < 0) or (number > 3999): 
+        if (number < 0) or (number > 3999):
             raise Exception("number needs to be between 1 and 3999")
-        if (number < 1): return ""            
+        if (number < 1): return ""
         if (number >= 1000): return "M" + self.self.toRoman(number - 1000)
         if (number >= 900): return "CM" + self.toRoman(number - 900)
         if (number >= 500): return "D" + self.toRoman(number - 500)
         if (number >= 400): return "CD" + self.toRoman(number - 400)
-        if (number >= 100): return "C" + self.toRoman(number - 100)            
+        if (number >= 100): return "C" + self.toRoman(number - 100)
         if (number >= 90): return "XC" + self.toRoman(number - 90)
         if (number >= 50): return "L" + self.toRoman(number - 50)
         if (number >= 40): return "XL" + self.toRoman(number - 40)
