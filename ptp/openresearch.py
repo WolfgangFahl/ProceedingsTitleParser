@@ -64,6 +64,7 @@ class OpenResearch(object):
         for askRecord in askResult.values():
             event=Event()
             event.fromAskResult(askRecord)
+            event.source="OPEN RESEARCH"
             em.add(event)
         return len(askResult.values()),event
         

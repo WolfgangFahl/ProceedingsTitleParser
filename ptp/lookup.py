@@ -4,21 +4,27 @@ Created on 06.07.2020
 @author: wf
 '''
 from ptp.titleparser import ProceedingsTitleParser,TitleParser
-from ptp.openresearch import OpenResearch
+import ptp.openresearch 
+import ptp.ceurws 
 
 class Lookup(object):
     '''
     Wrapper for TitleParser
     '''
 
-    def __init__(self,name):
+    def __init__(self,name,getAll=True):
         '''
         Constructor
         '''
         self.ptp=ProceedingsTitleParser.getInstance()
         self.dictionary=ProceedingsTitleParser.getDictionary()
         # get the open research EventManager
-        self.opr=OpenResearch()
+        self.opr=ptp.openresearch.OpenResearch()
         self.opr.initEventManager()
-        self.tp=TitleParser(name=name,ptp=self.ptp,dictionary=self.dictionary,em=self.opr.em) 
+        ems=[self.opr.em]
+        if getAll:
+            self.ceurws=ptp.ceurws.CEURWS()
+            self.ceurws.initEventManager()
+            ems.append(self.ceurws.em)
+        self.tp=TitleParser(name=name,ptp=self.ptp,dictionary=self.dictionary,ems=ems) 
         

@@ -42,7 +42,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         """ try parsing the given line and return the title"""
         title=Title(line,parser.grammar)
         if eventId is not None and self.debug:
-            print ("id=%s" % (eventId)) 
+            print ("eventId=%s" % (eventId)) 
         if doprint:    
             print (line)
         try: 
@@ -55,6 +55,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
             return title
         except Exception as ex:
             tc["fail"]+=1
+            print("%s:%s" %(eventId,line))
             print (ex)
             return None
         
@@ -129,8 +130,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
         lineCount=0
         for record in tp.records:
             eventId=None
-            if "id" in record:
-                eventId=record["id"]
+            if "eventId" in record:
+                eventId=record["eventId"]
             lineCount=lineCount+1    
             self.tryParse(record["title"],parser,tc,eventId=eventId,doprint=lineCount<=limit)
         print(tc.most_common(2))   
@@ -165,6 +166,33 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 print ("    %s" % title.info)
                 tc[title.enum]+=1
         print(tc.most_common(250))     
+        
+    def showTypeTable(self,name,d,recordCount,known,total,typeCounters):
+        ''' show the table of found types '''
+ 
+        for tokenType in typeCounters:
+            typeCounter=typeCounters[tokenType]
+            print ("%s: %s" % (tokenType,typeCounter.most_common(5)))
+            
+        print("titles: %d found words: %d of %d %5.1f%%" % (recordCount,known,total,known/total*100))   
+        print ("""
+== %s ==
+{| class="wikitable"
+|-
+! type !! entries !! found !! most common examples: count""" % (name))
+        for tokenType in sorted(typeCounters):
+            typeCounter=typeCounters[tokenType]
+            print ("|-")
+            mc=typeCounter.most_common(5)
+            mcs=""
+            delim=""
+            for item,count in mc:
+                mcs=mcs+"%s%s: %d" % (delim,item,count)
+                delim=", "
+            typeTotal=sum(typeCounter.values())    
+            print ("|%s || %d || %d (%5.1f%%) || %s" % (tokenType,d.countType(tokenType),typeTotal,typeTotal/recordCount*100,mcs))
+        print ("|}")    
+             
            
     def doTestTitleParser(self,tp,em,showHistogramm=False):
         ''' test the title parser '''       
@@ -200,27 +228,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
                     label=dtoken["label"]    
                     typeCounter[label]+=1        
         
-        for tokenType in typeCounters:
-            typeCounter=typeCounters[tokenType]
-            print ("%s: %s" % (tokenType,typeCounter.most_common(5)))
-            
-        print ("""
-{| class="wikitable"
-|-
-! type !! count !! most common examples: count""")
-        for tokenType in sorted(typeCounters):
-            typeCounter=typeCounters[tokenType]
-            print ("|-")
-            mc=typeCounter.most_common(5)
-            mcs=""
-            delim=""
-            for item,count in mc:
-                mcs=mcs+"%s%s: %d" % (delim,item,count)
-                delim=", "
-            print ("|%s || %d || %s" % (tokenType,d.countType(tokenType),mcs))
-        print ("|}")    
-             
-        print("known: %d of %d %5.1f%%" % (known,total,known/total*100))
+        self.showTypeTable(tp.name.replace("proceedings-",""),d,len(tp.records),known,total,typeCounters)
+      
         print(tc.most_common(250))   
         print(kc.most_common(250))     
         if showHistogramm:
@@ -296,8 +305,10 @@ class TestProceedingsTitleParser(unittest.TestCase):
             print (title.metadata())
             print (title.notfound)
             # make sure we found the relevant event
-            self.assertTrue(title.event is not None)
-            print (title.event.url)
+            self.assertTrue(len(title.events)>0)
+            print (title.events)
+            for event in title.events:
+                print (event.url)
        
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

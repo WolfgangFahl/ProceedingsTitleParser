@@ -17,14 +17,14 @@ class TitleParser(object):
     parser for Proceeding titles
     '''
 
-    def __init__(self,name=None,ptp=None,dictionary=None,em=None):
+    def __init__(self,name=None,ptp=None,dictionary=None,ems=None):
         '''
         Constructor
         '''
         self.name=name
         self.ptp=ptp
         self.dictionary=dictionary
-        self.em=em
+        self.ems=ems
         self.records=[]
 
     def parseAll(self):
@@ -35,6 +35,9 @@ class TitleParser(object):
         for record in self.records:
             eventTitle=record['title']
             title=Title(eventTitle,self.ptp.grammar,dictionary=self.dictionary)
+            title.info['source']=record['source']
+            if 'id' in record:
+                title.info['id']=record['id']
             try:
                 notfound=title.parse()
                 title.pyparse()
@@ -42,7 +45,7 @@ class TitleParser(object):
             except Exception as ex:
                 tc["fail"]+=1
                 errs.append(ex)
-            title.lookup(self.em,notfound)
+            title.lookup(self.ems,notfound)
             result.append(title)
         return tc,errs,result
 
@@ -59,7 +62,7 @@ class TitleParser(object):
                     qref=subject.split("<")[1]
                     qref=qref.split(">")[0]
                     title=parts[1]
-                    self.records.append({'source':'wikidata','id': qref, 'title': title})
+                    self.records.append({'source':'wikidata','eventId': qref, 'title': title})
             elif mode=="dblp":
                 m=re.match("<title>(.*)</title>",line)
                 if m:
@@ -70,8 +73,10 @@ class TitleParser(object):
                 title=parts[0]
                 vol=None
                 if len(parts)>1:
-                    vol=parts[1]
-                self.records.append({'source':'CEUR-WS','id': vol,'title': title})
+                    idpart=parts[1]
+                    # id=Vol-2534
+                    vol=idpart.split("=")[1]
+                self.records.append({'source':'CEUR-WS','eventId': vol,'title': title})
             elif mode=="line":
                 title=line.strip()
                 self.records.append({'source':'line', 'title': title})
@@ -167,22 +172,22 @@ class Title(object):
         self.grammar=grammar
         self.info={}
         self.md=None
-        self.event=None
+        self.events=[]
 
-    def lookup(self,em,wordList=None):
+    def lookup(self,ems,wordList=None):
         ''' look me up with the given event manager use my acronym or optionally a list of Words'''
         if "acronym" in self.metadata():
             acronym=self.md["acronym"]
             if acronym is not None:
-                self.event=em.lookup(acronym)
-                pass
+                for em in ems:
+                    events=em.lookup(acronym)
+                    self.events=self.events+events
         if wordList is not None and "year" in self.info:
             year=self.info["year"]
             for word in wordList:
-                event=em.lookup(word+" "+year)
-                if event is not None:
-                    self.event=event
-                    return
+                for em in ems:
+                    events=em.lookup(word+" "+year)
+                    self.events=self.events+events
 
     def __str__(self):
         ''' create a string representation of this title '''

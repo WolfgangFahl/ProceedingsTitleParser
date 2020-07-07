@@ -27,9 +27,9 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         
     def lookup(self,acronym):
         ''' lookup the given event '''
-        result=None
+        result=[]
         if acronym in self.events:
-            result=self.events[acronym]
+            result=[self.events[acronym]]
         elif acronym in self.eventsByAcronym:
             result=self.eventsByAcronym[acronym] 
         return result    
@@ -110,13 +110,23 @@ class Event(object):
                 print("warning country for %s is a list: %s" % (self.event,self.country))
             else:
                 self.country=self.country.replace("Category:","")     
-        self.url="https://www.openresearch.org/wiki/%s" % (self.event)       
+        self.url="https://www.openresearch.org/wiki/%s" % (self.event) 
+        
+    def fromTitle(self,title):
+        md=title.metadata()
+        # fix event field
+        if 'event' in md:
+            md['eventType']=md['event']
+        md['event']=md['acronym']
+        d=self.__dict__
+        for key in md:
+            value=md[key]
+            d[key]=value                     
     
     def asJson(self):
         ''' return me as a JSON record 
         https://stackoverflow.com/a/36142844/1497139 '''
         return json.dumps(self.__dict__,indent=4,sort_keys=True, default=str)
-        
     
     def __str__(self):
         ''' create a string representation of this title '''

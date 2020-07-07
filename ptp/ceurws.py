@@ -4,8 +4,8 @@ Created on 2020-07-06
 @author: wf
 '''
 import os
-from ptp.lookup import Lookup
-from ptp.event import EventManager
+import ptp.lookup
+from ptp.event import EventManager, Event
 
 class CEURWS(object):
     '''
@@ -19,10 +19,11 @@ class CEURWS(object):
         self.debug=debug
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
+        self.em=EventManager("ceur-ws")
         
     def cacheEvents(self):
         ''' test caching the events of CEUR-WS derived from the sample proceeding titles'''
-        self.lookup=Lookup("CEUR-WS")
+        self.lookup=ptp.lookup.Lookup("CEUR-WS",getAll=False)
         tp=self.lookup.tp
         samplefile=self.sampledir+"proceedings-ceur-ws.txt"
         tp.fromFile(samplefile, "CEUR-WS")
@@ -30,11 +31,22 @@ class CEURWS(object):
         if self.debug:
             print(tc)
             print("%d errs %d titles" % (len(errs),len(result)))
-        self.em=EventManager("ceur-ws")
         for title in result:
             if 'acronym' in title.metadata():
                 if self.debug:
                     print(title.metadata())
-                    
-                    
+                if 'id' in title.info:    
+                    event=Event()
+                    event.fromTitle(title)
+                    event.url="http://ceur-ws.org/%s" % (title.info['id'])
+                    self.em.add(event)       
+            
+    def initEventManager(self):
+        ''' init my event manager '''
+        if not self.em.isCached():
+            self.cacheEvents()
+            self.em.store()
+        else:
+            self.em.fromStore()    
+        self.em.extractAcronyms()
         

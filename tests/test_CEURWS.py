@@ -14,7 +14,6 @@ class TestCEURWS(unittest.TestCase):
     def setUp(self):
         pass
 
-
     def tearDown(self):
         pass
 
@@ -22,6 +21,7 @@ class TestCEURWS(unittest.TestCase):
         ''' test CEUR-WS '''
         cw=CEURWS(debug=True)
         cw.cacheEvents()
+        print(len(cw.em.events))
         pass
 
 if __name__ == "__main__":

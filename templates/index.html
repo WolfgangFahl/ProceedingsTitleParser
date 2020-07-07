@@ -42,19 +42,21 @@
 							  <thead>
 							    <tr>
 							      <th scope="col">#</th>
+							      <th scope="col">Source</th>
 							      <th scope="col">Acronym</th>
 							      <th scope="col">Url</th>
 							    </tr>
 							  </thead>
 							  <tbody>
 	                       {% for parsedTitle in result %}
-	                       {% if parsedTitle.event is not none %}
+	                       {% for event in parsedTitle.events  %}
 							    <tr>
 							      <th scope="row">{{ loop.index }}</th>
-							      <td>{{parsedTitle.event.acronym}}</td>
-							      <td><a href='{{parsedTitle.event.url}}'>{{parsedTitle.event.url}}</a></td>
+							      <td>{{event.source}}</td>
+							      <td>{{event.acronym}}</td>
+							      <td><a href='{{event.url}}'>{{event.url}}</a></td>
 							    </tr>
-	                       {%endif %}
+	                       {% endfor %}
 	                       {% endfor %}
 							  </tbody>
 							</table>
@@ -66,9 +68,9 @@
 	                       {% if result is not none %}
 	                       {% for parsedTitle in result %}
 	                       {{parsedTitle.metadata()}}<br>
-	                       {% if parsedTitle.event is not none %}
-	                       {{parsedTitle.event.asJson()}}<br>
-	                       {%endif %}
+	                       {% for event in parsedTitle.events %}
+	                       {{ event.asJson()}}<br>
+	                       {% endfor %}
 	                       {% endfor %}
 	                       {%endif %}
                        </div>
