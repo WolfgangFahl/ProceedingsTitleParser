@@ -129,7 +129,8 @@ getCrossRef() {
     status=$(jq '.status' $target | tr -d '"')
     total=$(jq '.message["total-results"]' $target)
     # get and remove quotes from cursor
-    cursor=$(jq '.message["next-cursor"]' $target | tr -d '"')
+    cursor=$(jq '.message["next-cursor"]' $target | tr -d '"' | python -c "import urllib.parse;print (urllib.parse.quote(input()))"
+    target=$sampledir/crossref-$l_index.json)
     startindex=$(jq '.message.query["start-index"]' $target)
     perpage=$(jq '.message["items-per-page"]' $target)
     index=$[$index+1]

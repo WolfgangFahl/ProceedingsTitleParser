@@ -171,24 +171,34 @@ class Title(object):
         self.parseResult=None
         self.grammar=grammar
         self.info={}
+        self.info['title']=line
         self.md=None
         self.events=[]
+        
+    def addSearchResults(self,ems,search): 
+        ''' add search results from the given event managers with the given search keyword 
+        FIXME: a search for e.g CA 2008 does not make much sense since the word CA is ambigous and
+        probably a province CA=California and not an Acronym
+        '''
+        for em in ems:
+            events=em.lookup(search)
+            for event in events:
+                event.foundBy=search
+                self.events=self.events+events
 
     def lookup(self,ems,wordList=None):
         ''' look me up with the given event manager use my acronym or optionally a list of Words'''
         if "acronym" in self.metadata():
             acronym=self.md["acronym"]
             if acronym is not None:
-                for em in ems:
-                    events=em.lookup(acronym)
-                    self.events=self.events+events
-        if wordList is not None and "year" in self.info:
-            year=self.info["year"]
-            for word in wordList:
-                for em in ems:
-                    events=em.lookup(word+" "+year)
-                    self.events=self.events+events
-
+                self.addSearchResults(ems, acronym)
+        # last resort search           
+        if len(self.events)==0:            
+            if wordList is not None and "year" in self.info:
+                year=self.info["year"]
+                for word in wordList:
+                    self.addSearchResults(ems, word+" "+year)
+                
     def __str__(self):
         ''' create a string representation of this title '''
         text=""

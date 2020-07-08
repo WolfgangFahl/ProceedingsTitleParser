@@ -95,6 +95,8 @@ class Event(object):
         '''
         Constructor
         '''
+        self.foundBy=None
+        self.homePage=None
         
     def fromAskResult(self,askRecord):
         ''' initialize me from the given ask result'''
@@ -113,6 +115,7 @@ class Event(object):
         self.url="https://www.openresearch.org/wiki/%s" % (self.event) 
         
     def fromTitle(self,title):
+        ''' fill my data from the given Title '''
         md=title.metadata()
         # fix event field
         if 'event' in md:
@@ -130,5 +133,5 @@ class Event(object):
     
     def __str__(self):
         ''' create a string representation of this title '''
-        text=self.homepage
+        text="%s (%s)" % (self.homepage,self.foundBy)
         return text

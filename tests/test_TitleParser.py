@@ -236,22 +236,25 @@ class TestProceedingsTitleParser(unittest.TestCase):
             title=tp.name.replace(".txt","")
             plot=Plot(tclist,title)
             plot.hist(mode="save")
-        pass
+        return len(tp.records)
   
     def testTitleParser(self):
-        ''' test reading the titles '''
+        ''' test reading the proceeding titles from the sampledata directory'''
         showHistogram=True
         opr=OpenResearch()
         opr.initEventManager()
         em=opr.em
+        counter=Counter()
         for tp in [
                 # low expectation due to problem in API
-                self.getTitleParser("proceedings-crossref.txt",1000, mode='line'),
+                self.getTitleParser("proceedings-crossref.txt",45300, mode='line'),
                 self.getTitleParser("proceedings-ceur-ws.txt",2629,mode='CEUR-WS'),
                 self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
                 self.getTitleParser("proceedings-wikidata.txt",16000)
             ]:
-            self.doTestTitleParser(tp,em,showHistogram)   
+            counter[tp.name]=self.doTestTitleParser(tp,em,showHistogram)   
+        print (counter) 
+        print ("total # of proceeding titles parsed: %d" % (sum(counter.values())))   
       
     def testGraph(self):
         g=nx.Graph()
