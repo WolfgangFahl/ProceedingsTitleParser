@@ -35,10 +35,10 @@ class CEURWS(object):
             if 'acronym' in title.metadata():
                 if self.debug:
                     print(title.metadata())
-                if 'id' in title.info:    
+                if 'eventId' in title.info:    
                     event=Event()
                     event.fromTitle(title)
-                    event.url="http://ceur-ws.org/%s" % (title.info['id'])
+                    event.url="http://ceur-ws.org/%s" % (title.info['eventId'])
                     self.em.add(event)     
         self.em.store()
             

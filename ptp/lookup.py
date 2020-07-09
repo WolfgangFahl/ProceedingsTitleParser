@@ -23,7 +23,7 @@ class Lookup(object):
         self.opr.initEventManager()
         ems=[self.opr.em]
         if getAll:
-            self.ceurws=ptp.ceurws.CEURWS()
+            self.ceurws=ptp.ceurws.CEURWS(debug=True)
             self.ceurws.initEventManager()
             ems.append(self.ceurws.em)
         self.tp=TitleParser(name=name,ptp=self.ptp,dictionary=self.dictionary,ems=ems) 

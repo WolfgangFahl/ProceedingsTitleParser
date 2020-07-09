@@ -36,8 +36,8 @@ class TitleParser(object):
             eventTitle=record['title']
             title=Title(eventTitle,self.ptp.grammar,dictionary=self.dictionary)
             title.info['source']=record['source']
-            if 'id' in record:
-                title.info['id']=record['id']
+            if 'eventId' in record:
+                title.info['eventId']=record['eventId']
             try:
                 notfound=title.parse()
                 title.pyparse()
@@ -50,6 +50,7 @@ class TitleParser(object):
         return tc,errs,result
 
     def fromLines(self,lines,mode='wikidata',clear=True):
+        ''' get my records from the given lines using the given mode '''
         if clear:
             self.records=[]
         ''' add records from the given lines '''
