@@ -102,15 +102,19 @@ class TestProceedingsTitleParser(unittest.TestCase):
           
         
     def testExampleResult(self):
-        ''' test result of example ''' 
+        ''' test result of examples ''' 
         titlelines=[
             'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San Francisco, California, USA',
             'Selected proceedings of the 2009 Summit on Translational Bioinformatics.',
             'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020']   
         expected=[
-            {'enum': 'Thirty-First', 'prefix': 'AAAI', 'event': 'Conference', 'topic': 'Artificial Intelligence', 'month': 'February', 'daterange': '4 - 9', 'year': '2017', 'city': 'San Francisco', 'province': 'California', 'country': 'USA'},
-            {'event': 'Summit', 'extract': 'Selected', 'topic': 'Translational Bioinformatics','year': '2009'},
-            {'event': 'Workshop', 'location':'virtual','scope': 'International', 'topic': 'Algorithms & Theories for the Analysis of Event Data 2020','acronym':'ATAED 2020'}
+            {'title':'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San Francisco, California, USA','enum': 'Thirty-First', 'prefix': 'AAAI', 
+             'event': 'Conference', 'topic': 'Artificial Intelligence', 'month': 'February', 'daterange': '4 - 9', 'year': '2017', 'city': 'San Francisco', 'province': 'California', 'country': 'USA'},
+            {'title': 'Selected proceedings of the 2009 Summit on Translational Bioinformatics.',
+             'event': 'Summit', 'extract': 'Selected', 'topic': 'Translational Bioinformatics','year': '2009'},
+            {'title': 'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020',
+             'event': 'Workshop', 'location':'virtual','scope': 'International', 'topic': 'Algorithms & Theories for the Analysis of Event Data 2020','acronym':'ATAED 2020'}
+            
         ]
         parser=self.getParser()
         tc=Counter()

@@ -39,13 +39,13 @@ class CEURWS(object):
                     event=Event()
                     event.fromTitle(title)
                     event.url="http://ceur-ws.org/%s" % (title.info['id'])
-                    self.em.add(event)       
+                    self.em.add(event)     
+        self.em.store()
             
     def initEventManager(self):
         ''' init my event manager '''
         if not self.em.isCached():
             self.cacheEvents()
-            self.em.store()
         else:
             self.em.fromStore()    
         self.em.extractAcronyms()
