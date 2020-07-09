@@ -19,7 +19,7 @@ class TestCEURWS(unittest.TestCase):
 
     def testCEURWS(self):
         ''' test CEUR-WS '''
-        cw=CEURWS(debug=True)
+        cw=CEURWS(debug=False)
         cw.cacheEvents()
         print(len(cw.em.events))
         pass

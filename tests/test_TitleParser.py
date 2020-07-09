@@ -55,7 +55,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
             return title
         except Exception as ex:
             tc["fail"]+=1
-            print("%s:%s" %(eventId,line))
+            if TestProceedingsTitleParser.debug:
+                print("%s:%s" %(eventId,line))
             print (ex)
             return None
         
@@ -155,7 +156,6 @@ class TestProceedingsTitleParser(unittest.TestCase):
         ''' test pyparsing with DBLP dataset '''
         tp=self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp')
         self.doTestParser(tp,13700)
-           
      
     def testSeriesEnumeration(self):
         ''' test getting most often used series enumerations of Proceeding Events '''
