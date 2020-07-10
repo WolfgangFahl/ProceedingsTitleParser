@@ -35,19 +35,20 @@ class TitleParser(object):
         tc=Counter()
         for record in self.records:
             eventTitle=record['title']
-            title=Title(eventTitle,self.ptp.grammar,dictionary=self.dictionary)
-            title.info['source']=record['source']
-            if 'eventId' in record:
-                title.info['eventId']=record['eventId']
-            try:
-                notfound=title.parse()
-                title.pyparse()
-                tc["success"]+=1
-            except Exception as ex:
-                tc["fail"]+=1
-                errs.append(ex)
-            title.lookup(self.ems,notfound)
-            result.append(title)
+            if eventTitle is not None:
+                title=Title(eventTitle,self.ptp.grammar,dictionary=self.dictionary)
+                title.info['source']=record['source']
+                if 'eventId' in record:
+                    title.info['eventId']=record['eventId']
+                try:
+                    notfound=title.parse()
+                    title.pyparse()
+                    tc["success"]+=1
+                except Exception as ex:
+                    tc["fail"]+=1
+                    errs.append(ex)
+                title.lookup(self.ems,notfound)
+                result.append(title)
         return tc,errs,result
 
     def fromLines(self,lines,mode='wikidata',clear=True):
@@ -168,11 +169,14 @@ class Title(object):
     def __init__(self,line,grammar=None,dictionary=None):
         ''' construct me from the given line and dictionary '''
         self.line=line
-        if dictionary is not None:
+        if line and dictionary is not None:
             for blanktoken in dictionary.blankTokens:
                 blankless=blanktoken.replace(" ","_")
                 line=line.replace(blanktoken,blankless)
-        self.tokens=re.split(r'[ ,.()"\[\]]',line)
+        if self.line:        
+            self.tokens=re.split(r'[ ,.()"\[\]]',line)
+        else:
+            self.tokens=[]    
         self.dictionary=dictionary
         self.enum=None
         self.parseResult=None

@@ -325,13 +325,18 @@ class TestProceedingsTitleParser(unittest.TestCase):
               'http://ceur-ws.org/Vol-2599/',
               'http://ceur-ws.org/Vol-2553/',
               'http://ceur-ws.org/Vol-2512/',
-              'http://ceur-ws.org/Vol-2489/']
+              'http://ceur-ws.org/Vol-2489/',
+              'http://ceur-ws.org/',
+              'http://ceur-ws.org/Vol-9999/']
         tp=lookup.tp
         tp.fromLines(urls,'line')  
         tc,errs,result=tp.parseAll()
         print (tc)
         print (errs)
         print (result)
+        # expect 4 ok 1 fail and 2 invalid/ignored
+        self.assertEquals(4,tc['success']);
+        self.assertEquals(1,tc['fail']);
                     
        
 if __name__ == "__main__":

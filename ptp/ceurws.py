@@ -57,6 +57,10 @@ class CeurwsEvent(object):
     
     def __init__(self,debug=False):
         self.debug=debug
+        self.title=None
+        self.acronym=None
+        self.valid=False
+        self.err=None
     
     def fromUrl(self,url):
         '''
@@ -65,17 +69,23 @@ class CeurwsEvent(object):
         self.proceedingsUrl=url
         self.vol=url.replace("http://ceur-ws.org/","")
         self.vol=self.vol.replace("/","")
-        self.htmlParse(url)
+        if self.vol:
+            self.htmlParse(url)
         
     def htmlParse(self,url):
         # e.g. http://ceur-ws.org/Vol-2635/
-        response = urllib.request.urlopen(url)
-
-        html = response.read()
-        soup = BeautifulSoup(html, 'html.parser', from_encoding="utf-8")    
-            
-        self.acronym=self.fromSpan(soup,'CEURVOLACRONYM')
-        self.title=self.fromSpan(soup,"CEURFULLTITLE")
+        try:
+            response = urllib.request.urlopen(url)
+    
+            html = response.read()
+            soup = BeautifulSoup(html, 'html.parser', from_encoding="utf-8")    
+                
+            self.acronym=self.fromSpan(soup,'CEURVOLACRONYM')
+            self.title=self.fromSpan(soup,"CEURFULLTITLE")
+            self.valid=True
+        except urllib.error.HTTPError as herr:
+            self.err=herr
+         
     
     def fromSpan(self,soup,spanClass):
         # <span class="CEURVOLACRONYM">DL4KG2020</span>
