@@ -18,21 +18,17 @@
         <div id="navigationbox" title="Proceedings Title Parser-Service">Proceedings Title Parser-Service</div>
         <div class="container-fluid" id="contentbox">
             <br>
-            <form action="/parse" method="post">
+            <form action="/parse" method="GET">
                <div class="row">
-                  <div id="parselabel" class="col-md-1 text-right">
-                  </div>
-                  <div id="parsecol" class="col-md-5">
-                    <button type='submit' id="parse">parse</button>
+                  <div id="parsecol" class="col-md-6">
+                    <button type='submit' id="parse">search</button>
                   </div>
                   <div id="parsecounter" class="col-md-6">
                   </div>
                 </div>
                 <div class="row">
-                    <div id="titleslabel" class="col-md-1 text-right">
-                        <label class="label" for="titles">Paste your Proceedings search (e.g. titles) here:</label>
-                    </div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
+                        <label class="label" for="titles"><a href='http://wiki.bitplan.com/index.php/ProceedingsTitleParser#Usage'>Enter titles, keywords or urls:</a></label><br>
                         <textarea id="titles" name="titles" rows="23" cols="80">{{ titles }}</textarea>
                      </div>
                      <div id="parseresult" class="col-md-6">
@@ -50,9 +46,10 @@
 							  </thead>
 							  <tbody>
 	                       {% for parsedTitle in result %}
+	                       {% set rowloop = loop %}
 	                       {% for event in parsedTitle.events  %}
 							    <tr>
-							      <th scope="row">{{ loop.index }}</th>
+							      <th scope="row">{{ rowloop.index }} - {{ loop.index }}</th>
 							      <td>{{event.source}}</td>
 							      <td>{{event.acronym}}</td>
 							      <td><a href='{{event.url}}'>{{event.url}}</a></td>

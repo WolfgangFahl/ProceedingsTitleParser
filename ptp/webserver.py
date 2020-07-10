@@ -24,10 +24,13 @@ def index(titles="",tc=None,errs=None,result=None,message=None):
     """ render index page with the given parameters"""
     return render_template('index.html',titles=titles,tc=tc,errs=errs,result=result,message=message)
 
-@app.route('/parse', methods=['POST'])
+@app.route('/parse', methods=['POST','GET'])
 def parseTitles():
     """ endpoint for proceedings title parsing"""
-    titleLines=request.form.get('titles')
+    if request.method == 'POST':
+        titleLines=request.form.get('titles')
+    else:
+        titleLines=request.args.get('titles')    
     tp=lookup.tp
     tp.fromLines(titleLines.splitlines(), 'line',clear=True)
     tc,errs,result=tp.parseAll()
