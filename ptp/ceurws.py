@@ -5,6 +5,8 @@ Created on 2020-07-06
 '''
 import os
 import ptp.lookup
+import urllib.request
+from bs4 import BeautifulSoup
 from ptp.event import EventManager, Event
 
 class CEURWS(object):
@@ -49,4 +51,48 @@ class CEURWS(object):
         else:
             self.em.fromStore()    
         self.em.extractAcronyms()
+        
+class CeurwsEvent(object):
+    ''' an Event derived from CEUR-WS '''
+    
+    def __init__(self,debug=False):
+        self.debug=debug
+    
+    def fromUrl(self,url):
+        '''
+        construct me from the given url
+        '''
+        self.proceedingsUrl=url
+        self.vol=url.replace("http://ceur-ws.org/","")
+        self.vol=self.vol.replace("/","")
+        self.htmlParse(url)
+        
+    def htmlParse(self,url):
+        # e.g. http://ceur-ws.org/Vol-2635/
+        response = urllib.request.urlopen(url)
+
+        html = response.read()
+        soup = BeautifulSoup(html, 'html.parser', from_encoding="utf-8")    
+            
+        self.acronym=self.fromSpan(soup,'CEURVOLACRONYM')
+        self.title=self.fromSpan(soup,"CEURFULLTITLE")
+    
+    def fromSpan(self,soup,spanClass):
+        # <span class="CEURVOLACRONYM">DL4KG2020</span>
+        # https://stackoverflow.com/a/16248908/1497139
+        # find a list of all span elements
+        spans = soup.find_all('span', {'class' : spanClass})
+        lines = [span.get_text() for span in spans]
+        if len(lines)>0:
+            return lines[0]
+        else:
+            return None
+            
+    def __str__(self):
+        ''' convert me to printable text form '''        
+        text="%s: %s (%s)" % (self.acronym if self.acronym else '?',
+                              self.title if self.title else '?',
+                              self.proceedingsUrl)
+        return text
+        
         

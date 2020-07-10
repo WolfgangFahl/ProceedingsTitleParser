@@ -23,3 +23,7 @@ pywikibot==3.0.20200306
 pycrypto
 # https://pypi.org/project/jsonpickle/
 jsonpickle
+# Beautiful Soup HTML parser
+# https://pypi.org/project/beautifulsoup4/
+beautifulsoup4
+

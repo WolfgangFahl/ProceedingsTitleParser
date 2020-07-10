@@ -17,11 +17,12 @@ class TitleParser(object):
     parser for Proceeding titles
     '''
 
-    def __init__(self,name=None,ptp=None,dictionary=None,ems=None):
+    def __init__(self,name=None,lookup=None,ptp=None,dictionary=None,ems=None):
         '''
         Constructor
         '''
         self.name=name
+        self.lookup=lookup
         self.ptp=ptp
         self.dictionary=dictionary
         self.ems=ems
@@ -80,10 +81,15 @@ class TitleParser(object):
                 self.records.append({'source':'CEUR-WS','eventId': vol,'title': title})
             elif mode=="line":
                 title=line.strip()
-                self.records.append({'source':'line', 'title': title})
+                if title.startswith('http'):
+                    if self.lookup:
+                        record=self.lookup.extractFromUrl(title)
+                        self.records.append(record)
+                else:    
+                    self.records.append({'source':'line', 'title': title})
             else:
                 raise Exception("unknown mode %s" % (mode))
-
+    
     def fromFile(self,filePath,mode='wikidata'):
         ''' read all lines from the given filePath and return a Parser '''
         with open(filePath) as f:

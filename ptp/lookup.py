@@ -26,5 +26,13 @@ class Lookup(object):
             self.ceurws=ptp.ceurws.CEURWS(debug=True)
             self.ceurws.initEventManager()
             ems.append(self.ceurws.em)
-        self.tp=TitleParser(name=name,ptp=self.ptp,dictionary=self.dictionary,ems=ems) 
+        self.tp=TitleParser(lookup=self,name=name,ptp=self.ptp,dictionary=self.dictionary,ems=ems) 
         
+    def extractFromUrl(self,url):
+        ''' extract a record from the given Url '''
+        result=None
+        if '/ceur-ws.org/' in url:
+            event=ptp.ceurws.CeurwsEvent()
+            event.fromUrl(url)
+            result={'source':'CEUR-WS','eventId': event.vol,'title': event.title, 'acronym': event.acronym}
+        return result

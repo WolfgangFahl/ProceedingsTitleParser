@@ -317,6 +317,22 @@ class TestProceedingsTitleParser(unittest.TestCase):
             print (title.events)
             for event in title.events:
                 print (event.url)
+                
+    def testExtractMode(self):
+        ''' test extract mode '''
+        lookup=Lookup("testExtractMode")
+        urls=['http://ceur-ws.org/Vol-2635/',
+              'http://ceur-ws.org/Vol-2599/',
+              'http://ceur-ws.org/Vol-2553/',
+              'http://ceur-ws.org/Vol-2512/',
+              'http://ceur-ws.org/Vol-2489/']
+        tp=lookup.tp
+        tp.fromLines(urls,'line')  
+        tc,errs,result=tp.parseAll()
+        print (tc)
+        print (errs)
+        print (result)
+                    
        
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -3,11 +3,14 @@
 os=$(uname -a)
 useroption="--user"
 
+#
+# autoinstall the package for the given command
+#
 autoinstall() {
   local l_cmd="$1"
   local l_package="$2"
-  echo "checking whether $_lcmd is installed ..."
-  which $_lcmd 
+  echo "checking whether $l_cmd is installed ..."
+  which $l_cmd 
   if [ $? -ne 0 ]
   then
     echo  "installing $l_cmd from package $l_package ..."
@@ -53,7 +56,7 @@ fi
 
 # make sure pywikibot configuration is available
 if [ ! -d $HOME/.pywikibot ]
-then  
+then
    mkdir $HOME/.pywikibot
    echo "creating user-config.py"
    echo "put_throttle = 0" > $HOME/.pywikibot/user-config.py
