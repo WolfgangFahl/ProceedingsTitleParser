@@ -1,0 +1,10 @@
+'Proceedings Title Parser mode':
+    Proceedings of the 2020 International Conference on High Performance Computing & Simulation (HPCS 2020)
+'Search word (NER) mode':
+    BIR 2019
+'Scrape mode (CEUR-WS)':    
+    http://ceur-ws.org/Vol-2599/
+'Full monty': |
+    Proceedings of the 2020 International Conference on High Performance Computing & Simulation (HPCS 2020)
+    BIR 2019
+    http://ceur-ws.org/Vol-2599/
