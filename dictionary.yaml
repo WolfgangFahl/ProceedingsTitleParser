@@ -7,6 +7,8 @@ Atlanta:
   type: city
 Amsterdam:
   type: city
+Auckland:
+  type: city
 Baltimore:
   type: city
 Barcelona:
@@ -165,6 +167,8 @@ Japan:
   type: country
 Netherlands:
   type: country
+New Zealand:
+  type: country  
 Österreich:
   type: country
 Panama:

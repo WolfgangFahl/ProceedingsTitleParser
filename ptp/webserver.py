@@ -22,7 +22,7 @@ def home():
 
 def index(titles="",tc=None,errs=None,result=None,message=None):
     """ render index page with the given parameters"""
-    return render_template('index.html',titles=titles,tc=tc,errs=errs,result=result,message=message)
+    return render_template('index.html',titles=titles,tc=tc,errs=errs,result=result,message=message,examples=Lookup.getExamples())
 
 @app.route('/parse', methods=['POST','GET'])
 def parseTitles():

@@ -22,6 +22,12 @@
                <div class="row">
                   <div id="parsecol" class="col-md-6">
                     <button type='submit' id="parse">search</button>
+                    Examples: 
+                    <select name="examples" id="examples">
+                    	{% for key, value in examples.items() %}
+    						<option value="example{{ loop.index }}" onclick='document.getElementById("titles").value = {{value|tojson}}'>{{ key }}</option>
+    					{% endfor %}
+  					</select>
                   </div>
                   <div id="parsecounter" class="col-md-6">
                   </div>

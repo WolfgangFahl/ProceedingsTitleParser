@@ -6,6 +6,8 @@ Created on 06.07.2020
 from ptp.titleparser import ProceedingsTitleParser,TitleParser
 import ptp.openresearch 
 import ptp.ceurws 
+import os
+import yaml
 
 class Lookup(object):
     '''
@@ -36,3 +38,12 @@ class Lookup(object):
             event.fromUrl(url)
             result={'source':'CEUR-WS','eventId': event.vol,'title': event.title, 'acronym': event.acronym}
         return result
+    
+    @staticmethod
+    def getExamples():
+        path=os.path.dirname(__file__)
+        examplesPath=path+"/../examples.yaml"
+        with open(examplesPath, 'r') as stream:
+            examples = yaml.safe_load(stream)
+        return examples    
+            
