@@ -31,7 +31,7 @@ class TestWikiData(unittest.TestCase):
         self.assertTrue(len(wd.em.events)>310)
         size=os.stat(cacheFile).st_size
         print (size)
-        self.assertTrue(size>217000)
+        self.assertTrue(size>208000)
         pass
 
 
