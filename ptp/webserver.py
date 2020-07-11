@@ -7,7 +7,6 @@ from flask import Flask, jsonify
 from flask import render_template
 from flask import request
 import os
-from flask_accept import accept
 from flask.helpers import send_from_directory
 import argparse
 import sys
