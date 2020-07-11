@@ -21,7 +21,13 @@ download() {
   else
     echo "$l_target already downloaded"
   fi
-  wc -l $l_target
+  # show number of lines
+  # check if the file has json format 
+  if [[ $l_target =~ ^.*\.json$ ]]; then
+    jq . $l_target | wc -l
+  else
+    wc -l $l_target
+  fi
 }
 
 #
@@ -155,6 +161,28 @@ getCrossRef() {
   cat $sampledir/crossref-*.json | jq .message.items[].title | cut -f2 -d'[' | cut -f2 -d'"' | grep -v "]" | tr -s '\n' > $sampledir/proceedings-crossref.txt
 }
 
+#
+# get sample data from confref http://portal.confref.org/api
+#
+getConfRef() {
+for entity in countries areas conferences
+do
+  target=$sampledir/confref-$entity.json
+  src=http://portal.confref.org/api/$entity/ 
+  download $src $target
+done
+}
+
+#
+# get samples from all relevant sources
+#
+getAll() {
+  getConfRef
+  getCrossRef
+  getCEURWS
+  getText
+}
+
 if [ ! -d $sampledir ]
 then
   echo  "creating $sampledir directory"
@@ -163,6 +191,4 @@ else
   echo "$sampledir directory already exists"
 fi
 
-getCrossRef
-getCEURWS
-getText
+getAll
