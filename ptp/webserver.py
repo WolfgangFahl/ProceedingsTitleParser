@@ -26,6 +26,7 @@ def index(titles="",tc=None,errs=None,result=None,message=None):
     return render_template('index.html',titles=titles,tc=tc,errs=errs,result=result,message=message,examples=Lookup.getExamples())
 
 @app.route('/parse', methods=['POST','GET'])
+#@accept('text/html')
 def parseTitles():
     """ endpoint for proceedings title parsing"""
     if request.method == 'POST':
@@ -40,6 +41,7 @@ def parseTitles():
         responseFormat="html"
         # handle content negotiation
         acceptJson=request.accept_mimetypes['application/json'] 
+        if acceptJson==1: responseFormat="json"
     if responseFormat=='json':
         response = Response(status=200,mimetype='application/json')
         jsonText=tp.asJson(result)
