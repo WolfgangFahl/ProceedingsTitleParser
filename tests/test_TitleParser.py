@@ -17,8 +17,8 @@ from ptp.lookup import Lookup
 class TestProceedingsTitleParser(unittest.TestCase):
     """ test the parser for Proceedings titles"""
 
-    debug=False
     def setUp(self):
+        self.debug=False
         path=os.path.dirname(__file__)
         self.titlesdir=path+"/../sampledata/"
         pass
@@ -55,7 +55,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
             return title
         except Exception as ex:
             tc["fail"]+=1
-            if TestProceedingsTitleParser.debug:
+            if self.debug:
                 print("%s:%s" %(eventId,line))
             print (ex)
             return None
