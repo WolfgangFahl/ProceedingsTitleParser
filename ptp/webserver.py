@@ -36,8 +36,11 @@ def parseTitles():
     tp.fromLines(titleLines.splitlines(), 'line',clear=True)
     tc,errs,result=tp.parseAll()
     responseFormat=request.args.get('format')
-    # handle content negotiation
-    if request.accept_mimetypes['application/json'] or responseFormat=='json':
+    if responseFormat is None:
+        responseFormat="html"
+        # handle content negotiation
+        acceptJson=request.accept_mimetypes['application/json'] 
+    if responseFormat=='json':
         response = Response(status=200,mimetype='application/json')
         jsonText=tp.asJson(result)
         response.set_data(jsonText)

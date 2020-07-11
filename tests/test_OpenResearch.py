@@ -7,7 +7,6 @@ import unittest
 
 import time
 from ptp.openresearch import OpenResearch
-from ptp.event import EventManager
 from ptp.plot import Plot
 import pyparsing as pp
 from tests.test_PyParsing import TestPyParsing

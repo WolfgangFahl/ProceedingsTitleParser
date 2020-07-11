@@ -233,7 +233,7 @@ class Title(object):
                     delim="\n"
         return text
     
-    def toJSON(self):
+    def asJson(self):
         events=[]
         events.append(self.events)
         jsonResult={"count": len(self.events), "events": events}

@@ -126,7 +126,7 @@ class Event(object):
             value=md[key]
             d[key]=value                     
     
-    def toJSON(self):
+    def asJson(self):
         ''' return me as a JSON record 
         https://stackoverflow.com/a/36142844/1497139 '''
         return json.dumps(self.__dict__,indent=4,sort_keys=True, default=str)

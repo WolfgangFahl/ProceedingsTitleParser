@@ -4,7 +4,6 @@ Created on 2020-07-11
 @author: wf
 '''
 import unittest
-import json
 from ptp.webserver import app
 from ptp.titleparser import Title
 
@@ -24,7 +23,7 @@ class TestWebServer(unittest.TestCase):
     
     def testJson(self):
         title=Title("");
-        jsonText=title.toJSON()
+        jsonText=title.asJson()
         #self.debug=True
         if self.debug:
             print(jsonText)
