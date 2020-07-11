@@ -26,4 +26,4 @@ jsonpickle
 # Beautiful Soup HTML parser
 # https://pypi.org/project/beautifulsoup4/
 beautifulsoup4
-
+flask_accept

@@ -3,10 +3,11 @@ Created on 2020-04-07
 
 @author: wf
 '''
-from flask import Flask
+from flask import Flask, jsonify
 from flask import render_template
 from flask import request
 import os
+from flask_accept import accept
 from flask.helpers import send_from_directory
 import argparse
 import sys
@@ -34,7 +35,10 @@ def parseTitles():
     tp=lookup.tp
     tp.fromLines(titleLines.splitlines(), 'line',clear=True)
     tc,errs,result=tp.parseAll()
-    return index(titleLines,tc,errs,result)
+    if request.accept_mimetypes['application/json']:
+        return jsonify(result), '200 OK'
+    else:
+        return index(titleLines,tc,errs,result)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Proceedings Title Parser webservice")
