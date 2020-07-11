@@ -14,9 +14,9 @@ from tests.test_PyParsing import TestPyParsing
 
 class TestOpenResearch(unittest.TestCase):
     ''' test accessing open research data '''
-    debug=False
 
     def setUp(self):
+        self.debug=False
         pass
 
     def tearDown(self):
@@ -26,20 +26,20 @@ class TestOpenResearch(unittest.TestCase):
         ''' get the semantic mediawiki info'''
         opr=OpenResearch()
         result=opr.smw.info()
-        if (TestOpenResearch.debug):
+        if (self.debug):
             print (result)
         self.assertTrue('info' in result)  
         
     def testOpenResearchCaching(self):
         ''' test caching of open research results '''
-        opr=OpenResearch(debug=True)
+        opr=OpenResearch(debug=self.debug)
         opr.cacheEvents(opr.em,limit=20000,batch=2000)
         minexpected=8500
         self.assertTrue(len(opr.em.events)>=minexpected)
         opr.em.store()
         self.assertTrue(opr.em.isCached())
         start_time = time.time()
-        opr2=OpenResearch(debug=True)
+        opr2=OpenResearch(debug=self.debug)
         opr2.em.fromStore()
         print("fromStore took %5.1f s" % (time.time() - start_time))
         self.assertEquals(len(opr2.em.events),len(opr.em.events))
