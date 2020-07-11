@@ -25,8 +25,8 @@ class TestWebServer(unittest.TestCase):
         title=Title("");
         jsonText=title.asJson()
         #self.debug=True
-        if self.debug:
-            print(jsonText)
+        #if self.debug:
+        print(jsonText)
         self.assertTrue('"count": 0' in jsonText)
 
     def testWebServer(self):

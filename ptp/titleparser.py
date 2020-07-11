@@ -58,7 +58,7 @@ class TitleParser(object):
         events=[]
         for title in result:
             events.extend(title.events)
-        jsonResult={"count": len(result), "events": events}
+        jsonResult={"count": len(events), "events": events}
         jsons.suppress_warnings()
         jsonText=jsons.dumps(jsonResult,indent=4,sort_keys=True)
         return jsonText
@@ -235,8 +235,8 @@ class Title(object):
 
     def asJson(self):
         events=[]
-        events.append(self.events)
-        jsonResult={"count": len(events), "events": events}
+        events.extend(self.events)
+        jsonResult={"count": len(self.events), "events": events}
         jsonText=json.dumps(jsonResult,indent=4,sort_keys=True)
         return jsonText
 
