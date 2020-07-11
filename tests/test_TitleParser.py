@@ -99,7 +99,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         title.pyparse()
         md=title.metadata()
         self.assertTrue("acronym" in md)
-        self.assertEquals("ATAED 2020",md["acronym"])
+        self.assertEqual("ATAED 2020",md["acronym"])
           
     def testExampleResult(self):
         ''' test result of examples ''' 
@@ -283,11 +283,11 @@ class TestProceedingsTitleParser(unittest.TestCase):
         tp.fromLines(titles, 'line')
         tc,errs,result=tp.parseAll()
         # there should be a failed entry in the counter
-        self.assertEquals(1,tc["fail"])
-        self.assertEquals(1,len(errs))
+        self.assertEqual(1,tc["fail"])
+        self.assertEqual(1,len(errs))
         err=errs[0]
         self.assertTrue("Expected" in str(err))
-        self.assertEquals(1,len(result))
+        self.assertEqual(1,len(result))
         title=result[0]
         print (title.metadata())
         self.assertTrue('city' in title.metadata())
@@ -305,7 +305,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         print (errs)
         print (result)
         # make sure we have exactly one result
-        self.assertEquals(2,len(result))
+        self.assertEqul(2,len(result))
         for title in result:
             print (title)
             print (title.info)
@@ -334,8 +334,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
         print (errs)
         print (result)
         # expect 4 ok 1 fail and 2 invalid/ignored
-        self.assertEquals(4,tc['success']);
-        self.assertEquals(1,tc['fail']);
+        self.assertEqual(4,tc['success']);
+        self.assertEqual(1,tc['fail']);
                     
        
 if __name__ == "__main__":

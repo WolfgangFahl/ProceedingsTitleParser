@@ -47,7 +47,7 @@ class TestCEURWS(unittest.TestCase):
             events.append(event)
         index=0    
         for event in events:
-            self.assertEquals(expected[index],event.acronym)
+            self.assertEqual(expected[index],event.acronym)
             index+=1    
 
 if __name__ == "__main__":

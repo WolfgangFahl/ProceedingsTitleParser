@@ -18,6 +18,7 @@ class Lookup(object):
         '''
         Constructor
         '''
+        self.debug=debug
         self.ptp=ProceedingsTitleParser.getInstance()
         self.dictionary=ProceedingsTitleParser.getDictionary()
         # get the open research EventManager

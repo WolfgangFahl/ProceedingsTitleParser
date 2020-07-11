@@ -42,9 +42,9 @@ class TestOpenResearch(unittest.TestCase):
         opr2=OpenResearch(debug=self.debug)
         opr2.em.fromStore()
         print("fromStore took %5.1f s" % (time.time() - start_time))
-        self.assertEquals(len(opr2.em.events),len(opr.em.events))
+        self.assertEqual(len(opr2.em.events),len(opr.em.events))
         events=opr2.em.lookup("ZEUS 2018")
-        self.assertEquals(1,len(events))
+        self.assertEqual(1,len(events))
         zeus2018=events[0]
         self.assertTrue(zeus2018 is not None)
         print (zeus2018.asJson())
