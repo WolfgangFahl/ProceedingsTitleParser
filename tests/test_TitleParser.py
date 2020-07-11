@@ -10,7 +10,6 @@ from collections import Counter
 from ptp.plot import Plot
 import networkx as nx
 import os
-import getpass
 from ptp.openresearch import OpenResearch
 from ptp.lookup import Lookup
 
@@ -165,8 +164,9 @@ class TestProceedingsTitleParser(unittest.TestCase):
             title=Title(record["title"],dictionary=d)
             title.parse()
             if title.enum is not None:
-                print ("%d: %s" % (title.enum,record))
-                print ("    %s" % title.info)
+                if self.debug:
+                    print ("%d: %s" % (title.enum,record))
+                    print ("    %s" % title.info)
                 tc[title.enum]+=1
         print(tc.most_common(250))     
         
