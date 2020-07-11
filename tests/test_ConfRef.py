@@ -7,9 +7,10 @@ import unittest
 from ptp.confref import ConfRef
 
 class TestConfRef(unittest.TestCase):
-
+    ''' test handling for data from portal.confref.org '''
 
     def setUp(self):
+        self.debug=False
         pass
 
 
@@ -20,8 +21,12 @@ class TestConfRef(unittest.TestCase):
     def testConfRef(self):
         ''' test reading confRef data '''
         confRef=ConfRef()
-        confRef.initEventManager()
-        self.assertEqual(37945, len(confRef.rawevents))
+        confRef.cacheEvents()
+        foundEvents=len(confRef.rawevents)
+        cachedEvents=len(confRef.em.events)
+        self.assertEqual(37945,foundEvents)
+        self.assertEquals(37713,cachedEvents)
+        print("found %d  and cached %d events from confref" % (foundEvents,cachedEvents))
         pass
 
 

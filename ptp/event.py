@@ -120,11 +120,17 @@ class Event(object):
         # fix event field
         if 'event' in md:
             md['eventType']=md['event']
-        md['event']=md['acronym']
+        self.fromDict(md)
+            
+    def fromDict(self,srcDict):
+        ''' fill my data from the given source Dict'''
+        if 'acronym' in srcDict:
+            srcDict['event']=srcDict['acronym']
         d=self.__dict__
-        for key in md:
-            value=md[key]
-            d[key]=value                     
+        for key in srcDict:
+            value=srcDict[key]
+            d[key]=value         
+                            
     
     def asJson(self):
         ''' return me as a JSON record 
