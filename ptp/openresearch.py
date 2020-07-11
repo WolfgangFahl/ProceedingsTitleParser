@@ -49,7 +49,7 @@ class OpenResearch(object):
             found,event=self.cacheEventBatch(em,limit=batch,offset=offset)
             if self.debug:
                 print("retrieved events %5d-%5d" % (offset+1,offset+found))
-                print(event.asJson())
+                print(event.toJSON())
             offset=offset+batch
             if found<batch or len(em.events)>=limit:
                 break

@@ -74,7 +74,7 @@
 	                       {% for parsedTitle in result %}
 	                       {{parsedTitle.metadata()}}<br>
 	                       {% for event in parsedTitle.events %}
-	                       {{ event.asJson()}}<br>
+	                       {{ event.toJSON()}}<br>
 	                       {% endfor %}
 	                       {% endfor %}
 	                       {%endif %}

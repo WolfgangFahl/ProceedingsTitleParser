@@ -5,6 +5,8 @@ Created on 2020-06-20
 '''
 import yaml
 import io
+import json
+import jsons
 import os
 import re
 from collections import OrderedDict
@@ -50,6 +52,16 @@ class TitleParser(object):
                 title.lookup(self.ems,notfound)
                 result.append(title)
         return tc,errs,result
+    
+    def asJson(self,result):
+        '''convert the given result to JSON '''
+        events=[]
+        for title in result:
+            events.extend(title.events)
+        jsonResult={"count": len(result), "events": events}
+        jsons.suppress_warnings()
+        jsonText=jsons.dumps(jsonResult,indent=4,sort_keys=True)
+        return jsonText
 
     def fromLines(self,lines,mode='wikidata',clear=True):
         ''' get my records from the given lines using the given mode '''
@@ -220,6 +232,13 @@ class Title(object):
                     text+="%s%s=%s" % (delim,pitem.getName(),pitem)
                     delim="\n"
         return text
+    
+    def toJSON(self):
+        events=[]
+        events.append(self.events)
+        jsonResult={"count": len(self.events), "events": events}
+        jsonText=json.dumps(jsonResult,indent=4,sort_keys=True)
+        return jsonText
 
     def metadata(self):
         ''' extract the metadata of the given title '''

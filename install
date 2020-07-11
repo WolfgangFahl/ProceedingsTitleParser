@@ -19,7 +19,7 @@ autoinstall() {
 }
 case $os in
   Darwin*)
-   pip="sudo -H pip"
+   pip="pip3"
    install="sudo port install"
    ;;
   *)

@@ -3,7 +3,7 @@ Created on 2020-04-07
 
 @author: wf
 '''
-from flask import Flask, jsonify
+from flask import Flask, Response
 from flask import render_template
 from flask import request
 import os
@@ -11,7 +11,7 @@ from flask.helpers import send_from_directory
 import argparse
 import sys
 from ptp.lookup import Lookup
-from flask_accept import accept
+#from flask_accept import accept
 
 scriptdir=os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,static_url_path='',static_folder=scriptdir+'/../web', template_folder=scriptdir+'/../templates')
@@ -35,8 +35,13 @@ def parseTitles():
     tp=lookup.tp
     tp.fromLines(titleLines.splitlines(), 'line',clear=True)
     tc,errs,result=tp.parseAll()
-    if request.accept_mimetypes['application/json']:
-        return jsonify(result), '200 OK'
+    responseFormat=request.args.get('format')
+    # handle content negotiation
+    if request.accept_mimetypes['application/json'] or responseFormat=='json':
+        response = Response(status=200,mimetype='application/json')
+        jsonText=tp.asJson(result)
+        response.set_data(jsonText)
+        return response
     else:
         return index(titleLines,tc,errs,result)
 
