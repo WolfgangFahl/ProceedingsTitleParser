@@ -11,6 +11,7 @@ from flask.helpers import send_from_directory
 import argparse
 import sys
 from ptp.lookup import Lookup
+from flask_accept import accept
 
 scriptdir=os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,static_url_path='',static_folder=scriptdir+'/../web', template_folder=scriptdir+'/../templates')
