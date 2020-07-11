@@ -96,7 +96,7 @@ class Event(object):
         Constructor
         '''
         self.foundBy=None
-        self.homePage=None
+        self.homepage=None
         
     def fromAskResult(self,askRecord):
         ''' initialize me from the given ask result'''
