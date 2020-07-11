@@ -1,5 +1,5 @@
 '''
-Created on 20.06.2020
+Created on 2020-06-20
 
 @author: wf
 '''
@@ -86,11 +86,11 @@ class TitleParser(object):
                     if self.lookup:
                         record=self.lookup.extractFromUrl(title)
                         self.records.append(record)
-                else:    
+                else:
                     self.records.append({'source':'line', 'title': title})
             else:
                 raise Exception("unknown mode %s" % (mode))
-    
+
     def fromFile(self,filePath,mode='wikidata'):
         ''' read all lines from the given filePath and return a Parser '''
         with open(filePath) as f:
@@ -173,10 +173,10 @@ class Title(object):
             for blanktoken in dictionary.blankTokens:
                 blankless=blanktoken.replace(" ","_")
                 line=line.replace(blanktoken,blankless)
-        if self.line:        
+        if self.line:
             self.tokens=re.split(r'[ ,.()"\[\]]',line)
         else:
-            self.tokens=[]    
+            self.tokens=[]
         self.dictionary=dictionary
         self.enum=None
         self.parseResult=None
@@ -185,9 +185,9 @@ class Title(object):
         self.info['title']=line
         self.md=None
         self.events=[]
-        
-    def addSearchResults(self,ems,search): 
-        ''' add search results from the given event managers with the given search keyword 
+
+    def addSearchResults(self,ems,search):
+        ''' add search results from the given event managers with the given search keyword
         FIXME: a search for e.g CA 2008 does not make much sense since the word CA is ambigous and
         probably a province CA=California and not an Acronym
         '''
@@ -203,13 +203,13 @@ class Title(object):
             acronym=self.md["acronym"]
             if acronym is not None:
                 self.addSearchResults(ems, acronym)
-        # last resort search           
-        if len(self.events)==0:            
+        # last resort search
+        if len(self.events)==0:
             if wordList is not None and "year" in self.info:
                 year=self.info["year"]
                 for word in wordList:
                     self.addSearchResults(ems, word+" "+year)
-                
+
     def __str__(self):
         ''' create a string representation of this title '''
         text=""
