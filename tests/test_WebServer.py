@@ -20,7 +20,7 @@ class TestWebServer(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def testJson(self):
         title=Title("");
         jsonText=title.asJson()
@@ -38,8 +38,8 @@ class TestWebServer(unittest.TestCase):
             print(response.data)
         self.assertIn(b'<!DOCTYPE html>',response.data)
         self.assertIn(b"Proceedings of the 8th International Workshop on Bibliometric-enhanced Information Retrieval (BIR 2019)",response.data)
-        
-    def testContentNegotiation(self):    
+
+    def testContentNegotiation(self):
         ''' test Content Negotiation '''
         query='/parse?titles=BIR+2019'
         response=self.app.get(query,headers={'accept':'application/json'})
@@ -47,18 +47,18 @@ class TestWebServer(unittest.TestCase):
         eventResult=response.get_json()
         #if self.debug:
         print (eventResult)
-        self.assertEqual(1,eventResult["count"])
-        self.assertEquals(2,len(eventResult["events"]))
-        
-    def testFormatQueryParameter(self):   
+        self.assertEqual(3,eventResult["count"])
+        self.assertEquals(3,len(eventResult["events"]))
+
+    def testFormatQueryParameter(self):
         query='/parse?titles=BIR+2019'
         response=self.app.get(query+"&format=json")
         self.assertEqual(response.status_code, 200)
         eventResult=response.get_json()
         #if self.debug:
         print (eventResult)
-        self.assertEqual(1,eventResult["count"])
-        self.assertEquals(2,len(eventResult["events"]))
+        self.assertEqual(3,eventResult["count"])
+        self.assertEquals(3,len(eventResult["events"]))
         pass
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@ class TitleParser(object):
                 title.lookup(self.ems,notfound)
                 result.append(title)
         return tc,errs,result
-    
+
     def asJson(self,result):
         '''convert the given result to JSON '''
         events=[]
@@ -232,11 +232,11 @@ class Title(object):
                     text+="%s%s=%s" % (delim,pitem.getName(),pitem)
                     delim="\n"
         return text
-    
+
     def asJson(self):
         events=[]
         events.append(self.events)
-        jsonResult={"count": len(self.events), "events": events}
+        jsonResult={"count": len(events), "events": events}
         jsonText=json.dumps(jsonResult,indent=4,sort_keys=True)
         return jsonText
 
