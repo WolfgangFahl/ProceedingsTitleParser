@@ -305,7 +305,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         print (errs)
         print (result)
         # make sure we have exactly one result
-        self.assertEqul(2,len(result))
+        self.assertEqual(2,len(result))
         for title in result:
             print (title)
             print (title.info)
