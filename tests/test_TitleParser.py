@@ -57,7 +57,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
             tc["fail"]+=1
             if self.debug:
                 print("%s:%s" %(eventId,line))
-            print (ex)
+                print (ex)
             return None
         
     def testExamples(self):
@@ -101,7 +101,6 @@ class TestProceedingsTitleParser(unittest.TestCase):
         self.assertTrue("acronym" in md)
         self.assertEquals("ATAED 2020",md["acronym"])
           
-        
     def testExampleResult(self):
         ''' test result of examples ''' 
         titlelines=[
@@ -128,7 +127,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
             index+=1
         self.assertEqual(tc["success"],len(titlelines))
         
-    def doTestParser(self,tp,minSuccess,limit=100):
+    def doTestParser(self,tp,minSuccess,limit=50):
         ''' general test Parsing function ''' 
         parser=self.getParser()
         tc=Counter()
