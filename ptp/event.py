@@ -97,7 +97,24 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             self.writeJson(cacheFile)
         else:
             raise Exception("unsupported store mode %s",self.mode)    
+  
+    @staticmethod
+    def asWikiSon(eventDicts):  
+        wikison=""
+        for eventDict in eventDicts:
+            wikison+=EventManager.eventDictToWikiSon(eventDict)
+        return wikison
     
+    @staticmethod
+    def eventDictToWikiSon(eventDict):
+        wikison="{{Event\n"
+        for key,value in eventDict.items():
+            if key not in ['foundBy','source','creation_date','modification_date']:
+                if value is not None:
+                    wikison+="|%s=%s\n" % (key,value)
+        wikison+="}}\n"  
+        return wikison  
+  
 
 class Event(object):
     '''
@@ -151,7 +168,7 @@ class Event(object):
         if hasattr(self,'acronym'):
             if hasattr(self, 'year') and not re.search(r'[0-9]{4}',self.acronym):
                 self.acronym="%s %s" % (self.acronym,str(self.year))
-            pass         
+            pass       
     
     def asJson(self):
         ''' return me as a JSON record 

@@ -41,6 +41,8 @@ Geneva:
   type: city
 Innsbruck:
   type: city
+Istanbul:
+  type: city
 Hamburg:
   type: city
 Helsinki:
@@ -178,6 +180,8 @@ Spain:
 Sweden:
   type: country
 Switzerland:
+  type: country
+Turkey:
   type: country
 United Kingdom:
   type: country

@@ -24,9 +24,9 @@ lookup=Lookup("webserver")
 def home():
     return index()
 
-def index(titles="",tc=None,errs=None,result=None,message=None):
+def index(titles="",tc=None,errs=None,result=None,message=None,metadebug=True):
     """ render index page with the given parameters"""
-    return render_template('index.html',titles=titles,tc=tc,errs=errs,result=result,message=message,examples=Lookup.getExamples())
+    return render_template('index.html',titles=titles,tc=tc,errs=errs,result=result,message=message,metadebug=metadebug,examples=Lookup.getExamples())
 
 @app.route('/parse', methods=['POST','GET'])
 #@accept('text/html')
@@ -34,8 +34,11 @@ def parseTitles():
     """ endpoint for proceedings title parsing"""
     if request.method == 'POST':
         titleLines=request.form.get('titles')
+        metadebug=request.form.get('metadebug')
     else:
-        titleLines=request.args.get('titles')    
+        titleLines=request.args.get('titles')
+        metadebug=request.args.get('metadebug')    
+    metadebug=metadebug is not None    
     tp=lookup.tp
     tp.fromLines(titleLines.splitlines(), 'line',clear=True)
     tc,errs,result=tp.parseAll()
@@ -57,8 +60,13 @@ def parseTitles():
         xml=tp.asXml(result)
         response.set_data(xml)
         return response
+    elif responseFormat=='wikison':
+        response = Response(status=200,mimetype='text/plain')
+        wikison=tp.asWikiSon(result)
+        response.set_data(wikison)
+        return response
     else:
-        return index(titleLines,tc,errs,result)
+        return index(titleLines,tc,errs,result,metadebug=metadebug)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Proceedings Title Parser webservice")

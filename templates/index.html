@@ -22,20 +22,12 @@
                <div class="row">
                   <div id="parsecol" class="col-md-6">
                     <button type='submit' id="parse">search</button>
-                    Examples: 
-                    <select name="examples" id="examples">
-                    	{% for key, value in examples.items() %}
-    						<option value="example{{ loop.index }}" onclick='document.getElementById("titles").value = {{value|tojson}}'>{{ key }}</option>
-    					{% endfor %}
-  					</select>
-                  </div>
-                  <div id="parsecounter" class="col-md-6">
                   </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <label class="label" for="titles"><a href='http://wiki.bitplan.com/index.php/ProceedingsTitleParser#Usage'>Enter titles, search words or urls:</a></label><br>
-                        <textarea id="titles" name="titles" rows="23" cols="80">{{ titles }}</textarea>
+                        <textarea id="titles" name="titles" rows="25" cols="100">{{ titles }}</textarea>
                      </div>
                      <div id="parseresult" class="col-md-6">
                      	<div class='row'>
@@ -69,7 +61,8 @@
 	                    </div>   
                      	<!-- raw results /metadata -->
                      	<div class='row'>
-                     	   <h3>metadata (debug)</h3>
+                     	   {% if metadebug %}
+                     	   <h3>metadata (debug)</h3><br>
 	                       {% if result is not none %}
 	                       {% for parsedTitle in result %}
 	                       {{parsedTitle.metadata()}}<br>
@@ -77,6 +70,7 @@
 	                       {{ event.asJson()}}<br>
 	                       {% endfor %}
 	                       {% endfor %}
+	                       {%endif %}
 	                       {%endif %}
                        </div>
                        <!-- errors -->
@@ -89,6 +83,25 @@
 		                </div>
 		             </div>
                 </div>
+                <div class="row">
+                  	<div id="parsesettings" class="col-md-6">
+	                 	<label class="label" for="examples">Examples:</label> 
+	                    <select name="examples" id="examples">
+	                    	{% for key, value in examples.items() %}
+	    						<option value="example{{ loop.index }}" onclick='document.getElementById("titles").value = {{value|tojson}}'>{{ key }}</option>
+	    					{% endfor %}
+	  					</select>
+	  					<label class="label" for="formqt">format:</label> 
+	  					<select name="format" id="format">
+	  					    <option value="html">html</option>
+	  					    <option value="json">json</option>
+	  					    <option value="xml">xml</option>
+	  					    <option value="wikison">wikison</option>
+	  					</select>
+	  					<label class="label" for="metadebug">debug:</label>
+	  					<input type="checkbox" id="metadebug" name="metadebug" {{ "checked" if metadebug else "" }}>
+					</div>
+				</div>
             </form>
             <div class="row">
                 <div class="col-md-6">

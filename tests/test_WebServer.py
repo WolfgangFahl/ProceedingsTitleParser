@@ -90,7 +90,16 @@ class TestWebServer(unittest.TestCase):
         xml=response.get_data()
         print(xml)
         self.assertTrue("xml version" in xml.decode())
-            
+       
+    def testFormatQueryParameterWikiSon(self):
+        # test WikiSon handling
+        query='/parse?titles=PAKM+2000'
+        response=self.app.get(query+"&format=wikison")
+        self.assertEqual(response.status_code, 200)
+        wikison=response.get_data()
+        print(wikison)
+        self.assertTrue("{{Event" in wikison.decode())
+        pass   
     
 
 if __name__ == "__main__":

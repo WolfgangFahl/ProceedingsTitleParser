@@ -15,6 +15,7 @@ from num2words import num2words
 from collections import Counter
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
+from ptp.event import EventManager
 
 class TitleParser(object):
     '''
@@ -79,6 +80,16 @@ class TitleParser(object):
         else:
             prettyXml=xml    
         return prettyXml
+    
+    def asWikiSon(self,result):
+        '''
+        return the given result in WikiSon format
+        '''
+        events=[]
+        for title in result:
+            for event in title.events:
+                events.append(event.__dict__)
+        return EventManager.asWikiSon(events)              
     
     def fromLines(self,lines,mode='wikidata',clear=True):
         ''' get my records from the given lines using the given mode '''
