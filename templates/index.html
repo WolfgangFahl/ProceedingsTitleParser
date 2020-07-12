@@ -75,10 +75,12 @@
                        </div>
                        <!-- errors -->
 		                <div class='row'>
+		                	{% if metadebug %}
 			                {% if errs is not none %}
 			                {% for err in errs %}
 			                <pre><span style="color:red">{{ err }}</span></pre>
 			                {% endfor %}
+			                {%endif %}
 			                {%endif %}
 		                </div>
 		             </div>
