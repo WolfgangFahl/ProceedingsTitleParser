@@ -27,16 +27,16 @@ class ConfRef(object):
         with open(self.jsonFilePath) as jsonFile:
             self.rawevents=json.load(jsonFile)
         for rawevent in self.rawevents:
-            if 'acronym' in rawevent and 'year' in rawevent:
-                rawevent['acronym']="%s %d" % (rawevent['acronym'],rawevent['year'])
-                event=Event()
-                event.fromDict(rawevent)
-                event.source='confref'
-                event.url='http://portal.confref.org/list/%s' % rawevent['id']
-                self.em.add(event)    
+            event=Event()
+            event.fromDict(rawevent)
+            event.fixAcronym()
+            event.source='confref'
+            event.url='http://portal.confref.org/list/%s' % rawevent['id']
+            self.em.add(event)    
         self.em.store()        
                 
     def initEventManager(self):
+        ''' initialize my event manager '''
         if not self.em.isCached():
             self.cacheEvents()
         else:

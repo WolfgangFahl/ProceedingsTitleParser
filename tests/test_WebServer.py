@@ -47,8 +47,8 @@ class TestWebServer(unittest.TestCase):
         eventResult=response.get_json()
         #if self.debug:
         print (eventResult)
-        self.assertEqual(3,eventResult["count"])
-        self.assertEqual(3,len(eventResult["events"]))
+        self.assertEqual(2,eventResult["count"])
+        self.assertEqual(2,len(eventResult["events"]))
 
     def testFormatQueryParameter(self):
         query='/parse?titles=BIR+2019'
@@ -57,8 +57,8 @@ class TestWebServer(unittest.TestCase):
         eventResult=response.get_json()
         #if self.debug:
         print (eventResult)
-        self.assertEqual(3,eventResult["count"])
-        self.assertEqual(3,len(eventResult["events"]))
+        self.assertEqual(2,eventResult["count"])
+        self.assertEqual(2,len(eventResult["events"]))
         pass
 
 if __name__ == "__main__":

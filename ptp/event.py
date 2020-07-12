@@ -1,9 +1,10 @@
 '''
-Created on 04.07.2020
+Created on 2020-07-04
 
 @author: wf
 '''
 import json
+import re
 import os
 from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
@@ -21,6 +22,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.mode=mode
         self.events={}
         self.eventsByAcronym={}
+        print ("Creating Eventmanager for %s" % (self.name))
   
     def add(self,event):
         self.events[event.event]=event
@@ -35,6 +37,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         return result    
     
     def extractAcronyms(self):
+        print ("extracting acronyms for %s" % (self.name))
         self.eventsByAcronym={}
         grammar= pp.Regex(r'^(([1-9][0-9]?)th\s)?(?P<acronym>[A-Z/_-]{2,10})[ -]*(19|20)[0-9][0-9]$')
         for event in self.events.values():
@@ -52,6 +55,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                         print(event.acronym)
                         print(pe)
                     pass
+        print ("found %d acronyms" % (len(self.eventsByAcronym)))          
     
     def isCached(self):
         ''' check whether there is a file containing cached 
@@ -62,12 +66,13 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     def getCacheFile(self):
         ''' get the path to the file for my cached data '''    
         path=os.path.dirname(__file__)
-        cachedir=path+"/../cache/"
+        cachedir=path+"/../cache"
         cachepath="%s/%s-%s.%s" % (cachedir,self.name,"events",self.mode)
         return cachepath
     
     def fromStore(self):
         cacheFile=self.getCacheFile()
+        print ("reading events from cache %s" % (cacheFile))
         em=None
         if self.mode=="json":   
             em=JsonAbleMixin.readJson(cacheFile)
@@ -76,10 +81,12 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         if em is not None:
             if em.events is not None:
                 self.events=em.events     
+        print ("found %d events" % (len(self.events)))        
         
     def store(self):
         ''' store me '''
         cacheFile=self.getCacheFile()
+        print ("storing %d events to cache %s" % (len(self.events),cacheFile))
         if self.mode=="json":    
             self.writeJson(cacheFile)
         else:
@@ -105,15 +112,14 @@ class Event(object):
             if key in askRecord:
                 d[key]=askRecord[key]
         ''' individual fixes '''
-        if self.acronym is None:
-            self.acronym=self.event
         if self.country is not None:
             if type(self.country) is list:
                 print("warning country for %s is a list: %s" % (self.event,self.country))
             else:
                 self.country=self.country.replace("Category:","")     
         self.url="https://www.openresearch.org/wiki/%s" % (self.event) 
-        
+        self.fixAcronym()
+            
     def fromTitle(self,title):
         ''' fill my data from the given Title '''
         md=title.metadata()
@@ -121,6 +127,7 @@ class Event(object):
         if 'event' in md:
             md['eventType']=md['event']
         self.fromDict(md)
+        self.fixAcronym()
             
     def fromDict(self,srcDict):
         ''' fill my data from the given source Dict'''
@@ -130,7 +137,15 @@ class Event(object):
         for key in srcDict:
             value=srcDict[key]
             d[key]=value         
-                            
+    
+    def fixAcronym(self):
+        if not hasattr(self,'acronym') or self.acronym is None:
+            if hasattr(self,'event'):
+                self.acronym=self.event
+        if hasattr(self,'acronym'):
+            if hasattr(self, 'year') and not re.search(r'[0-9]{4}',self.acronym):
+                self.acronym="%s %s" % (self.acronym,str(self.year))
+            pass         
     
     def asJson(self):
         ''' return me as a JSON record 

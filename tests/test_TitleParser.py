@@ -13,6 +13,7 @@ import os
 from ptp.openresearch import OpenResearch
 from ptp.lookup import Lookup
 
+
 class TestProceedingsTitleParser(unittest.TestCase):
     """ test the parser for Proceedings titles"""
 

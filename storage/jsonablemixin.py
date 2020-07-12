@@ -20,7 +20,8 @@ class JsonAbleMixin(object):
         if os.path.isfile(jsonFileName):
             if JsonAbleMixin.debug:
                 print("reading %s" % (jsonFileName))
-            json = open(jsonFileName).read()
+            with open(jsonFileName) as jsonFile:    
+                json = jsonFile.read()
             result = jsonpickle.decode(json)
             if (JsonAbleMixin.debug):
                 print (json)

@@ -5,7 +5,7 @@ Created on 2020-07-11
 '''
 import unittest
 from ptp.confref import ConfRef
-
+import os
 class TestConfRef(unittest.TestCase):
     ''' test handling for data from portal.confref.org '''
 
@@ -21,11 +21,14 @@ class TestConfRef(unittest.TestCase):
     def testConfRef(self):
         ''' test reading confRef data '''
         confRef=ConfRef()
+        cacheFile=confRef.em.getCacheFile()
+        if os.path.isfile(cacheFile):
+            os.remove(cacheFile)
         confRef.cacheEvents()
         foundEvents=len(confRef.rawevents)
         cachedEvents=len(confRef.em.events)
         self.assertEqual(37945,foundEvents)
-        self.assertEqual(37713,cachedEvents)
+        self.assertEqual(5704,cachedEvents)
         print("found %d  and cached %d events from confref" % (foundEvents,cachedEvents))
         pass
 
