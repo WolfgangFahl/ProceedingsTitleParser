@@ -14,7 +14,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,mode='json'):
+    def __init__(self,name,mode='json',withShowProgress=True):
         '''
         Constructor
         '''
@@ -22,7 +22,13 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.mode=mode
         self.events={}
         self.eventsByAcronym={}
-        print ("Creating Eventmanager for %s" % (self.name))
+        self.withShowProgress=True
+        self.showProgress ("Creating Eventmanager for %s" % (self.name))
+        
+    def showProgress(self,msg):
+        ''' display a progress message '''
+        if self.withShowProgress:
+            print (msg,flush=True)    
   
     def add(self,event):
         self.events[event.event]=event
@@ -37,7 +43,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         return result    
     
     def extractAcronyms(self):
-        print ("extracting acronyms for %s" % (self.name))
+        self.showProgress("extracting acronyms for %s" % (self.name))
         self.eventsByAcronym={}
         grammar= pp.Regex(r'^(([1-9][0-9]?)th\s)?(?P<acronym>[A-Z/_-]{2,10})[ -]*(19|20)[0-9][0-9]$')
         for event in self.events.values():
@@ -55,7 +61,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                         print(event.acronym)
                         print(pe)
                     pass
-        print ("found %d acronyms" % (len(self.eventsByAcronym)))          
+        self.showProgress ("found %d acronyms" % (len(self.eventsByAcronym)))          
     
     def isCached(self):
         ''' check whether there is a file containing cached 
@@ -72,7 +78,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     
     def fromStore(self):
         cacheFile=self.getCacheFile()
-        print ("reading events from cache %s" % (cacheFile))
+        self.showProgress("reading events from cache %s" % (cacheFile))
         em=None
         if self.mode=="json":   
             em=JsonAbleMixin.readJson(cacheFile)
@@ -81,12 +87,12 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         if em is not None:
             if em.events is not None:
                 self.events=em.events     
-        print ("found %d events" % (len(self.events)))        
+        self.showProgress("found %d events" % (len(self.events)))        
         
     def store(self):
         ''' store me '''
         cacheFile=self.getCacheFile()
-        print ("storing %d events to cache %s" % (len(self.events),cacheFile))
+        self.showProgress ("storing %d events to cache %s" % (len(self.events),cacheFile))
         if self.mode=="json":    
             self.writeJson(cacheFile)
         else:

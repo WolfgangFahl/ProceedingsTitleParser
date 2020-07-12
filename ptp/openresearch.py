@@ -48,8 +48,8 @@ class OpenResearch(object):
         while True:
             found,event=self.cacheEventBatch(em,limit=batch,offset=offset)
             if self.debug:
-                print("retrieved events %5d-%5d" % (offset+1,offset+found))
-                print(event.asJson())
+                em.showProgress("retrieved events %5d-%5d" % (offset+1,offset+found))
+                em.showProgress(event.asJson())
             offset=offset+batch
             if found<batch or len(em.events)>=limit:
                 break
@@ -66,7 +66,8 @@ class OpenResearch(object):
             event.fromAskResult(askRecord)
             event.source="OPEN RESEARCH"
             em.add(event)
-        return len(askResult.values()),event
+        found=len(askResult.values())    
+        return found,event
         
     def getEvent(self,pageTitle):
         ''' get the event with the given page title (if any) '''
