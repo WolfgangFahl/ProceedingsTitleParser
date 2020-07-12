@@ -25,7 +25,7 @@ class TestConfRef(unittest.TestCase):
         cacheFile=confRef.em.getCacheFile()
         if os.path.isfile(cacheFile):
             os.remove(cacheFile)
-        EventManager.debug=True
+        #EventManager.debug=True
         confRef.cacheEvents()
         foundEvents=len(confRef.rawevents)
         cachedEvents=len(confRef.em.events)
