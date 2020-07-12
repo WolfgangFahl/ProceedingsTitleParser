@@ -13,6 +13,8 @@ from collections import OrderedDict
 from pyparsing import Keyword,Group,Word,OneOrMore,Optional,ParseResults,Regex,ZeroOrMore,alphas, nums, oneOf
 from num2words import num2words
 from collections import Counter
+from dicttoxml import dicttoxml
+from xml.dom.minidom import parseString
 
 class TitleParser(object):
     '''
@@ -63,6 +65,21 @@ class TitleParser(object):
         jsonText=jsons.dumps(jsonResult,indent=4,sort_keys=True)
         return jsonText
 
+    def asXml(self,result,pretty=True):
+        ''' convert result to XML'''
+        events=[]
+        for title in result:
+            for event in title.events:
+                events.append(event.__dict__)
+        item_name = lambda x: "event"        
+        xml=dicttoxml(events, custom_root='events',item_func=item_name, attr_type=False)
+        if pretty:
+            dom=parseString(xml)
+            prettyXml=dom.toprettyxml()
+        else:
+            prettyXml=xml    
+        return prettyXml
+    
     def fromLines(self,lines,mode='wikidata',clear=True):
         ''' get my records from the given lines using the given mode '''
         if clear:
@@ -239,6 +256,7 @@ class Title(object):
         jsonResult={"count": len(self.events), "events": events}
         jsonText=json.dumps(jsonResult,indent=4,sort_keys=True)
         return jsonText
+        
 
     def metadata(self):
         ''' extract the metadata of the given title '''

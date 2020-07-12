@@ -28,4 +28,8 @@ jsonpickle
 beautifulsoup4
 # https://pypi.org/project/jsons/
 jsons
-
+# https://pypi.org/project/json2xml/
+# https://github.com/vinitkumar/json2xml/issues/59
+# json2xml
+#https://pypi.org/project/dicttoxml/
+dicttoxml

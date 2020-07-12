@@ -11,6 +11,9 @@ from flask.helpers import send_from_directory
 import argparse
 import sys
 from ptp.lookup import Lookup
+
+#from json2xml import json2xml
+#https://github.com/vinitkumar/json2xml/issues/59
 #from flask_accept import accept
 
 scriptdir=os.path.dirname(os.path.abspath(__file__))
@@ -42,10 +45,17 @@ def parseTitles():
         # handle content negotiation
         acceptJson=request.accept_mimetypes['application/json'] 
         if acceptJson==1: responseFormat="json"
+        acceptXml=request.accept_mimetypes['application/xml']==1 or request.accept_mimetypes['text/xml']==1 
+        if acceptXml==1: responseFormat="xml"
     if responseFormat=='json':
         response = Response(status=200,mimetype='application/json')
         jsonText=tp.asJson(result)
         response.set_data(jsonText)
+        return response
+    elif responseFormat=='xml':
+        response = Response(status=200,mimetype='application/xml')
+        xml=tp.asXml(result)
+        response.set_data(xml)
         return response
     else:
         return index(titleLines,tc,errs,result)
