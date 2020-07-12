@@ -45,7 +45,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     def extractAcronyms(self):
         self.showProgress("extracting acronyms for %s" % (self.name))
         self.eventsByAcronym={}
-        grammar= pp.Regex(r'^(([1-9][0-9]?)th\s)?(?P<acronym>[A-Z/_-]{2,10})[ -]*(19|20)[0-9][0-9]$')
+        grammar= pp.Regex(r'^(([1-9][0-9]?)th\s)?(?P<acronym>[A-Z/_-]{2,11})[ -]*(19|20)[0-9][0-9]$')
         for event in self.events.values():
             if event.acronym is not None:
                 try:
@@ -158,8 +158,9 @@ class Event(object):
             srcDict['event']=srcDict['acronym']
         d=self.__dict__
         for key in srcDict:
-            value=srcDict[key]
-            d[key]=value         
+            if key not in ['id']:
+                value=srcDict[key]
+                d[key]=value         
     
     def fixAcronym(self):
         if not hasattr(self,'acronym') or self.acronym is None:

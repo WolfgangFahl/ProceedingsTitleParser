@@ -27,9 +27,11 @@ class ConfRef(object):
         with open(self.jsonFilePath) as jsonFile:
             self.rawevents=json.load(jsonFile)
         for rawevent in self.rawevents:
+            rawevent['eventId']=rawevent['id']
             event=Event()
             event.fromDict(rawevent)
             event.fixAcronym()
+            event.event=rawevent['id']
             event.source='confref'
             event.url='http://portal.confref.org/list/%s' % rawevent['id']
             self.em.add(event)    
