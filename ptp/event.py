@@ -3,12 +3,15 @@ Created on 2020-07-04
 
 @author: wf
 '''
+import csv
+import io
 import json
 import re
 import os
 from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
 import pyparsing as pp
+from abc import abstractstaticmethod
 
 class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
@@ -104,6 +107,21 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         for eventDict in eventDicts:
             wikison+=EventManager.eventDictToWikiSon(eventDict)
         return wikison
+    
+    @staticmethod
+    def asCsv(eventDicts):
+        ''' convert the given event dicts to CSV 
+        see https://stackoverflow.com/a/9157370/1497139'''  
+        output=io.StringIO()
+        fieldNameSet=set()
+        for eventDict in eventDicts:
+            for key in eventDict.keys():
+                fieldNameSet.add(key)
+        writer=csv.DictWriter(output,fieldnames=list(fieldNameSet),quoting=csv.QUOTE_NONNUMERIC)
+        writer.writeheader()
+        for eventDict in eventDicts:
+            writer.writerow(eventDict)
+        return output.getvalue()
     
     @staticmethod
     def eventDictToWikiSon(eventDict):

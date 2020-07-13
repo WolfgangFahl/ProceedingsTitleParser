@@ -32,7 +32,7 @@ class TestWebServer(unittest.TestCase):
 
     def testWebServer(self):
         ''' test the WebServer '''
-        query='/parse?titles=BIR+2019'
+        query='/parse?titles=BIR+2019&metadebug=on'
         response=self.app.get(query)
         self.assertEqual(response.status_code, 200)
         if self.debug:
@@ -101,6 +101,16 @@ class TestWebServer(unittest.TestCase):
         self.assertTrue("{{Event" in wikison.decode())
         pass   
     
+    def testFormatQueryParameterCsv(self):
+        # test WikiSon handling
+        query='/parse?titles=PAKM+2000'
+        response=self.app.get(query+"&format=csv")
+        self.assertEqual(response.status_code, 200)
+        csv=response.get_data()
+        print(csv)
+        self.assertTrue(',"acronym",' in csv.decode())
+        self.assertTrue(',"Switzerland",'in csv.decode())
+        pass
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

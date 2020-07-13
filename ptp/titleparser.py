@@ -65,13 +65,20 @@ class TitleParser(object):
         jsons.suppress_warnings()
         jsonText=jsons.dumps(jsonResult,indent=4,sort_keys=True)
         return jsonText
-
-    def asXml(self,result,pretty=True):
-        ''' convert result to XML'''
+    
+    def getEventDicts(self,result):
+        '''
+        get the results as a list of event dicts
+        '''
         events=[]
         for title in result:
             for event in title.events:
                 events.append(event.__dict__)
+        return events        
+                
+    def asXml(self,result,pretty=True):
+        ''' convert result to XML'''
+        events=self.getEventDicts(result)        
         item_name = lambda x: "event"        
         xml=dicttoxml(events, custom_root='events',item_func=item_name, attr_type=False)
         if pretty:
@@ -85,11 +92,12 @@ class TitleParser(object):
         '''
         return the given result in WikiSon format
         '''
-        events=[]
-        for title in result:
-            for event in title.events:
-                events.append(event.__dict__)
-        return EventManager.asWikiSon(events)              
+        events=self.getEventDicts(result)   
+        return EventManager.asWikiSon(events)
+    
+    def asCsv(self,result):
+        events=self.getEventDicts(result)  
+        return EventManager.asCsv(events)         
     
     def fromLines(self,lines,mode='wikidata',clear=True):
         ''' get my records from the given lines using the given mode '''

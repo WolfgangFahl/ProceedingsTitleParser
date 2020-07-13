@@ -50,6 +50,8 @@ def parseTitles():
         if acceptJson==1: responseFormat="json"
         acceptXml=request.accept_mimetypes['application/xml']==1 or request.accept_mimetypes['text/xml']==1 
         if acceptXml==1: responseFormat="xml"
+        acceptCsv=request.accept_mimetypes['text/csv']==1
+        if acceptCsv==1: responseFormat="csv"
     if responseFormat=='json':
         response = Response(status=200,mimetype='application/json')
         jsonText=tp.asJson(result)
@@ -64,6 +66,11 @@ def parseTitles():
         response = Response(status=200,mimetype='text/plain')
         wikison=tp.asWikiSon(result)
         response.set_data(wikison)
+        return response
+    elif responseFormat=="csv":
+        response = Response(status=200,mimetype='text/plain')
+        csv=tp.asCsv(result)
+        response.set_data(csv)
         return response
     else:
         return index(titleLines,tc,errs,result,metadebug=metadebug)
