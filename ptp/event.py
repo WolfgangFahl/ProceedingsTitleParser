@@ -147,7 +147,11 @@ class Event(object):
         self.homepage=None
         
     def hasUrl(self):
-        result=self.homepage is not None or hasattr(self,'url')
+        result=False
+        if (hasattr(self,'homepage') and self.homepage is not None):
+            result=True
+        else:
+            result=hasattr(self,'url')
         return result  
     
     def getUrl(self):
