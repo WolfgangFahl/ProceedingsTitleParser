@@ -29,7 +29,7 @@
                     <div class="col-md-6">
                         <label class="label" for="titles"><a href='http://wiki.bitplan.com/index.php/ProceedingsTitleParser#Usage'>Enter titles, search words or urls:</a></label><br>
                         <textarea id="titles" name="titles" rows="25" cols="100">{{ titles }}</textarea>
-                     	<label class="label" for="examples">Examples:</label> 
+                     	<br /><label class="label" for="examples">Examples:</label> 
 	                    <select name="examples" id="examples">
 	                    	{% for key, value in examples.items() %}
 	    						<option value="example{{ loop.index }}" onclick='document.getElementById("titles").value = {{value|tojson}}'>{{ key }}</option>
