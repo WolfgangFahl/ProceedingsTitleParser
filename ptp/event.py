@@ -146,6 +146,16 @@ class Event(object):
         self.foundBy=None
         self.homepage=None
         
+    def hasUrl(self):
+        result=self.homepage is not None or hasattr(self,'url')
+        return result  
+    
+    def getUrl(self):
+        if hasattr(self,'url'): 
+            return self.url
+        else:
+            return self.homepage
+        
     def fromAskResult(self,askRecord):
         ''' initialize me from the given ask result'''
         d=self.__dict__

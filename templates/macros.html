@@ -1,0 +1,46 @@
+{# 
+   Useful Jinja Template Macros
+   
+   e.g. table4DictList
+   https://stackoverflow.com/a/42848018/1497139
+#}
+{# show metaData as Json Dumps #}
+{% macro metaDataDump(result) -%}
+{% if result is not none %}
+{% for parsedTitle in result %}
+{% if parsedTitle.hasUrl() %}
+{% set url = parsedTitle.getUrl() %}
+<a href='{{ url }}'>{{ url }}</a>
+{%endif %}
+<pre>{{parsedTitle.metadataDump()}}</pre><br />
+{% for event in parsedTitle.events %}
+{% if event.hasUrl() %}
+{% set url = event.getUrl() %}
+<a href='{{ url }}'>{{ url }}</a>
+{%endif %}
+<pre>{{ event.asJson()}}</pre><br />
+{% endfor %}
+{% endfor %}
+{%endif %}
+{%- endmacro %}	                  
+{% macro table4DictList(dicList) -%}
+<table style="width:100%">
+  <!-- table header -->
+  {% if dictList %}
+  <tr>
+     {% for key in dictList[0] %}
+     <th> {{ key }} </th>
+     {% endfor %}
+  </tr>
+  {% endif %}
+
+  <!-- table rows -->
+  {% for dict_item in dictList %}
+  <tr>
+     {% for value in dict_item.values() %}
+     <td> {{ value }} </td>
+     {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+{%- endmacro %}

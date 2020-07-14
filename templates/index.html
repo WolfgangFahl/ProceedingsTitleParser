@@ -1,3 +1,4 @@
+{% import 'macros.html' as macros %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -28,7 +29,23 @@
                     <div class="col-md-6">
                         <label class="label" for="titles"><a href='http://wiki.bitplan.com/index.php/ProceedingsTitleParser#Usage'>Enter titles, search words or urls:</a></label><br>
                         <textarea id="titles" name="titles" rows="25" cols="100">{{ titles }}</textarea>
-                     </div>
+                     	<label class="label" for="examples">Examples:</label> 
+	                    <select name="examples" id="examples">
+	                    	{% for key, value in examples.items() %}
+	    						<option value="example{{ loop.index }}" onclick='document.getElementById("titles").value = {{value|tojson}}'>{{ key }}</option>
+	    					{% endfor %}
+	  					</select>
+	  					<label class="label" for="formqt">format:</label> 
+	  					<select name="format" id="format">
+	  					    <option value="html">html</option>
+	  					    <option value="csv">csv</option>
+	  					    <option value="json">json</option>
+	  					    <option value="xml">xml</option>
+	  					    <option value="wikison">wikison</option>
+	  					</select>
+	  					<label class="label" for="metadebug">debug:</label>
+	  					<input type="checkbox" id="metadebug" name="metadebug" {{ "checked" if metadebug else "" }}>
+			         </div>
                      <div id="parseresult" class="col-md-6">
                      	<div class='row'>
 	                       {% if result is not none %}
@@ -58,22 +75,19 @@
 							  </tbody>
 							</table>
 	                       {%endif %}
-	                    </div>   
+	                    </div>
                      	<!-- raw results /metadata -->
                      	<div class='row'>
                      	   {% if metadebug %}
-                     	   <h3>metadata (debug)</h3><br>
-	                       {% if result is not none %}
-	                       {% for parsedTitle in result %}
-	                       {{parsedTitle.metadata()}}<br>
-	                       {% for event in parsedTitle.events %}
-	                       {{ event.asJson()}}<br>
-	                       {% endfor %}
-	                       {% endfor %}
+                     	   <h4>metadata (debug):</h4>
+                           {%endif %}
+                       	</div>
+                     	<div class='row'>  
+	                 	   {% if metadebug %}
+                           {{ macros.metaDataDump(result) }}
 	                       {%endif %}
-	                       {%endif %}
-                       </div>
-                       <!-- errors -->
+                       	</div>
+                       	<!-- errors -->
 		                <div class='row'>
 		                	{% if metadebug %}
 			                {% if errs is not none %}
@@ -85,27 +99,7 @@
 		                </div>
 		             </div>
                 </div>
-                <div class="row">
-                  	<div id="parsesettings" class="col-md-6">
-	                 	<label class="label" for="examples">Examples:</label> 
-	                    <select name="examples" id="examples">
-	                    	{% for key, value in examples.items() %}
-	    						<option value="example{{ loop.index }}" onclick='document.getElementById("titles").value = {{value|tojson}}'>{{ key }}</option>
-	    					{% endfor %}
-	  					</select>
-	  					<label class="label" for="formqt">format:</label> 
-	  					<select name="format" id="format">
-	  					    <option value="html">html</option>
-	  					    <option value="csv">csv</option>
-	  					    <option value="json">json</option>
-	  					    <option value="xml">xml</option>
-	  					    <option value="wikison">wikison</option>
-	  					</select>
-	  					<label class="label" for="metadebug">debug:</label>
-	  					<input type="checkbox" id="metadebug" name="metadebug" {{ "checked" if metadebug else "" }}>
-					</div>
-				</div>
-            </form>
+           </form>
             <div class="row">
                 <div class="col-md-6">
                 {% if message is not none %}
@@ -114,7 +108,7 @@
                 </div>
             </div>
             <!--  end of main content box -->
-            <div id="footerbox"></div>
+            <!-- <div id="footerbox"></div> -->
         </div>
     </body>
 </html>

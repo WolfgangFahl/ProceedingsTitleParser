@@ -42,7 +42,9 @@ class TitleParser(object):
             eventTitle=record['title']
             if eventTitle is not None:
                 title=Title(eventTitle,self.ptp.grammar,dictionary=self.dictionary)
-                title.info['source']=record['source']
+                for key in ['source','proceedingsUrl']:
+                    if key in record:
+                        title.info[key]=record[key]
                 if 'eventId' in record:
                     title.info['eventId']=record['eventId']
                 try:
@@ -268,7 +270,17 @@ class Title(object):
                     text+="%s%s=%s" % (delim,pitem.getName(),pitem)
                     delim="\n"
         return text
-
+    
+    def hasUrl(self):
+        result='proceedingsUrl' in self.info or 'url' in self.info
+        return result
+    
+    def getUrl(self):
+        for key in ['proceedingsUrl','url']:
+            if key in self.info:
+                return self.info[key]
+        return None
+ 
     def asJson(self):
         events=[]
         events.extend(self.events)
@@ -276,7 +288,6 @@ class Title(object):
         jsonText=json.dumps(jsonResult,indent=4,sort_keys=True)
         return jsonText
         
-
     def metadata(self):
         ''' extract the metadata of the given title '''
         if self.md is None:
@@ -293,6 +304,12 @@ class Title(object):
                     if not name in self.md:
                         self.md[name]=value
         return self.md
+    
+    def metadataDump(self):
+        md=self.metadata()
+        jsonText=json.dumps(md,indent=4,sort_keys=True)
+        return jsonText
+        
 
     def dump(self):
         ''' debug print my parseResult '''
