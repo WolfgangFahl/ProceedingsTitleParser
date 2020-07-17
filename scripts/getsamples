@@ -96,6 +96,14 @@ ignorelines { next }
 }
 
 #
+# get dblp json file
+#
+getDblp() {
+  source=dblp.json
+  download http://wiki.bitplan.com/images/$source $sampledir/$source
+}
+
+#
 # get the text files
 #
 getText() {
@@ -180,6 +188,7 @@ getAll() {
   getConfRef
   getCrossRef
   getCEURWS
+  getDblp
   getText
 }
 

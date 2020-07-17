@@ -106,10 +106,10 @@ class TestWebServer(unittest.TestCase):
         query='/parse?titles=PAKM+2000'
         response=self.app.get(query+"&format=csv")
         self.assertEqual(response.status_code, 200)
-        csv=response.get_data()
+        csv=response.get_data().decode()
         print(csv)
-        self.assertTrue(',"acronym",' in csv.decode())
-        self.assertTrue(',"Switzerland",'in csv.decode())
+        self.assertTrue(',"acronym",' in csv)
+        self.assertTrue(',"Switzerland",'in csv)
         pass
 
 if __name__ == "__main__":
