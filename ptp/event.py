@@ -50,7 +50,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.eventsByAcronym={}
         grammar= pp.Regex(r'^(([1-9][0-9]?)th\s)?(?P<acronym>[A-Z/_-]{2,11})[ -]*(19|20)[0-9][0-9]$')
         for event in self.events.values():
-            if event.acronym is not None:
+            if hasattr(event, 'acronym') and event.acronym is not None:
                 try:
                     val=grammar.parseString(event.acronym).asDict()
                     if "acronym" in val:
@@ -71,6 +71,13 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         data for me '''
         result=os.path.isfile(self.getCacheFile())
         return result
+    
+    def removeCacheFile(self):
+        '''  remove my cache file '''
+        cacheFile=self.getCacheFile()
+        if os.path.isfile(cacheFile):
+            os.remove(cacheFile)
+    
         
     def getCacheFile(self):
         ''' get the path to the file for my cached data '''    

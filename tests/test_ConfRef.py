@@ -5,7 +5,7 @@ Created on 2020-07-11
 '''
 import unittest
 from ptp.confref import ConfRef
-from ptp.event import EventManager
+
 import os
 class TestConfRef(unittest.TestCase):
     ''' test handling for data from portal.confref.org '''
@@ -22,9 +22,7 @@ class TestConfRef(unittest.TestCase):
     def testConfRef(self):
         ''' test reading confRef data '''
         confRef=ConfRef()
-        cacheFile=confRef.em.getCacheFile()
-        if os.path.isfile(cacheFile):
-            os.remove(cacheFile)
+        confRef.em.removeCacheFile()
         #EventManager.debug=True
         confRef.cacheEvents()
         foundEvents=len(confRef.rawevents)
