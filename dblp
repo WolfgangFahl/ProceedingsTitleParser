@@ -1,0 +1,30 @@
+#!/bin/bash
+# WF 2020-07-17
+# get proceedings xml nodes from dblp xml download
+xml=$HOME/downloads/dblp.xml
+tmpxml=/tmp/proceedings-dblp.xml
+json=sampledata/dblp.json
+head -3 $xml > $tmpxml
+head -1000000 $xml | awk '
+BEGIN {
+  tags["inproceedings"]=1
+  tags["incollection"]=1
+  tags["article"]=1
+  tags["book"]=1
+}
+# make sure there are newlines before end tags
+/<\// { gsub(/<\//,"\n</",$0)}
+# makes sure there is a newline before a proceedings start tag
+/<proceedings/ { gsub(/<proceedings/,"\n<proceedings",$0)}
+# select proceedings nodes (which should be clearly separated by now)
+/<proceedings/,/<\/proceedings>/ {
+  #  get rid of multiple tags in single line
+  for (tag in tags) {
+    # remove end tag parts
+    gsub("<\\/"tag">","",$0)
+    # remove start tags
+    gsub("<"tag".*","",$0)
+  }
+  print
+}' >> $tmpxml
+echo "</dblp>" >> $tmpxml
