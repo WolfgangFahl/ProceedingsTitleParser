@@ -108,8 +108,8 @@ class TestWebServer(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         csv=response.get_data().decode()
         print(csv,flush=True)
-        self.assertTrue(',"acronym",' in csv)
-        self.assertTrue(',"Switzerland",'in csv)
+        self.assertTrue('"acronym",' in csv)
+        self.assertTrue('"Switzerland"'in csv)
         pass
 
 if __name__ == "__main__":
