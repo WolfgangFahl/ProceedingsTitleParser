@@ -107,7 +107,7 @@ class TestWebServer(unittest.TestCase):
         response=self.app.get(query+"&format=csv")
         self.assertEqual(response.status_code, 200)
         csv=response.get_data().decode()
-        print(csv)
+        print(csv,flush=True)
         self.assertTrue(',"acronym",' in csv)
         self.assertTrue(',"Switzerland",'in csv)
         pass
