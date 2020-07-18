@@ -1,11 +1,37 @@
-'Proceedings Title Parser mode':
+'Proceedings Title Parser mode': |
     Proceedings of the 2020 International Conference on High Performance Computing & Simulation (HPCS 2020)
-'Search word (NER) mode':
+    Proceedings of the 22nd Annual Conference of the European Society for Domestic Animal Reproduction (ESDAR), Cordoba, Spain, 27 - 29 September 2018 
+    Proceedings of the 2nd East European Workshop on Rule-Based Applications (RuleApps 2008) at the 18th European Conference on Artificial Intelligence, Patras, Greece, July 23, 2008.
+'Search word (NER) mode': |
     BIR 2019
-'Scrape mode (CEUR-WS)':
+    SEKE 1996
+    ICAP 2013
+'Scrape mode (CEUR-WS)': |
     http://ceur-ws.org/Vol-2599/
-'WikiData example':
+    http://ceur-ws.org/Vol-1259
+    http://ceur-ws.org/Vol-1461
+'confref examples': |    
+    ARCS 2017
+    Architecture of Computing Systems - ARCS 2017 30th International Conference, Vienna, Austria, April 3–6, 2017, Proceedings
+    VISSOFT 2013
+'dblp examples': |
+    URSW 2014
+    WOP 2015
+    SSN 2012
+    Proceedings of the 5th International Workshop on Semantic Sensor Networks (SSN 2012),Boston, Massachusetts, USA, November 12, 2012
+'OPENRESEARCH examples': |
+    EMCIS 2020
+    Euro-Par 2020
+    ICFEM 2020
+    ICFP 2014
+'WikiData examples': |
     GIW 2013
+    ESDAR 2018
+    PGSSCR 2010
+'Special acronyms': |
+    ECML PKDD 2018
+    SCHULE 2017
+    INFOS 2017
 'Proceedings series': |
     Proceedings of the 5th International Symposium on Avian Influenza. Athens, Georgia, USA. April 14-17, 2002
     Proceedings of the 8th International Symposium on Avian Influenza, April 1-4, 2012, London, Great Britain
@@ -13,10 +39,32 @@
     Proceedings of the Seventh International Symposium on Avian Influenza. April 5-8, 2009. Atlanta. Georgia. USA
 'Full monty': |
     Proceedings of the 2020 International Conference on High Performance Computing & Simulation (HPCS 2020)
+    Proceedings of the 22nd Annual Conference of the European Society for Domestic Animal Reproduction (ESDAR), Cordoba, Spain, 27 - 29 September 2018 
+    Proceedings of the 2nd East European Workshop on Rule-Based Applications (RuleApps 2008) at the 18th European Conference on Artificial Intelligence, Patras, Greece, July 23, 2008.
     BIR 2019
-    GIW 2013
+    SEKE 1996
+    ICAP 2013
     http://ceur-ws.org/Vol-2599/
+    http://ceur-ws.org/Vol-1259
+    http://ceur-ws.org/Vol-1461
+    ARCS 2017
+    Architecture of Computing Systems - ARCS 2017 30th International Conference, Vienna, Austria, April 3–6, 2017, Proceedings
+    VISSOFT 2013
+    URSW 2014
+    WOP 2015
+    SSN 2012
+    Proceedings of the 5th International Workshop on Semantic Sensor Networks (SSN 2012),Boston, Massachusetts, USA, November 12, 2012
+    EMCIS 2020
+    Euro-Par 2020
+    ICFEM 2020
+    ICFP 2014
+    GIW 2013
+    ESDAR 2018
+    PGSSCR 2010
+    ECML PKDD 2018
+    SCHULE 2017
+    INFOS 2017
     Proceedings of the 5th International Symposium on Avian Influenza. Athens, Georgia, USA. April 14-17, 2002
     Proceedings of the 8th International Symposium on Avian Influenza, April 1-4, 2012, London, Great Britain
     Proceedings of the Sixth International Symposium on Avian Influenza. April 3-6, 2006. Cambridge, United Kingdom
-    Proceedings of the Seventh International Symposium on Avian Influenza. April 5-8, 2009. Atlanta. Georgia. USA 
+    Proceedings of the Seventh International Symposium on Avian Influenza. April 5-8, 2009. Atlanta. Georgia. USA
