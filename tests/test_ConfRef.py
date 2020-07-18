@@ -27,7 +27,7 @@ class TestConfRef(unittest.TestCase):
         confRef.cacheEvents()
         foundEvents=len(confRef.rawevents)
         cachedEvents=len(confRef.em.events)
-        confRef.em.extractAcronyms() 
+        confRef.em.extractCheckedAcronyms() 
         self.assertEqual(37945,foundEvents)
         self.assertEqual(37945,cachedEvents)
         print("found %d  and cached %d events from confref" % (foundEvents,cachedEvents))

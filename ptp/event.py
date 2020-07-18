@@ -11,7 +11,6 @@ import os
 from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
 import pyparsing as pp
-from abc import abstractstaticmethod
 
 class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
@@ -25,6 +24,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.mode=mode
         self.events={}
         self.eventsByAcronym={}
+        self.eventsByCheckedAcronym={}
         self.withShowProgress=True
         self.showProgress ("Creating Eventmanager for %s" % (self.name))
         
@@ -34,20 +34,32 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             print (msg,flush=True)    
   
     def add(self,event):
+        ''' add the given event '''
         self.events[event.event]=event
+        if hasattr(event,"lookupAcronym"):
+            self.eventsByAcronym[event.lookupAcronym]=event
         
     def lookup(self,acronym):
         ''' lookup the given event '''
-        result=[]
+        foundEvents=[]
         if acronym in self.events:
-            result=[self.events[acronym]]
+            foundEvent=self.events[acronym]
+            foundEvent.lookedUpIn="events"
+            foundEvents=[foundEvent]
+        elif acronym in self.eventsByCheckedAcronym:
+            foundEvents=self.eventsByCheckedAcronym[acronym]
+            for foundEvent in foundEvents:
+                foundEvent.lookedUpIn="checked acronyms" 
         elif acronym in self.eventsByAcronym:
-            result=self.eventsByAcronym[acronym] 
-        return result    
+            foundEvent=self.eventsByAcronym[acronym]    
+            foundEvent.lookedUpIn="acronyms" 
+            foundEvents=[foundEvent]
+        return foundEvents
     
-    def extractAcronyms(self):
+    def extractCheckedAcronyms(self):
+        ''' extract checked acronyms '''
         self.showProgress("extracting acronyms for %s" % (self.name))
-        self.eventsByAcronym={}
+        self.eventsByCheckedAcronym={}
         grammar= pp.Regex(r'^(([1-9][0-9]?)th\s)?(?P<acronym>[A-Z/_-]{2,11})[ -]*(19|20)[0-9][0-9]$')
         for event in self.events.values():
             if hasattr(event, 'acronym') and event.acronym is not None:
@@ -55,16 +67,16 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                     val=grammar.parseString(event.acronym).asDict()
                     if "acronym" in val:
                         acronym=val['acronym']
-                        if acronym in self.eventsByAcronym:
-                            self.eventsByAcronym[acronym].append(event)
+                        if acronym in self.eventsByCheckedAcronym:
+                            self.eventsByCheckedAcronym[acronym].append(event)
                         else:
-                            self.eventsByAcronym[acronym]=[event]    
+                            self.eventsByCheckedAcronym[acronym]=[event]    
                 except pp.ParseException as pe:
                     if EventManager.debug:
                         print(event.acronym)
                         print(pe)
                     pass
-        self.showProgress ("found %d acronyms" % (len(self.eventsByAcronym)))          
+        self.showProgress ("found %d checked acronyms of %d events with acronyms" % (len(self.eventsByCheckedAcronym),len(self.eventsByAcronym)))          
     
     def isCached(self):
         ''' check whether there is a file containing cached 
@@ -97,6 +109,8 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         if em is not None:
             if em.events is not None:
                 self.events=em.events     
+            if em.eventsByAcronym:
+                self.eventsByAcronym=em.eventsByAcronym    
         self.showProgress("found %d events" % (len(self.events)))        
         
     def store(self):
@@ -180,7 +194,7 @@ class Event(object):
             else:
                 self.country=self.country.replace("Category:","")     
         self.url="https://www.openresearch.org/wiki/%s" % (self.event) 
-        self.fixAcronym()
+        self.getLookupAcronym()
             
     def fromTitle(self,title):
         ''' fill my data from the given Title '''
@@ -189,7 +203,7 @@ class Event(object):
         if 'event' in md:
             md['eventType']=md['event']
         self.fromDict(md)
-        self.fixAcronym()
+        self.getLookupAcronym()
             
     def fromDict(self,srcDict):
         ''' fill my data from the given source Dict'''
@@ -199,15 +213,19 @@ class Event(object):
         for key in srcDict:
             if key not in ['id']:
                 value=srcDict[key]
-                d[key]=value         
+                d[key]=value        
+        self.getLookupAcronym()         
     
-    def fixAcronym(self):
-        if not hasattr(self,'acronym') or self.acronym is None:
+    def getLookupAcronym(self):
+        ''' get the lookup acronym of this event e.g. add year information '''
+        if hasattr(self,'acronym') and self.acronym is not None:
+            self.lookupAcronym=self.acronym
+        else:
             if hasattr(self,'event'):
-                self.acronym=self.event
-        if hasattr(self,'acronym'):
-            if hasattr(self, 'year') and not re.search(r'[0-9]{4}',self.acronym):
-                self.acronym="%s %s" % (self.acronym,str(self.year))
+                self.lookupAcronym=self.event
+        if hasattr(self,'lookupAcronym'):
+            if hasattr(self, 'year') and not re.search(r'[0-9]{4}',self.lookupAcronym):
+                self.lookupAcronym="%s %s" % (self.lookupAcronym,str(self.year))
             pass       
     
     def asJson(self):

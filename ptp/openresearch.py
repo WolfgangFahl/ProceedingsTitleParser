@@ -101,4 +101,4 @@ class OpenResearch(object):
             self.em.store()
         else:
             self.em.fromStore()    
-        self.em.extractAcronyms()
+        self.em.extractCheckedAcronyms()

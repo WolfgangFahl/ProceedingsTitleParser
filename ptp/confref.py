@@ -30,7 +30,6 @@ class ConfRef(object):
             rawevent['eventId']=rawevent['id']
             event=Event()
             event.fromDict(rawevent)
-            event.fixAcronym()
             event.event=rawevent['id']
             event.source='confref'
             event.url='http://portal.confref.org/list/%s' % rawevent['id']
@@ -43,6 +42,6 @@ class ConfRef(object):
             self.cacheEvents()
         else:
             self.em.fromStore()    
-        self.em.extractAcronyms()            
+        self.em.extractCheckedAcronyms()            
         
         

@@ -38,7 +38,6 @@ class WikiData(object):
                 if 'eventId' in title.info:    
                     event=Event()
                     event.fromTitle(title)
-                    event.fixAcronym()
                     event.url="%s" % (title.info['eventId'])
                     self.em.add(event)     
         self.em.store()
@@ -49,5 +48,5 @@ class WikiData(object):
             self.cacheEvents()
         else:
             self.em.fromStore()    
-        self.em.extractAcronyms()
+        self.em.extractCheckedAcronyms()
         

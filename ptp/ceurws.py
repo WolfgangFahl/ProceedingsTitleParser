@@ -50,7 +50,7 @@ class CEURWS(object):
             self.cacheEvents()
         else:
             self.em.fromStore()    
-        self.em.extractAcronyms()
+        self.em.extractCheckedAcronyms()
         
 class CeurwsEvent(object):
     ''' an Event derived from CEUR-WS '''

@@ -8,6 +8,7 @@ import ptp.openresearch
 import ptp.ceurws
 import ptp.confref
 import ptp.wikidata
+import ptp.dblp
 import os
 import yaml
 
@@ -31,7 +32,7 @@ class Lookup(object):
             self.butNot=butNot
         lookupIds=['or']
         if getAll:
-            lookupIds=['or','ceur-ws','confref','wikidata']
+            lookupIds=['or','ceur-ws','confref','wikidata','dblp']
         for lookupId  in lookupIds:
             lem=None
             if not lookupId in self.butNot:
@@ -46,7 +47,10 @@ class Lookup(object):
                     lem=ptp.confref.ConfRef(debug=self.debug)
                 elif lookupId=='wikidata':
                     # https://www.wikidata.org/wiki/Wikidata:Main_Page
-                    lem=ptp.wikidata.WikiData(debug=self.debug)                  
+                    lem=ptp.wikidata.WikiData(debug=self.debug)      
+                elif lookupId=='dblp':
+                    # https://dblp.org/
+                    lem=ptp.dblp.Dblp(debug=self.debug)                
             if lem is not None:
                 lem.initEventManager()
                 ems.append(lem.em);

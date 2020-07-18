@@ -26,7 +26,7 @@ class TestDblp(unittest.TestCase):
         dblp.cacheEvents()
         foundEvents=len(dblp.rawevents)
         cachedEvents=len(dblp.em.events)
-        dblp.em.extractAcronyms() 
+        dblp.em.extractCheckedAcronyms() 
         self.assertEqual(43978,foundEvents)
         self.assertEqual(43978,cachedEvents)
         print("found %d  and cached %d events from dblp" % (foundEvents,cachedEvents))

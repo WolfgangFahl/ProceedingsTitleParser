@@ -16,7 +16,7 @@ class TestEvent(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testFixAcronym(self):
+    def testGetLookupAcronym(self):
         ''' test fixing acronyms that contain no year '''
         eventinfos = [
             {"acronym":"FLAM 2013"},
@@ -28,8 +28,8 @@ class TestEvent(unittest.TestCase):
         for idx, eventinfo in enumerate(eventinfos):
             event = Event()
             event.fromDict(eventinfo)
-            event.fixAcronym()
-            self.assertEqual(fixed[idx], event.acronym)
+            event.getLookupAcronym()
+            self.assertEqual(fixed[idx], event.lookupAcronym)
             
     def testWikiSon(self):
         ''' test WikiSon format '''
@@ -44,10 +44,12 @@ class TestEvent(unittest.TestCase):
             eventDicts=[]
             event = Event()
             event.fromDict(eventinfo)
-            event.fixAcronym()
+            event.getLookupAcronym()
             eventDicts.append(event.__dict__)
         wikison=EventManager.asWikiSon(eventDicts)    
         print (wikison)
+        self.assertTrue('{{Event' in wikison)
+        self.assertTrue('|event=AAMAS 2015' in wikison)
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

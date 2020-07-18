@@ -13,7 +13,6 @@ class Dblp(object):
     see e.g. https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/25
     '''
 
-
     def __init__(self,debug=False):
         '''
         Constructor
@@ -38,7 +37,6 @@ class Dblp(object):
                 rawevent['acronym']="%s %s" % (rawevent['booktitle'],rawevent['year'])
             event=Event()
             event.fromDict(rawevent)
-            event.fixAcronym()
             event.event=rawevent['@key']
             event.source='dblp'
             if 'url' in rawevent:
@@ -52,5 +50,5 @@ class Dblp(object):
             self.cacheEvents()
         else:
             self.em.fromStore()    
-        self.em.extractAcronyms()            
+        self.em.extractCheckedAcronyms()            
         
