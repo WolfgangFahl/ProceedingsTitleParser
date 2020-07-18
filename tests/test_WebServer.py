@@ -48,8 +48,8 @@ class TestWebServer(unittest.TestCase):
         eventResult=response.get_json()
         #if self.debug:
         print (eventResult)
-        self.assertEqual(2,eventResult["count"])
-        self.assertEqual(2,len(eventResult["events"]))
+        self.assertEqual(4,eventResult["count"])
+        self.assertEqual(4,len(eventResult["events"]))
         
     #def testJson2XML(self):
     # https://github.com/vinitkumar/json2xml/issues/59
