@@ -82,7 +82,7 @@ class CeurwsEvent(object):
                 
             self.acronym=self.fromSpan(soup,'CEURVOLACRONYM')
             self.title=self.fromSpan(soup,"CEURFULLTITLE")
-            self.loctime=self.fromSpan(soup,"CEURLLOCTIME")
+            self.loctime=self.fromSpan(soup,"CEURLOCTIME")
             self.valid=True
         except urllib.error.HTTPError as herr:
             self.err=herr
