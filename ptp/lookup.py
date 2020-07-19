@@ -63,7 +63,7 @@ class Lookup(object):
         if '/ceur-ws.org/' in url:
             event=ptp.ceurws.CeurwsEvent()
             event.fromUrl(url)
-            result={'source':'CEUR-WS','eventId': event.vol,'proceedingsUrl': event.proceedingsUrl,'title': event.title, 'acronym': event.acronym}
+            result={'source':'CEUR-WS','eventId': event.vol,'proceedingsUrl': event.proceedingsUrl,'title': event.title, 'acronym': event.acronym, 'loctime': event.loctime}
         return result
 
     @staticmethod

@@ -59,6 +59,7 @@ class CeurwsEvent(object):
         self.debug=debug
         self.title=None
         self.acronym=None
+        self.loctime=None
         self.valid=False
         self.err=None
     
