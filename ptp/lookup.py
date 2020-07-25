@@ -9,6 +9,7 @@ import ptp.ceurws
 import ptp.confref
 import ptp.wikidata
 import ptp.dblp
+import ptp.crossref
 import os
 import yaml
 
@@ -64,6 +65,19 @@ class Lookup(object):
             event=ptp.ceurws.CeurwsEvent()
             event.fromUrl(url)
             result={'source':'CEUR-WS','eventId': event.vol,'proceedingsUrl': event.proceedingsUrl,'title': event.title, 'acronym': event.acronym, 'loctime': event.loctime}
+        elif '//doi.org/' in url:
+            doi=url.replace("//doi.org/","")
+            doi=doi.replace("https:","") 
+            doi=doi.replace("http:","")
+            return self.extractFromDOI(doi) 
+        return result
+    
+    def extractFromDOI(self,doi):
+        ''' extract Meta Data from the given DOI '''
+        cr=ptp.crossref.Crossref()
+        metadata=cr.doiMetaData(doi)
+        title=metadata['title'][0]
+        result={'source': 'Crossref','eventId': doi,'title':title, 'proceedingsUrl':'https://doi.org/%s' % doi,'metadata': metadata}
         return result
 
     @staticmethod

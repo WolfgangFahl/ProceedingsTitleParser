@@ -101,6 +101,15 @@ class TestWebServer(unittest.TestCase):
         self.assertTrue("{{Event" in wikison.decode())
         pass   
     
+    def testDOIMode(self):
+        ''' test the doi mode according to https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/28'''
+        query='/parse?titles=10.1637/0005-2086-63.1.117'
+        response=self.app.get(query+"&format=json")
+        self.assertEqual(response.status_code, 200)
+        eventResult=response.get_json()
+        #if self.debug:
+        print (eventResult)
+    
     def testFormatQueryParameterCsv(self):
         # test WikiSon handling
         query='/parse?titles=PAKM+2000'

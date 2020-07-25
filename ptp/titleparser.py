@@ -132,7 +132,14 @@ class TitleParser(object):
                 self.records.append({'source':'CEUR-WS','eventId': vol,'title': title})
             elif mode=="line":
                 title=line.strip()
-                if title.startswith('http'):
+                # DOI
+                # https://www.crossref.org/blog/dois-and-matching-regular-expressions/
+                if re.match(r'^10.\d{4,9}\/.*',title):
+                    if self.lookup:
+                        record=self.lookup.extractFromDOI(title)
+                        self.records.append(record)
+                # URL
+                elif title.startswith('http'):
                     if self.lookup:
                         record=self.lookup.extractFromUrl(title)
                         self.records.append(record)
