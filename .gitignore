@@ -139,3 +139,7 @@ cache
 plots
 # Mac OS
 .DS_Store
+# linked scripts
+scripts/alpha
+scripts/zero
+scripts/ratel

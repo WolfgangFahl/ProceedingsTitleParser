@@ -1,0 +1,190 @@
+#!/bin/bash
+# WF 2020-08-05
+#
+# Starts zero alpha and ratel docker based with one script
+#
+# see https://dgraph.io/tour/intro/2/
+# see https://stackoverflow.com/questions/63260073/starting-zero-alpha-and-ratel-in-a-single-command-e-g-in-macosx-and-other-envir
+# see https://discuss.dgraph.io/t/dgraph-start-script/9231
+
+version=v20.03.0
+# interative tty option for docker
+it="-it"
+
+os=$(uname)
+case $os in
+  Linux)
+    docker="docker"
+    it="";;
+    #docker="sudo docker";;
+  Darwin)
+    docker="docker";;
+  *)
+    docker="docker";;
+esac
+
+#ansi colors
+#http://www.csc.uvic.ca/~sae/seng265/fall04/tips/s265s047-tips/bash-using-colors.html
+blue='\033[0;34m'
+red='\033[0;31m'
+green='\033[0;32m' # '\e[1;32m' is too bright for white bg.
+endColor='\033[0m'
+
+#
+# a colored message
+#   params:
+#     1: l_color - the color of the message
+#     2: l_msg - the message to display
+#
+color_msg() {
+  local l_color="$1"
+  local l_msg="$2"
+  echo -e "${l_color}$l_msg${endColor}"
+}
+
+#
+# error
+#
+# show the given error message on stderr and exit
+#
+#   params:
+#     1: l_msg - the error message to display
+#
+error() {
+  local l_msg="$1"
+  # use ansi red for error
+  color_msg $red "Error:" 1>&2
+  color_msg $red "\t$l_msg" 1>&2
+  exit 1
+}
+
+
+# show usage
+#
+usage() {
+  echo "$0 [-b|--bash|-h|--help|-k|--kill|-p|--pull]"
+  echo ""
+  echo "-b | --bash: start a bash terminal shell within the currently running container"
+  echo "-h | --help: show this usage"
+  echo "-k | --kill: stop the docker image"
+  echo "-p | --pull: pull the docker image"
+  exit 1
+}
+
+#
+# stop the docker image
+#
+stopImage() {
+  color_msg $blue "stopping and removing dgraph image ..."
+  $docker stop dgraph
+  $docker rm dgraph
+  color_msg $green "...done"
+}
+
+#
+# pull the docker image
+#
+pullImage() {
+  color_msg $blue "pulling dgraph image $version ..."
+  $docker pull dgraph/dgraph:$version
+  color_msg $green "...done"
+}
+
+#
+# start a bash shell within the currently running container
+#
+bashInto() {
+  $docker exec -it dgraph bash
+}
+
+#
+# dgraph zero
+#
+zero() {
+  # Let’s create a folder for storing Dgraph data outside of the container:
+  mkdir -p ~/dgraph
+  $docker run $it -p 5080:5080 -p 6080:6080 -p 8080:8080 \
+  -p 9080:9080 -p 8000:8000 -v ~/dgraph:/dgraph --name dgraph \
+  dgraph/dgraph:$version dgraph zero
+}
+
+#
+# dgraph alpha
+#
+alpha() {
+  $docker exec $it dgraph dgraph alpha --lru_mb 2048 --zero localhost:5080 --whitelist 0.0.0.0/0
+}
+
+#
+# dgraph ratel
+#
+ratel() {
+  $docker exec $it dgraph dgraph-ratel
+}
+
+me=$0
+dir=$(dirname $0)
+base=$(basename $0)
+if [ $# -lt 1 ]
+then
+case $base in
+  dgraph)
+    # Run Dgraph zero
+    # And in another, run ratel (Dgraph UI)
+    # In another terminal, now run Dgraph alpha
+    for option in zero ratel alpha
+    do
+      # make sure linked versions of command are available
+      if [ ! -f $dir/$option ]
+      then
+        color_msg $blue "creating link $dir/$option"
+        ln $dir/dgraph $dir/$option
+      fi
+      #echo $dir $option
+      color_msg $blue "starting dgraph $option ..."
+      case $os in
+          Darwin)
+            open -a terminal.app $dir/$option
+          ;;
+          # https://askubuntu.com/questions/46627/how-can-i-make-a-script-that-opens-terminal-windows-and-executes-commands-in-the
+          Linux)
+            #for terminal in gnome-terminal xterm konsole
+            #do
+            #    which $terminal > /dev/null
+            #  if [ $? -eq 0 ]
+            #    then
+            #    $terminal -e $dir/$option
+            #    break
+            #  fi
+            #done
+            nohup $dir/$option > /tmp/$option.log 2>&1 &
+            sleep 2
+            tail /tmp/$option.log
+          ;;
+          *)
+            error "unsupported operating system $os"
+      esac
+      # wait a bit
+      sleep 2
+    done
+    ;;
+    alpha) alpha;;
+    ratel) ratel;;
+    zero) zero;;
+  esac
+fi
+# commandline option
+while [  "$1" != ""  ]
+do
+  option="$1"
+  case $option in
+    alpha) alpha;;
+    ratel) ratel;;
+    zero) zero;;
+    -p|--pull) pullImage;;
+    -b|--bash) bashInto;;
+    -k|--kill) stopImage;;
+    -h|--help) usage;;
+  esac
+  shift
+done

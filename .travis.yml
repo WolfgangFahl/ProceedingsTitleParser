@@ -20,6 +20,11 @@ install:
 script:
 # command to install dependencies
   - ./install
+# command to pull and run Dgraph
+  # pull dgraph
+  - scripts/dgraph -p
+  # run dgraph
+  - scripts/dgraph
 # command to get sample data
   - scripts/getsamples
 # command to run tests
