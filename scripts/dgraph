@@ -7,7 +7,7 @@
 # see https://stackoverflow.com/questions/63260073/starting-zero-alpha-and-ratel-in-a-single-command-e-g-in-macosx-and-other-envir
 # see https://discuss.dgraph.io/t/dgraph-start-script/9231
 
-version=v20.03.0
+version=v20.07.0
 # interative tty option for docker
 it="-it"
 
@@ -112,7 +112,7 @@ zero() {
 # dgraph alpha
 #
 alpha() {
-  $docker exec $it dgraph dgraph alpha --lru_mb 2048 --zero localhost:5080 --whitelist 0.0.0.0/0
+  $docker exec $it dgraph dgraph alpha --lru_mb 4096 --zero localhost:5080 --whitelist 0.0.0.0/0
 }
 
 #

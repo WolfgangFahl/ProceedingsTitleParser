@@ -10,13 +10,15 @@ import re
 import os
 from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
+from storage.dgraph import Dgraph
 import pyparsing as pp
+import time
 
 class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,mode='json',withShowProgress=True):
+    def __init__(self,name,debug=False,mode='json',withShowProgress=True):
         '''
         Constructor
         '''
@@ -26,7 +28,10 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.eventsByAcronym={}
         self.eventsByCheckedAcronym={}
         self.withShowProgress=True
-        self.showProgress ("Creating Eventmanager for %s" % (self.name))
+        self.debug=debug
+        self.showProgress ("Creating Eventmanager(%s) for %s" % (self.mode,self.name))
+        if self.mode=='dgraph':
+            self.dgraph=Dgraph(debug=self.debug)
         
     def showProgress(self,msg):
         ''' display a progress message '''
@@ -86,10 +91,28 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     
     def removeCacheFile(self):
         '''  remove my cache file '''
-        cacheFile=self.getCacheFile()
-        if os.path.isfile(cacheFile):
-            os.remove(cacheFile)
-    
+        if self.mode=='json':
+            cacheFile=self.getCacheFile()
+            if os.path.isfile(cacheFile):
+                os.remove(cacheFile)
+        elif self.mode=='dgraph':
+            # https://discuss.dgraph.io/t/running-upsert-in-python/9364
+            """mutation='''
+            upsert {  
+  query {
+    # get the uids of all Event nodes
+     events as var (func: has(<dgraph.type>)) @filter(eq(<dgraph.type>, "Country")) {
+        uid
+    }
+  }
+  mutation {
+    delete {
+      uid(events) * * .
+    }
+  }
+}'''        
+            self.dgraph.query(mutation)"""
+                    
         
     def getCacheFile(self):
         ''' get the path to the file for my cached data '''    
@@ -99,6 +122,9 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         return cachepath
     
     def fromStore(self):
+        '''
+        restore me from the store
+        '''
         cacheFile=self.getCacheFile()
         self.showProgress("reading events from cache %s" % (cacheFile))
         em=None
@@ -115,12 +141,23 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         
     def store(self):
         ''' store me '''
-        cacheFile=self.getCacheFile()
-        self.showProgress ("storing %d events to cache %s" % (len(self.events),cacheFile))
         if self.mode=="json":    
+            cacheFile=self.getCacheFile()
+            self.showProgress ("storing %d events to cache %s" % (len(self.events),cacheFile))
             self.writeJson(cacheFile)
+        elif self.mode=="dgraph":
+            eventList=[]
+            for event in self.events.values():
+                d=event.__dict__
+                eventList.append(d)
+            # limit the list to 10 elements
+            eventList=eventList[:250]
+            startTime=time.time()
+            self.showProgress ("storing %d events to  %s" % (len(eventList),self.mode))
+            self.dgraph.addData(obj=eventList)
+            self.showProgress ("done after %5.1f secs" % (time.time()-startTime))
         else:
-            raise Exception("unsupported store mode %s",self.mode)    
+            raise Exception("unsupported store mode %s" % self.mode)    
   
     @staticmethod
     def asWikiSon(eventDicts):  
@@ -211,9 +248,11 @@ class Event(object):
             srcDict['event']=srcDict['acronym']
         d=self.__dict__
         for key in srcDict:
-            if key not in ['id']:
-                value=srcDict[key]
-                d[key]=value        
+            targetKey=key
+            if key=="id":
+                targetKey='identifier'
+            value=srcDict[key]
+            d[targetKey]=value        
         self.getLookupAcronym()         
     
     def getLookupAcronym(self):

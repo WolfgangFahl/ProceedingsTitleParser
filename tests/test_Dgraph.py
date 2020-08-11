@@ -4,7 +4,7 @@ Created on 2020-08-11
 @author: wf
 '''
 import unittest
-from dg.dgraph import Dgraph
+from storage.dgraph import Dgraph
 
 class TestDdgraph(unittest.TestCase):
     '''

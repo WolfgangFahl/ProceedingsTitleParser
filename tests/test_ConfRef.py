@@ -5,8 +5,8 @@ Created on 2020-07-11
 '''
 import unittest
 from ptp.confref import ConfRef
+from storage.dgraph import Dgraph
 
-import os
 class TestConfRef(unittest.TestCase):
     ''' test handling for data from portal.confref.org '''
 
@@ -18,10 +18,11 @@ class TestConfRef(unittest.TestCase):
     def tearDown(self):
         pass
 
-
     def testConfRef(self):
         ''' test reading confRef data '''
-        confRef=ConfRef()
+        dgraph=Dgraph()
+        dgraph.drop_all()
+        confRef=ConfRef(mode='json')
         confRef.em.removeCacheFile()
         #EventManager.debug=True
         confRef.cacheEvents()
@@ -32,7 +33,6 @@ class TestConfRef(unittest.TestCase):
         self.assertEqual(37945,cachedEvents)
         print("found %d  and cached %d events from confref" % (foundEvents,cachedEvents))
         pass
-
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

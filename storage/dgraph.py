@@ -42,7 +42,7 @@ class Dgraph(object):
             if obj is not None:
                 # check whether obj is  a list of items 
                 # if do a mutation for every item in the list
-                if obj is list:
+                if type(obj) is list:
                     for item in obj:
                         txn.mutate(set_obj=item)
                 else:        
@@ -52,6 +52,8 @@ class Dgraph(object):
                 response = txn.mutate(set_nquads=nquads)    
             # Commit transaction.
             txn.commit()
+        except Exception as err:
+            print(err)    
         finally:
             if self.debug:
                 print(obj)
