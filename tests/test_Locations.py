@@ -7,6 +7,8 @@ import unittest
 import time
 from dg.dgraph import Dgraph
 from ptp.location import CountryManager
+from ptp.listintersect import ListOfDict
+import datetime
 
 class TestLocations(unittest.TestCase):
     '''
@@ -43,31 +45,32 @@ class TestLocations(unittest.TestCase):
         self.assertTrue('countries' in queryResult)
         countries=queryResult['countries']
         self.assertEqual(len(countries),len(cm.countryList))
-        countryIterator=iter(countries)
-        checkIterator=iter(cm.confRefCountries)
-        currentCountry=next(countryIterator)
-        currentCheck=next(checkIterator)
-        count=0
-        while True:
-            try:
-                currentName=currentCountry['name']
-                checkName=currentCheck['name']
-                #print ("%s - %s" % (currentName,checkName))
-                if currentName<checkName:
-                    currentCountry=next(countryIterator)
-                elif currentName>checkName:
-                    currentCheck=next(checkIterator)
-                else:
-                    print (checkName)
-                    count+=1
-                    currentCountry=next(countryIterator)
-                    currentCheck=next(checkIterator)
-            except StopIteration:
-                break
-        print("found %d valid countries " % (count))    
-        self.assertEquals(138,count)
+        validCountries=ListOfDict.intersect(countries, cm.confRefCountries, 'name')
+        print("found %d valid countries " % (len(validCountries)))    
+        self.assertEquals(138,len(validCountries))
         dgraph.close()
         pass
+    
+    def testIntersection(self):
+        '''
+        test creating the intersection of a list of dictionaries
+        '''
+        list1 = [{'count': 351, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
+         {'count': 332, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
+         {'count': 336, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
+         {'count': 359, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
+         {'count': 309, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'}]
+
+        list2 = [{'count': 359, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
+             {'count': 351, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
+             {'count': 381, 'evt_datetime': datetime.datetime(2015, 10, 22, 8, 45), 'att_value': 'red'}]
+        
+        listi=ListOfDict.intersect(list1, list2,'count')
+        print(listi)
+        self.assertEquals(2,len(listi))
+        listi=ListOfDict.intersect(list1, list2)
+        print(listi)
+        self.assertEquals(2,len(listi))
 
 
 if __name__ == "__main__":
