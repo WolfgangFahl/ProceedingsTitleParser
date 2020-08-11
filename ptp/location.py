@@ -5,6 +5,7 @@ Created on 2020-08-11
 '''
 import urllib.request
 import json
+import os
 
 class Country(object):
     '''
@@ -22,6 +23,8 @@ class CountryManager(object):
         '''
         Constructor
         '''
+        path=os.path.dirname(__file__)
+        self.sampledir=path+"/../sampledata/"
         self.schema='''
 name: string @index(exact) .
 code: string @index(exact) .     
@@ -48,7 +51,7 @@ type Country {
         '''
         get countries from ConfRef 
         '''
-        confRefCountriesJsonFileName='../sampledata/confref-countries.json'
+        confRefCountriesJsonFileName='%s/confref-countries.json' % self.sampledir
         with open(confRefCountriesJsonFileName) as confRefCountriesJson:
             self.confRefCountries=json.load(confRefCountriesJson)
         for country in self.confRefCountries:
