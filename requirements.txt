@@ -35,3 +35,6 @@ jsons
 dicttoxml
 # https://pypi.org/project/habanero/
 habanero
+# Python Graph handling package
+# https://pypi.org/project/pydgraph/
+pydgraph
