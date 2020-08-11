@@ -33,6 +33,16 @@ type Country {
    location
    capital
 }'''
+        self.graphQuery='''{
+  # list of countries sorted by name
+  countries(func: has(isocode),orderasc: name) {
+    uid
+    name
+    isocode
+    capital
+    location
+  }
+}'''
     
     def fromConfRef(self):
         '''
@@ -41,6 +51,9 @@ type Country {
         confRefCountriesJsonFileName='../sampledata/confref-countries.json'
         with open(confRefCountriesJsonFileName) as confRefCountriesJson:
             self.confRefCountries=json.load(confRefCountriesJson)
+        for country in self.confRefCountries:
+            country['name']=country.pop('value')   
+        self.confRefCountries=sorted(self.confRefCountries, key = lambda c: c['name'])     
             
     def fromErdem(self):    
         ''' 
