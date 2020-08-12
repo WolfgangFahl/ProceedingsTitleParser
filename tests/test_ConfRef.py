@@ -22,7 +22,7 @@ class TestConfRef(unittest.TestCase):
         ''' test reading confRef data '''
         dgraph=Dgraph()
         dgraph.drop_all()
-        confRef=ConfRef(mode='json')
+        confRef=ConfRef(mode='dgraph')
         confRef.em.removeCacheFile()
         #EventManager.debug=True
         confRef.cacheEvents()

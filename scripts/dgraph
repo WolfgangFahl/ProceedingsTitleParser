@@ -7,7 +7,7 @@
 # see https://stackoverflow.com/questions/63260073/starting-zero-alpha-and-ratel-in-a-single-command-e-g-in-macosx-and-other-envir
 # see https://discuss.dgraph.io/t/dgraph-start-script/9231
 
-version=v20.07.0
+version=v20.03.0
 # interative tty option for docker
 it="-it"
 
@@ -62,12 +62,13 @@ error() {
 # show usage
 #
 usage() {
-  echo "$0 [-b|--bash|-h|--help|-k|--kill|-p|--pull]"
+  echo "$0 [-b|--bash|-c|--clean|-h|--help|-k|--kill|-p|--pull]"
   echo ""
   echo "-b | --bash: start a bash terminal shell within the currently running container"
   echo "-h | --help: show this usage"
   echo "-k | --kill: stop the docker image"
   echo "-p | --pull: pull the docker image"
+  echo "-c | --clean: clean start with kill and purge of all data"
   exit 1
 }
 
@@ -181,6 +182,16 @@ do
     alpha) alpha;;
     ratel) ratel;;
     zero) zero;;
+    -c|--clean)
+       stopImage
+       if [ -d ~/dgraph ]
+       then
+          color_msg $blue "removing content from ~/dgraph"
+          rm -rf ~/dgraph/*
+       fi
+       # call me with no parameters to start terminals
+       $me
+       ;;
     -p|--pull) pullImage;;
     -b|--bash) bashInto;;
     -k|--kill) stopImage;;
