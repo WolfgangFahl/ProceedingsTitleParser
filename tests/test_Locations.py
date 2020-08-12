@@ -5,7 +5,7 @@ Created on 2020-08-11
 '''
 import unittest
 import time
-from dg.dgraph import Dgraph
+from storage.dgraph import Dgraph
 from ptp.location import CountryManager
 from ptp.listintersect import ListOfDict
 import datetime
