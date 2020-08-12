@@ -6,9 +6,10 @@ Created on 2020-08-11
 import unittest
 import time
 from storage.dgraph import Dgraph
-from ptp.location import CountryManager
+from ptp.location import CountryManager, CityManager
 from ptp.listintersect import ListOfDict
 import datetime
+from collections import Counter
 
 class TestLocations(unittest.TestCase):
     '''
@@ -23,7 +24,29 @@ class TestLocations(unittest.TestCase):
 
     def tearDown(self):
         pass
-
+    
+    def testCities(self):
+        '''
+        test consolidating cities from different sources
+        '''
+        cim=CityManager()
+        startTime=time.time()
+        cim.fromLutangar()
+        self.assertEqual(128769,(len(cim.cityList)))
+        print ("reading %d cities from github took %5.1f secs" % (len(cim.cityList),time.time()-startTime))
+        startTime=time.time()
+        orCities=cim.fromOpenResearch(showProgress=True)
+        cityCounter=Counter(orCities)
+        uniqueCities=list(cityCounter.most_common())
+        print ("reading %d cities from %d events from openresearch took %5.1f secs" % (len(uniqueCities),len(orCities),time.time()-startTime))
+        print (cityCounter.most_common(10))
+        orCityList=[]
+        for cityName,count in uniqueCities:
+            orCityList.append({'name': cityName, 'count': count})
+        startTime=time.time()
+        validCities=ListOfDict().intersect(cim.cityList, orCityList, 'name')
+        print ("validating %d cities from openresearch took %5.1f secs" % (len(validCities),time.time()-startTime))
+     
 
     def testCountries(self):
         '''

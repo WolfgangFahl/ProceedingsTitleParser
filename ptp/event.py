@@ -147,15 +147,12 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             self.writeJson(cacheFile)
         elif self.mode=="dgraph":
             eventList=[]
+            startTime=time.time()
             for event in self.events.values():
                 d=event.__dict__
                 eventList.append(d)
-            # limit the list to 10 elements
-            eventList=eventList[:250]
-            startTime=time.time()
-            self.showProgress ("storing %d events to  %s" % (len(eventList),self.mode))
-            self.dgraph.addData(obj=eventList)
-            self.showProgress ("done after %5.1f secs" % (time.time()-startTime))
+                self.dgraph.addData(eventList)
+            self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
         else:
             raise Exception("unsupported store mode %s" % self.mode)    
   

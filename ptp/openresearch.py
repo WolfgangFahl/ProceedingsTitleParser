@@ -18,7 +18,7 @@ class OpenResearch(object):
         '''
         Constructor
         '''
-        self.smw=self.getSMW()
+        self.smw=OpenResearch.getSMW()
         self.debug=debug
         self.em=EventManager('or')
         
@@ -82,12 +82,14 @@ class OpenResearch(object):
             raise Exception("%s is ambigous %d result found" % (pageTitle,len(askResult)))        
         return event  
 
-    def getSMW(self):
-        wikibot=OpenResearch.getSMW_Wiki(self)
+    @staticmethod
+    def getSMW():
+        wikibot=OpenResearch.getSMW_Wiki()
         smw=SMW(wikibot.site)
         return smw
         
-    def getSMW_Wiki(self):
+    @staticmethod    
+    def getSMW_Wiki():
         wikiId="or"
         iniFile=WikiBot.iniFilePath(wikiId)
         if not os.path.isfile(iniFile):
