@@ -39,7 +39,7 @@ class TestLocations(unittest.TestCase):
         cityCounter=Counter(orCities)
         uniqueCities=list(cityCounter.most_common())
         print ("reading %d cities from %d events from openresearch took %5.1f secs" % (len(uniqueCities),len(orCities),time.time()-startTime))
-        print (cityCounter.most_common(10))
+        print (cityCounter.most_common(100))
         orCityList=[]
         for cityName,count in uniqueCities:
             orCityList.append({'name': cityName, 'count': count})

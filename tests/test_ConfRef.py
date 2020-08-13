@@ -6,6 +6,7 @@ Created on 2020-07-11
 import unittest
 from ptp.confref import ConfRef
 from storage.dgraph import Dgraph
+import getpass
 
 class TestConfRef(unittest.TestCase):
     ''' test handling for data from portal.confref.org '''
@@ -20,9 +21,21 @@ class TestConfRef(unittest.TestCase):
 
     def testConfRef(self):
         ''' test reading confRef data '''
-        dgraph=Dgraph()
+        host='localhost'
+        if getpass.getuser()=="wf":
+            host='venus'
+        dgraph=Dgraph(host=host)
         dgraph.drop_all()
-        confRef=ConfRef(mode='dgraph')
+        schema='''
+         identifier: string @index(exact) .
+         acronym: string .
+type Event {
+   identifier
+   acronym
+}
+        '''
+        dgraph.addSchema(schema)
+        confRef=ConfRef(mode='dgraph',host=host)
         confRef.em.removeCacheFile()
         #EventManager.debug=True
         confRef.cacheEvents()

@@ -18,7 +18,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,debug=False,mode='json',withShowProgress=True):
+    def __init__(self,name,debug=False,mode='json',withShowProgress=True,host='localhost'):
         '''
         Constructor
         '''
@@ -31,7 +31,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.debug=debug
         self.showProgress ("Creating Eventmanager(%s) for %s" % (self.mode,self.name))
         if self.mode=='dgraph':
-            self.dgraph=Dgraph(debug=self.debug)
+            self.dgraph=Dgraph(debug=self.debug,host=host,profile=True)
         
     def showProgress(self,msg):
         ''' display a progress message '''
@@ -151,7 +151,8 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             for event in self.events.values():
                 d=event.__dict__
                 eventList.append(d)
-                self.dgraph.addData(eventList)
+            self.showProgress ("storing %d events to %s" % (len(self.events),self.mode))    
+            self.dgraph.addData(eventList,limit=500,batchSize=250)
             self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
         else:
             raise Exception("unsupported store mode %s" % self.mode)    
