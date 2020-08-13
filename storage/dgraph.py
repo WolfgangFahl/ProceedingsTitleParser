@@ -55,12 +55,13 @@ class Dgraph(object):
                     size=len(itemList)
                     for i in range(0, size, batchSize):
                         itemBatch=itemList[i:i+batchSize]
-                        response=self.addDataTxn(obj=itemBatch, title="batch",index=i,total=size)
+                        response=self.addDataTxn(obj=itemBatch, title="batch",index=i,total=size,startTime=startTime)
                         responses.append(response)
-                    print("addData for %9d items in %6.1f secs" % (len(itemList),time.time()-startTime))
+                    if self.profile:
+                        print("addData for %9d items in %6.1f secs" % (len(itemList),time.time()-startTime))
                     return responses
         
-    def addDataTxn(self,obj=None,nquads=None,index=None,total=None,title="addData",itemTitle="items"):    
+    def addDataTxn(self,obj=None,nquads=None,index=None,total=None,title="addData",itemTitle="items",startTime=None):    
         response=None
         # Create a new transaction.
         txn = self.client.txn()
@@ -68,11 +69,11 @@ class Dgraph(object):
         try:
             itemList=obj
             size=1
-            if total is None:
-                total=size
             if index is None:
                 index=0    
-            startTime=time.time()
+            batchStartTime=time.time()
+            if startTime is None:
+                startTime=batchStartTime
             # Run mutation.
             if itemList is not None:
                 # check whether obj is  a list of items 
@@ -84,8 +85,10 @@ class Dgraph(object):
                 else:        
                     # single object
                     response = txn.mutate(set_obj=obj)
+                if total is None:
+                    total=size    
                 if self.profile:    
-                    print("%7s for %9d of %9d %s in %6.1f secs" % (title,index,total,itemTitle,time.time()-startTime))    
+                    print("%7s for %9d - %9d of %9d %s in %6.1f s -> %6.1f s" % (title,index+1,index+size,total,itemTitle,time.time()-batchStartTime,time.time()-startTime))    
             if nquads is not None:
                 response = txn.mutate(set_nquads=nquads)    
             # Commit transaction.
