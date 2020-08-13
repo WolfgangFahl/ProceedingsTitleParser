@@ -22,7 +22,7 @@ class ConfRef(object):
         self.jsondir=path+"/../sampledata/"
         self.jsonFilePath=self.jsondir+"confref-conferences.json"
         
-    def cacheEvents(self):
+    def cacheEvents(self,limit=1000000):
         ''' initialize me from my json file '''
         with open(self.jsonFilePath) as jsonFile:
             self.rawevents=json.load(jsonFile)
@@ -34,7 +34,7 @@ class ConfRef(object):
             event.source='confref'
             event.url='http://portal.confref.org/list/%s' % rawevent['id']
             self.em.add(event)    
-        self.em.store()        
+        self.em.store(limit=limit)        
                 
     def initEventManager(self):
         ''' initialize my event manager '''

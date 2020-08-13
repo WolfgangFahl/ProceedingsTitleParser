@@ -141,7 +141,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                 self.eventsByAcronym=em.eventsByAcronym    
         self.showProgress("found %d events" % (len(self.events)))        
         
-    def store(self):
+    def store(self,limit=10000000,batchSize=250):
         ''' store me '''
         if self.mode=="json":    
             cacheFile=self.getCacheFile()
@@ -154,7 +154,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                 d=event.__dict__
                 eventList.append(d)
             self.showProgress ("storing %d events to %s" % (len(self.events),self.mode))    
-            self.dgraph.addData(eventList,limit=500,batchSize=250)
+            self.dgraph.addData(eventList,limit=limit,batchSize=batchSize)
             self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
         else:
             raise Exception("unsupported store mode %s" % self.mode)    

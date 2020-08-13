@@ -29,16 +29,22 @@ class TestConfRef(unittest.TestCase):
         schema='''
          identifier: string @index(exact) .
          acronym: string .
+         country: string .
+         city: string .
 type Event {
    identifier
    acronym
+   country
+   city
 }
         '''
         dgraph.addSchema(schema)
-        confRef=ConfRef(mode='dgraph',host=host)
+        mode="dgraph"
+        limit=2000
+        confRef=ConfRef(mode=mode,host=host)
         confRef.em.removeCacheFile()
         #EventManager.debug=True
-        confRef.cacheEvents()
+        confRef.cacheEvents(limit=limit)
         foundEvents=len(confRef.rawevents)
         cachedEvents=len(confRef.em.events)
         confRef.em.extractCheckedAcronyms() 
