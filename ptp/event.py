@@ -18,12 +18,14 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,debug=False,mode='json',withShowProgress=True,host='localhost'):
+    def __init__(self,name,url=None,title=None,debug=False,mode='json',withShowProgress=True,host='localhost'):
         '''
         Constructor
         '''
         self.name=name
         self.mode=mode
+        self.url=url
+        self.title=title
         self.events={}
         self.eventsByAcronym={}
         self.eventsByCheckedAcronym={}

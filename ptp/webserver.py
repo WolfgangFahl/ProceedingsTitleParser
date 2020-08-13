@@ -28,6 +28,10 @@ def index(titles="",tc=None,errs=None,result=None,message=None,metadebug=True):
     """ render index page with the given parameters"""
     return render_template('index.html',titles=titles,tc=tc,errs=errs,result=result,message=message,metadebug=metadebug,examples=Lookup.getExamples())
 
+@app.route('/settings')
+def settings():
+    return render_template('settings.html',lookup=lookup)
+
 @app.route('/parse', methods=['POST','GET'])
 #@accept('text/html')
 def parseTitles():

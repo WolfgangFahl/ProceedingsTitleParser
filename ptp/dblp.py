@@ -18,7 +18,7 @@ class Dblp(object):
         Constructor
         '''
         self.debug=debug
-        self.em=EventManager('dblp')
+        self.em=EventManager('dblp',url='https://dblp.org/',title='dblp computer science bibliography')
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
         self.jsonFilePath=self.jsondir+"dblp.json"

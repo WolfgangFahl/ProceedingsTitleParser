@@ -4,6 +4,44 @@
    e.g. table4DictList
    https://stackoverflow.com/a/42848018/1497139
 #}
+{# show html header #}
+{% macro header(title) -%}
+<!DOCTYPE html>
+<html>
+    <head>
+    	<title>{{ title }}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+        <!--  Material Design Lite -->
+        <script src="md/material.min.js"></script>
+        <link rel="stylesheet" href="md/material.min.css">
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+        <!--  Material design icons see https://materialdesignicons.com/getting-started -->
+        <link href="css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="css/diagrams.css">
+    </head>
+    <body>
+        {% include 'menu.html' %}
+        <div id="navigationbox" title="{{ title }}">{{ title }}</div>
+        <div class="container-fluid" id="contentbox">
+{%- endmacro %}
+{# show html footer #}
+{% macro footer() -%}
+			<div class="row">
+                <div class="col-md-6">
+                {% if message is not none %}
+                    <pre>{{ message }}</pre>
+                {%endif %}    
+                </div>
+            </div>    
+            <!--  end of main content box -->
+            <!-- <div id="footerbox"></div> -->
+        </div>
+    </body>
+</html>
+{%- endmacro %}
 {# show metaData as Json Dumps #}
 {% macro metaDataDump(result) -%}
 {% if result is not none %}

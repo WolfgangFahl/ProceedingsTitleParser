@@ -26,7 +26,7 @@ class Lookup(object):
         self.ptp=ProceedingsTitleParser.getInstance()
         self.dictionary=ProceedingsTitleParser.getDictionary()
         # get the open research EventManager
-        ems=[]
+        self.ems=[]
         if butNot is None:
             self.butNot=[]
         else:
@@ -54,9 +54,9 @@ class Lookup(object):
                     lem=ptp.dblp.Dblp(debug=self.debug)                
             if lem is not None:
                 lem.initEventManager()
-                ems.append(lem.em);
+                self.ems.append(lem.em);
             
-        self.tp=TitleParser(lookup=self,name=name,ptp=self.ptp,dictionary=self.dictionary,ems=ems)
+        self.tp=TitleParser(lookup=self,name=name,ptp=self.ptp,dictionary=self.dictionary,ems=self.ems)
 
     def extractFromUrl(self,url):
         ''' extract a record from the given Url '''

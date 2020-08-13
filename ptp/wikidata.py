@@ -17,7 +17,7 @@ class WikiData(object):
         Constructor
         '''
         self.debug=debug
-        self.em=EventManager('wikidata')
+        self.em=EventManager('wikidata',url='https://www.wikidata.org/wiki/Wikidata:Main_Page',title='Wikidata')
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
         self.sampleFilePath=self.sampledir+"proceedings-wikidata.txt"

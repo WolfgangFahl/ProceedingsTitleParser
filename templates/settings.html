@@ -1,0 +1,31 @@
+{% import 'macros.html' as macros %}
+{{ macros.header("Proceedings Title Parser-Service - Settings") }}
+            <form action="/settings" method="GET">
+            <div class="row">
+                  <div id="entityManagerColumn" class="col-md-6">
+                  	<table class="table">
+						<thead>
+							<tr>
+							    <th scope="col">#</th>
+							    <th scope="col">Source</th>
+							    <th scope="col">mode</th>
+							    <th scope="col">events</th>
+							    <th scope="col">acronyms</th>
+							 </tr>
+						</thead>
+						<tbody>
+	                       {% for em in lookup.ems %}
+	                       <tr>
+							   	<th scope="row">{{ loop.index }}</th>
+							    <td><a href='{{em.url}}' title='{{em.title}}'>{{em.title}}</a></td>
+							    <td>{{em.mode}}</td>
+							    <td  style="text-align:right">{{ em.events|length }} </td>
+        						<td  style="text-align:right">{{ em.eventsByAcronym|length }} </td>
+							</tr>
+	                       {% endfor %}
+	                    </tbody>
+	                </table>      
+                  </div>
+            </div>      
+            </form>
+{{ macros.footer() }}             
