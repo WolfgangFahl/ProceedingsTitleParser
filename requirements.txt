@@ -38,3 +38,8 @@ habanero
 # Python Graph handling package
 # https://pypi.org/project/pydgraph/
 pydgraph
+# https://pypi.org/project/SPARQLWrapper/
+# 321 stars, 95 forks
+# https://github.com/RDFLib/sparqlwrapper
+# https://stackoverflow.com/questions/tagged/sparqlwrapper
+SPARQLWrapper
