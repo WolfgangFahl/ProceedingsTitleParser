@@ -21,6 +21,7 @@ script:
 # command to install dependencies
   - ./install
 # command to pull and run Dgraph
+# switch off due to https://discuss.dgraph.io/t/dgraph-v20-07-0-v20-03-0-unreliability-in-mac-os-environment/9376
   # pull dgraph
   - scripts/dgraph -p
   # run dgraph

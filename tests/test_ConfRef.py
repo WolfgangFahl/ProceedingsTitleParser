@@ -25,7 +25,8 @@ class TestConfRef(unittest.TestCase):
         if getpass.getuser()=="wf":
             host='venus'
         dgraph=Dgraph(host=host)
-        dgraph.drop_all()
+        # switch off due to https://discuss.dgraph.io/t/dgraph-v20-07-0-v20-03-0-unreliability-in-mac-os-environment/9376
+        # dgraph.drop_all()
         schema='''
          identifier: string @index(exact) .
          acronym: string .
@@ -38,8 +39,9 @@ type Event {
    city
 }
         '''
-        dgraph.addSchema(schema)
-        mode="dgraph"
+        #dgraph.addSchema(schema)
+        #mode="dgraph"
+        mode='json'
         limit=100000
         confRef=ConfRef(mode=mode,host=host)
         confRef.em.removeCacheFile()
