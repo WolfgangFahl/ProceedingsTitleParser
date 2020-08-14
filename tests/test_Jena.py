@@ -20,12 +20,16 @@ class TestJena(unittest.TestCase):
         pass
 
 
-    def testJena(self):
+    def getJena(self,mode='query'):
+        endpoint="http://localhost:3030/cr/%s" % mode
+        jena=Jena(endpoint)
+        return jena
+        
+    def testJenaQuery(self):
         '''
         test local jena fuseki endpoint
         '''
-        endpoint="http://localhost:3030/cr"
-        jena=Jena(endpoint)
+        jena=self.getJena()
         queryString = """
         PREFIX cr: <http://cr.bitplan.com/>
         SELECT ?version WHERE { cr:version cr:version ?version. }
@@ -42,6 +46,17 @@ class TestJena(unittest.TestCase):
         self.assertEqual("literal",version['type'])
         self.assertEqual("0.0.1",version['value'])
         pass
+    
+    def testJenaInsert(self):
+        jena=self.getJena(mode="update")
+        insertString = """
+        PREFIX cr: <http://cr.bitplan.com/>
+        INSERT DATA { 
+          cr:version cr:author "Wolfgang Fahl". 
+        }
+        """
+        results=jena.rawQuery(insertString)
+        print (results)
 
 
 if __name__ == "__main__":
