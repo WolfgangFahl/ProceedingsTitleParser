@@ -1,0 +1,32 @@
+#!/bin/bash
+# WF 2020-08-14
+
+#
+# get the absolute filename
+#
+get_abs_filename() {
+  # $1 : relative filename
+  echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+
+pwd=$(pwd)
+scriptPath=$(get_abs_filename $(dirname $0))
+
+
+#
+# dummy triple to fill apache jena
+#
+samplettl() {
+cat << EOF
+@prefix cr:  <http://cr.bitplan.com/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+cr:version rdf:type cr:version;
+	cr:version "0.0.1";
+	.
+EOF
+}
+
+ttl=/tmp/sample$$.ttl
+samplettl >$ttl
+$scriptPath/jena -l $ttl
+rm $ttl

@@ -25,6 +25,10 @@ script:
   - scripts/dgraph -p
   # run dgraph
   - scripts/dgraph
+  # run jena tdbloader
+  - scripts/crjena
+  # run jena fuseki server
+  - scripts/jena -f cr
 # command to get sample data
   - scripts/getsamples
 # command to run tests

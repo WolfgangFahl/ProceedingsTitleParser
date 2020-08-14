@@ -143,3 +143,6 @@ plots
 scripts/alpha
 scripts/zero
 scripts/ratel
+# jena directories
+lib
+data

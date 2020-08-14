@@ -40,7 +40,7 @@ type Event {
         '''
         dgraph.addSchema(schema)
         mode="dgraph"
-        limit=2000
+        limit=100000
         confRef=ConfRef(mode=mode,host=host)
         confRef.em.removeCacheFile()
         #EventManager.debug=True
