@@ -12,7 +12,7 @@ class TestJena(unittest.TestCase):
     '''
 
     def setUp(self):
-        self.debug=False
+        self.debug=True
         pass
 
 
@@ -39,15 +39,14 @@ class TestJena(unittest.TestCase):
         """
         
         results=jena.query(queryString)
+        versionList=jena.asListOfDicts(results)
         if self.debug:     
-            print (results)
+            print (versionList)
    
-        self.assertEqual(1,len(results))
-        result=results[0]
-        self.assertTrue("version" in result)
-        version=result["version"]
-        self.assertEqual("literal",version['type'])
-        self.assertEqual("0.0.1",version['value'])
+        self.assertEqual(1,len(versionList))
+        versionRecord=versionList[0]
+        self.assertTrue("version" in versionRecord)
+        self.assertEqual("0.0.1",versionRecord['version'])
         pass
     
     def testJenaInsert(self):
