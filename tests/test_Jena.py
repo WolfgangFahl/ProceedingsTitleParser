@@ -12,24 +12,27 @@ class TestJena(unittest.TestCase):
     '''
 
     def setUp(self):
-        self.debug=True
+        self.debug=False
         pass
 
 
     def tearDown(self):
         pass
 
-
-    def getJena(self,mode='query'):
-        endpoint="http://localhost:3030/cr/%s" % mode
-        jena=Jena(endpoint)
+    @staticmethod
+    def getJena(mode='query',debug=False,typedLiterals=False):
+        '''
+        get the jena endpoint for the given mode
+        '''
+        endpoint="http://localhost:3030/cr"
+        jena=Jena(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals)
         return jena
         
     def testJenaQuery(self):
         '''
         test local jena fuseki endpoint
         '''
-        jena=self.getJena()
+        jena=TestJena.getJena()
         queryString = """
         PREFIX cr: <http://cr.bitplan.com/>
         SELECT ?version WHERE { cr:version cr:version ?version. }
@@ -48,15 +51,16 @@ class TestJena(unittest.TestCase):
         pass
     
     def testJenaInsert(self):
-        jena=self.getJena(mode="update")
+        jena=TestJena.getJena(mode="update")
         insertString = """
         PREFIX cr: <http://cr.bitplan.com/>
         INSERT DATA { 
           cr:version cr:author "Wolfgang Fahl". 
         }
         """
-        results=jena.rawQuery(insertString)
-        print (results)
+        result=jena.insert(insertString)
+        if self.debug:
+            print (result)
 
 
 if __name__ == "__main__":

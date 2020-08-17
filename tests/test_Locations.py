@@ -6,17 +6,18 @@ Created on 2020-08-11
 import unittest
 import time
 from storage.dgraph import Dgraph
+from storage.jena import Jena
 from ptp.location import CountryManager, CityManager
 from ptp.listintersect import ListOfDict
 import datetime
 from collections import Counter
+import getpass
+from tests.test_Jena import TestJena
 
 class TestLocations(unittest.TestCase):
     '''
     check countries, provinces/states and cities
     '''
-
-
     def setUp(self):
         self.debug=False
         pass
@@ -47,6 +48,99 @@ class TestLocations(unittest.TestCase):
         validCities=ListOfDict().intersect(cim.cityList, orCityList, 'name')
         print ("validating %d cities from openresearch took %5.1f secs" % (len(validCities),time.time()-startTime))
      
+    def getDBPedia(self,mode='query',debug=False):
+        endpoint="http://dbpedia.org/sparql"
+        jena=Jena(endpoint,mode=mode,debug=debug)
+        return jena
+        
+    def testDBPediaCities(self):
+        '''
+        https://github.com/LITMUS-Benchmark-Suite/dbpedia-graph-convertor/blob/master/get_data.py
+        '''
+        dbpedia=self.getDBPedia()
+        # Query to get the population of cities
+        citiesWithPopulationQuery = """
+            PREFIX dbo: <http://dbpedia.org/ontology/>
+            SELECT ?city_name ?enName ?population
+            WHERE {
+                ?city_name a dbo:City .
+                OPTIONAL { ?city_name dbo:populationTotal ?population . }
+            }
+            """
+        citiesResult=dbpedia.query(citiesWithPopulationQuery)
+        print(len(citiesResult))
+
+    def testDBPediaCountries(self):
+        '''
+        http://dbpedia.org/ontology/Country
+        '''
+        dbpedia=self.getDBPedia()
+        countriesQuery="""
+        # https://opendata.stackexchange.com/a/7660/18245 - dbp:iso3166code not set ...
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+SELECT ?country_name ?population ?isocode
+WHERE {
+  ?country_name a dbo:Country .
+  ?country_name dbp:iso3166code ?isocode. 
+  OPTIONAL { ?country_name dbo:populationTotal ?population . }
+}
+        """
+        countriesResult=dbpedia.query(countriesQuery)
+        print(countriesResult)
+        print(len(countriesResult))
+        
+        
+    def testWikiDataCountries(self):
+        '''
+        check local wikidata
+        '''
+        # check we have local wikidata copy:
+        if getpass.getuser()=="wf":
+            # use 2018 wikidata copy
+            endpoint="http://blazegraph.bitplan.com/sparql"
+        else:
+            endpoint = 'https://query.wikidata.org/sparql'    
+        jena=Jena(endpoint)
+        queryString="""
+# get a list countries with the corresponding ISO code
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+SELECT ?country ?countryLabel (MAX(?pop) as ?population) ?coord ?isocode
+WHERE 
+{
+  # instance of country
+  ?country wdt:P31 wd:Q3624078.
+  OPTIONAL {
+     ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
+   }
+  # get the population
+  # https://www.wikidata.org/wiki/Property:P1082
+  OPTIONAL { ?country wdt:P1082 ?pop. }
+  # get the iso countryCode
+  { ?country wdt:P297 ?isocode }.
+  # get the coordinate
+  OPTIONAL { ?country wdt:P625 ?coord }.
+} 
+GROUP BY ?country ?countryLabel ?population ?coord ?isocode 
+ORDER BY ?countryLabel"""
+        results=jena.query(queryString)
+        countryListOfDicts=jena.asListOfDicts(results)
+        for country in countryListOfDicts:
+            country['wikidataid']=country.pop('country')
+            country['name']=country.pop('countryLabel')
+            print(country)
+        self.assertTrue(len(results)>=195)   
+        doimport=True
+        if doimport:
+            jena=TestJena.getJena(debug=True)
+            entityType="cr:country"
+            primaryKey="isocode"
+            prefixes="PREFIX cr: <http://cr.bitplan.com/>"
+            errors=jena.insertListOfDicts(countryListOfDicts, entityType, primaryKey, prefixes)
+            if len(errors)>0:
+                print("ERRORS:")
+                for error in errors:
+                    print(error)
 
     def testCountries(self):
         '''

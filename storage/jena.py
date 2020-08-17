@@ -3,7 +3,7 @@ Created on 2020-08-14
 
 @author: wf
 '''
-from SPARQLWrapper import SPARQLWrapper, JSON
+from SPARQLWrapper import SPARQLWrapper2, JSON
 from SPARQLWrapper.Wrapper import POSTDIRECTLY, POST
 import datetime
 
@@ -20,7 +20,7 @@ class Jena(object):
         self.mode=mode
         self.debug=debug
         self.typedLiterals=typedLiterals
-        self.sparql=SPARQLWrapper(url,returnFormat=returnFormat)
+        self.sparql=SPARQLWrapper2(url)
         
     def rawQuery(self,queryString,method='POST'):
         '''
@@ -35,7 +35,7 @@ class Jena(object):
         '''
         get the result from the given jsonResult
         '''
-        return jsonResult["results"]["bindings"]
+        return jsonResult.bindings
     
     def insert(self,insertCommand):
         '''
@@ -74,11 +74,11 @@ class Jena(object):
         insertCommand='%s\nINSERT DATA {\n' % prefixes
         for index,record in enumerate(listOfDicts):
             if not primaryKey in record:
-                errors.append["missing primary key %s in record %d",index]
+                errors.append("missing primary key %s in record %d" % (primaryKey,index))
             else:    
                 primaryValue=record[primaryKey]
                 encodedPrimaryValue=self.getLocalName(primaryValue)
-                tSubject="<%s#%s>" %(entityType,encodedPrimaryValue)
+                tSubject="%s_%s" %(entityType,encodedPrimaryValue)
                 for keyValue in record.items():
                     key,value=keyValue
                     valueType=type(value)
@@ -90,11 +90,11 @@ class Jena(object):
                         tObject='"%s"' % value
                     elif valueType==int:
                         if self.typedLiterals:
-                            tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#int>' %value
+                            tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#integer>' %value
                         pass
                     elif valueType==float:
                         if self.typedLiterals:
-                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#double>' %value
+                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#decimal>' %value
                         pass
                     elif valueType==bool:
                         pass
@@ -105,8 +105,9 @@ class Jena(object):
                     else:
                         errors.append("can't handle type %s in record %d" % (valueType,index))
                         tObject=None
-                    if tObject is not None:    
-                        insertCommand+='  %s %s %s.\n' % (tSubject,tPredicate,tObject)
+                    if tObject is not None:   
+                        insertRecord='  %s %s %s.\n' % (tSubject,tPredicate,tObject)
+                        insertCommand+=insertRecord
         insertCommand+="\n}"
         if self.debug:
             print (insertCommand)
@@ -120,3 +121,29 @@ class Jena(object):
         queryResult=self.rawQuery(queryString,method=method) 
         jsonResult=queryResult.convert()
         return self.getResults(jsonResult)
+    
+    def asListOfDicts(self,records):
+        '''
+        convert SPARQL result back to python native
+        '''
+        resultList=[]
+        for record in records:
+            resultDict={}
+            for keyValue in record.items():
+                key,value=keyValue
+                datatype=value.datatype
+                if datatype is not None:
+                    if datatype=="http://www.w3.org/2001/XMLSchema#integer":
+                        resultValue=int(value.value) 
+                    elif datatype=="http://www.w3.org/2001/XMLSchema#decimal":
+                        resultValue=float(value.value)     
+                    elif datatype=="http://www.w3.org/2001/XMLSchema#boolean":
+                        resultValue=value.value in ['TRUE','true']    
+                    elif datatype=="http://www.w3.org/2001/XMLSchema#date":
+                        dt=datetime.datetime.strptime(value.value,"%Y-%m-%d")  
+                        resultValue=dt.date()    
+                else:
+                    resultValue=value.value  
+                resultDict[key]=resultValue
+            resultList.append(resultDict)
+        return resultList
