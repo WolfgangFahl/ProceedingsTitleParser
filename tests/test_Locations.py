@@ -6,7 +6,7 @@ Created on 2020-08-11
 import unittest
 import time
 from storage.dgraph import Dgraph
-from storage.jena import Jena
+from storage.sparql import SPARQL
 from ptp.location import CountryManager, CityManager
 from ptp.listintersect import ListOfDict
 import datetime
@@ -50,8 +50,8 @@ class TestLocations(unittest.TestCase):
      
     def getDBPedia(self,mode='query',debug=False):
         endpoint="http://dbpedia.org/sparql"
-        jena=Jena(endpoint,mode=mode,debug=debug)
-        return jena
+        dbpedia=SPARQL(endpoint,mode=mode,debug=debug)
+        return dbpedia
         
     def testDBPediaCities(self):
         '''
@@ -100,7 +100,7 @@ WHERE {
             endpoint="http://blazegraph.bitplan.com/sparql"
         else:
             endpoint = 'https://query.wikidata.org/sparql'    
-        jena=Jena(endpoint)
+        wd=SPARQL(endpoint)
         queryString="""
 # get a list countries with the corresponding ISO code
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -123,24 +123,34 @@ WHERE
 } 
 GROUP BY ?country ?countryLabel ?population ?coord ?isocode 
 ORDER BY ?countryLabel"""
-        results=jena.query(queryString)
-        countryListOfDicts=jena.asListOfDicts(results)
-        for country in countryListOfDicts:
-            country['wikidataid']=country.pop('country')
+        results=wd.query(queryString)
+        wdCountryListOfDicts=wd.asListOfDicts(results)
+        for country in wdCountryListOfDicts:
+            country['wikidataurl']=country.pop('country')
             country['name']=country.pop('countryLabel')
             print(country)
         self.assertTrue(len(results)>=195)   
         doimport=True
         if doimport:
             jena=TestJena.getJena(debug=True)
-            entityType="cr:country"
+            entityType="cr:Country"
             primaryKey="isocode"
             prefixes="PREFIX cr: <http://cr.bitplan.com/>"
-            errors=jena.insertListOfDicts(countryListOfDicts, entityType, primaryKey, prefixes)
-            if len(errors)>0:
-                print("ERRORS:")
-                for error in errors:
-                    print(error)
+            errors=jena.insertListOfDicts(wdCountryListOfDicts, entityType, primaryKey, prefixes)
+            jena.printErrors(errors)
+            countryQuery="""
+PREFIX cr: <http://cr.bitplan.com/>
+SELECT ?name ?population ?coord ?isocode ?wikidataurl WHERE { 
+    ?country cr:Country_name ?name.
+    ?country cr:Country_population ?population.
+    ?country cr:Country_coord ?coord.
+    ?country cr:Country_isocode ?isocode.
+    ?country cr:Country_wikidataurl ?wikidataurl.
+}"""
+            countryRecords=jena.query(countryQuery)
+            countryListOfDicts=jena.asListOfDicts(countryRecords)
+            self.assertEqual(wdCountryListOfDicts,countryListOfDicts)
+               
 
     def testCountries(self):
         '''

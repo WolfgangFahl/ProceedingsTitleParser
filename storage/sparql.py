@@ -7,14 +7,25 @@ from SPARQLWrapper import SPARQLWrapper2, JSON
 from SPARQLWrapper.Wrapper import POSTDIRECTLY, POST
 import datetime
 
-class Jena(object):
+class SPARQL(object):
     '''
-    wrapper for apache Jana
+    wrapper for SPARQL e.g. Apache Jena, Virtuoso, Blazegraph
+    
+    :ivar url: full endpoint url (including mode)
+    :ivar mode: 'query' or 'update'
+    :ivar debug: True if debugging is active
+    :ivar typedLiterals: True if INSERT should be done with typedLiterals
+    :ivar sparql: the SPARQLWrapper2 instance to be used
     '''
-
     def __init__(self,url,mode='query',returnFormat=JSON, debug=False, typedLiterals=False):
         '''
-        Constructor
+        Constructor a SPARQL wrapper
+        
+        Args:
+            url(string): the base URL of the endpoint - the mode query/update is going to be appended
+            mode(string): 'query' or 'update'
+            debug(bool): True if debugging is to be activated
+            typedLiterals(bool): True if INSERT should be done with typedLiterals
         '''
         self.url="url%s" % (mode)
         self.mode=mode
@@ -25,6 +36,10 @@ class Jena(object):
     def rawQuery(self,queryString,method='POST'):
         '''
         query with the given query string
+        
+        Args:
+            queryString(string): the SPARQL query to be performed
+            method(string): POST or GET - POST is mandatory for update queries
         '''
         self.sparql.setQuery(queryString)
         self.sparql.method=method
@@ -141,9 +156,24 @@ class Jena(object):
                         resultValue=value.value in ['TRUE','true']    
                     elif datatype=="http://www.w3.org/2001/XMLSchema#date":
                         dt=datetime.datetime.strptime(value.value,"%Y-%m-%d")  
-                        resultValue=dt.date()    
+                        resultValue=dt.date()  
+                    else:
+                        # unsupported datatype
+                        resultValue=value.value      
                 else:
                     resultValue=value.value  
                 resultDict[key]=resultValue
             resultList.append(resultDict)
         return resultList
+    
+    def printErrors(self,errors):
+        '''
+        print the given list of errors
+        '''
+        if len(errors)>0:
+            print("ERRORS:")
+            for error in errors:
+                print(error)
+            return True
+        else:
+            return False    

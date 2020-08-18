@@ -4,7 +4,7 @@ Created on 2020-08-14
 @author: wf
 '''
 import unittest
-from storage.jena import Jena
+from storage.sparql import SPARQL
 
 class TestJena(unittest.TestCase):
     '''
@@ -25,7 +25,7 @@ class TestJena(unittest.TestCase):
         get the jena endpoint for the given mode
         '''
         endpoint="http://localhost:3030/cr"
-        jena=Jena(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals)
+        jena=SPARQL(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals)
         return jena
         
     def testJenaQuery(self):
