@@ -8,16 +8,7 @@ import json
 import os
 import time
 import ptp.openresearch 
-
-class Country(object):
-    '''
-    handle countries
-    '''
-
-    def __init__(self):
-        '''
-        Constructor
-        '''
+from storage.sparql import SPARQL
 
 class CityManager(object):
     ''' manage cities '''
@@ -123,4 +114,62 @@ type Country {
             country['isocode']=country.pop('country_code')
             country['dgraph.type']='Country'
             lat,lng=country.pop('latlng')
-            country['location']={'type': 'Point', 'coordinates': [lng,lat] }  
+            country['location']={'type': 'Point', 'coordinates': [lng,lat] } 
+            
+    def fromWikiData(self,endpoint):
+        wd=SPARQL(endpoint)
+        queryString="""
+# get a list countries with the corresponding ISO code
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+SELECT ?country ?countryLabel (MAX(?pop) as ?population) ?coord ?isocode
+WHERE 
+{
+  # instance of country
+  ?country wdt:P31 wd:Q3624078.
+  OPTIONAL {
+     ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
+   }
+  # get the population
+  # https://www.wikidata.org/wiki/Property:P1082
+  OPTIONAL { ?country wdt:P1082 ?pop. }
+  # get the iso countryCode
+  { ?country wdt:P297 ?isocode }.
+  # get the coordinate
+  OPTIONAL { ?country wdt:P625 ?coord }.
+} 
+GROUP BY ?country ?countryLabel ?population ?coord ?isocode 
+ORDER BY ?countryLabel"""
+        results=wd.query(queryString)
+        self.countryList=wd.asListOfDicts(results)
+        for country in self.countryList:
+            country['wikidataurl']=country.pop('country')
+            country['name']=country.pop('countryLabel')  
+            
+    def storeToRDF(self,sparql):
+        '''
+        store my country list to the given SPARQL store
+        '''
+        entityType="cr:Country"
+        primaryKey="isocode"
+        prefixes="PREFIX cr: <http://cr.bitplan.com/>"
+        errors=sparql.insertListOfDicts(self.countryList, entityType, primaryKey, prefixes)
+        return errors
+    
+    def fromRDF(self,sparql):
+        ''' 
+        restore me from the given sparql store
+        '''
+        countryQuery="""
+PREFIX cr: <http://cr.bitplan.com/>
+SELECT ?name ?population ?coord ?isocode ?wikidataurl WHERE { 
+    ?country cr:Country_name ?name.
+    ?country cr:Country_population ?population.
+    ?country cr:Country_coord ?coord.
+    ?country cr:Country_isocode ?isocode.
+    ?country cr:Country_wikidataurl ?wikidataurl.
+}"""
+        countryRecords=sparql.query(countryQuery)
+        self.countryList=sparql.asListOfDicts(countryRecords)

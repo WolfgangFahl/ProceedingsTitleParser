@@ -98,59 +98,21 @@ WHERE {
         if getpass.getuser()=="wf":
             # use 2018 wikidata copy
             endpoint="http://blazegraph.bitplan.com/sparql"
+            # use 2020 wikidata copy
+            #endpoint="http://jena.bitplan.com/wikidata"
         else:
-            endpoint = 'https://query.wikidata.org/sparql'    
-        wd=SPARQL(endpoint)
-        queryString="""
-# get a list countries with the corresponding ISO code
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX wikibase: <http://wikiba.se/ontology#>
-SELECT ?country ?countryLabel (MAX(?pop) as ?population) ?coord ?isocode
-WHERE 
-{
-  # instance of country
-  ?country wdt:P31 wd:Q3624078.
-  OPTIONAL {
-     ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
-   }
-  # get the population
-  # https://www.wikidata.org/wiki/Property:P1082
-  OPTIONAL { ?country wdt:P1082 ?pop. }
-  # get the iso countryCode
-  { ?country wdt:P297 ?isocode }.
-  # get the coordinate
-  OPTIONAL { ?country wdt:P625 ?coord }.
-} 
-GROUP BY ?country ?countryLabel ?population ?coord ?isocode 
-ORDER BY ?countryLabel"""
-        results=wd.query(queryString)
-        wdCountryListOfDicts=wd.asListOfDicts(results)
-        for country in wdCountryListOfDicts:
-            country['wikidataurl']=country.pop('country')
-            country['name']=country.pop('countryLabel')
-            print(country)
-        self.assertTrue(len(results)>=195)   
+            endpoint = 'https://query.wikidata.org/sparql'  
+        cm=CountryManager()
+        cm.fromWikiData(endpoint)      
+        self.assertTrue(len(cm.countryList)>=195) 
+        sparql=TestJena.getJena(debug=self.debug)
+        errors=cm.storeToRDF(sparql)  
+        self.assertFalse(sparql.printErrors(errors))
         doimport=True
         if doimport:
-            jena=TestJena.getJena(debug=True)
-            entityType="cr:Country"
-            primaryKey="isocode"
-            prefixes="PREFIX cr: <http://cr.bitplan.com/>"
-            errors=jena.insertListOfDicts(wdCountryListOfDicts, entityType, primaryKey, prefixes)
-            jena.printErrors(errors)
-            countryQuery="""
-PREFIX cr: <http://cr.bitplan.com/>
-SELECT ?name ?population ?coord ?isocode ?wikidataurl WHERE { 
-    ?country cr:Country_name ?name.
-    ?country cr:Country_population ?population.
-    ?country cr:Country_coord ?coord.
-    ?country cr:Country_isocode ?isocode.
-    ?country cr:Country_wikidataurl ?wikidataurl.
-}"""
-            countryRecords=jena.query(countryQuery)
-            countryListOfDicts=jena.asListOfDicts(countryRecords)
-            self.assertEqual(wdCountryListOfDicts,countryListOfDicts)
-               
+            cm2=CountryManager()
+            cm2.fromRDF(sparql)
+        self.assertEqual(cm.countryList,cm2.countryList)
 
     def testCountries(self):
         '''
