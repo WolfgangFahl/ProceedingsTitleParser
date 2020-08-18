@@ -15,7 +15,7 @@ class TestOpenResearch(unittest.TestCase):
     ''' test accessing open research data '''
 
     def setUp(self):
-        self.debug=False
+        self.debug=True
         pass
 
     def tearDown(self):
@@ -34,6 +34,8 @@ class TestOpenResearch(unittest.TestCase):
         opr=OpenResearch(debug=self.debug)
         opr.cacheEvents(opr.em,limit=20000,batch=2000)
         minexpected=8500
+        #opr.cacheEvents(opr.em,limit=500,batch=500)
+        #minexpected=500
         self.assertTrue(len(opr.em.events)>=minexpected)
         opr.em.store()
         self.assertTrue(opr.em.isCached())

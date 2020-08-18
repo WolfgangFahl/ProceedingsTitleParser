@@ -100,19 +100,17 @@ WHERE {
             endpoint="http://blazegraph.bitplan.com/sparql"
             # use 2020 wikidata copy
             #endpoint="http://jena.bitplan.com/wikidata"
-        else:
-            endpoint = 'https://query.wikidata.org/sparql'  
-        cm=CountryManager()
-        cm.fromWikiData(endpoint)      
-        self.assertTrue(len(cm.countryList)>=195) 
-        sparql=TestJena.getJena(debug=self.debug)
-        errors=cm.storeToRDF(sparql)  
-        self.assertFalse(sparql.printErrors(errors))
-        doimport=True
-        if doimport:
-            cm2=CountryManager()
-            cm2.fromRDF(sparql)
-        self.assertEqual(cm.countryList,cm2.countryList)
+            cm=CountryManager()
+            cm.fromWikiData(endpoint)      
+            self.assertTrue(len(cm.countryList)>=195) 
+            sparql=TestJena.getJena(debug=self.debug)
+            errors=cm.storeToRDF(sparql)  
+            self.assertFalse(sparql.printErrors(errors))
+            doimport=True
+            if doimport:
+                cm2=CountryManager()
+                cm2.fromRDF(sparql)
+            self.assertEqual(cm.countryList,cm2.countryList)
 
     def testCountries(self):
         '''

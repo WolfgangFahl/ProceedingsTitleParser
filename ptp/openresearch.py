@@ -20,7 +20,7 @@ class OpenResearch(object):
         '''
         self.smw=OpenResearch.getSMW()
         self.debug=debug
-        self.em=EventManager('or',url='https://www.openresearch.org/wiki/Main_Page',title='OPENRESEARCH')
+        self.em=EventManager('or',url='https://www.openresearch.org/wiki/Main_Page',title='OPENRESEARCH',debug=self.debug)
         
     def getAsk(self,condition,limit=50,offset=0):    
         ask="""{{#ask: [[%s]]
@@ -64,7 +64,7 @@ class OpenResearch(object):
         for askRecord in askResult.values():
             event=Event()
             event.fromAskResult(askRecord)
-            event.source="OPEN RESEARCH"
+            event.source=self.em.name
             em.add(event)
         found=len(askResult.values())    
         return found,event

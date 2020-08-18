@@ -31,7 +31,7 @@ class ConfRef(object):
             event=Event()
             event.fromDict(rawevent)
             event.event=rawevent['id']
-            event.source='confref'
+            event.source=self.em.name
             event.url='http://portal.confref.org/list/%s' % rawevent['id']
             self.em.add(event)    
         self.em.store(limit=limit,batchSize=batchSize)        

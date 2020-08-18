@@ -19,9 +19,11 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,url=None,title=None,debug=False,mode='json',withShowProgress=True,host='localhost', endpoint=None, profile=False):
+    def __init__(self,name,url=None,title=None,debug=False,mode='json',withShowProgress=True,host='localhost', endpoint="http://localhost:3030/cr", profile=True):
         '''
         Constructor
+        Args:
+            name(string): the name of this event manager
         '''
         self.name=name
         self.mode=mode
@@ -38,8 +40,9 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             self.dgraph=Dgraph(debug=self.debug,host=host,profile=self.profile)
         if self.mode=='sparql':
             if endpoint is None:
-                raise Exception("no endpoint set for mode sparql")    
-            self.endpoint=endpoint    
+                raise Exception("no endpoint set for mode sparql") 
+            self.endpoint=endpoint   
+            self.sparql=SPARQL(endpoint,debug=self.debug,profile=self.profile)
         
     def showProgress(self,msg):
         ''' display a progress message '''
@@ -94,7 +97,24 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     def isCached(self):
         ''' check whether there is a file containing cached 
         data for me '''
-        result=os.path.isfile(self.getCacheFile())
+        if self.mode=='json':
+            result=os.path.isfile(self.getCacheFile())
+        elif self.mode=='sparql':
+            query="""
+PREFIX cr: <http://cr.bitplan.com/>
+SELECT  ?source (COUNT(?source) AS ?sourcecount)
+WHERE { 
+   ?event cr:Event_source ?source.
+}
+GROUP by ?source
+"""                                 
+            sourceCountList=self.sparql.queryAsListOfDicts(query)
+            result=False
+            for sourceCount in sourceCountList:
+                source=sourceCount['source'];
+                recordCount=sourceCount['sourcecount']
+                if source==self.name and recordCount>100:
+                    result=True
         return result
     
     def removeCacheFile(self):
@@ -123,10 +143,13 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                     
         
     def getCacheFile(self):
-        ''' get the path to the file for my cached data '''    
-        path=os.path.dirname(__file__)
-        cachedir=path+"/../cache"
-        cachepath="%s/%s-%s.%s" % (cachedir,self.name,"events",self.mode)
+        ''' get the path to the file for my cached data '''  
+        if self.mode=='json':  
+            path=os.path.dirname(__file__)
+            cachedir=path+"/../cache"
+            cachepath="%s/%s-%s.%s" % (cachedir,self.name,"events",self.mode)
+        else:
+            cachepath="%s %s" % (self.mode,self.endpoint)    
         return cachepath
     
     def fromStore(self):
@@ -140,20 +163,27 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             em=JsonAbleMixin.readJson(cacheFile)
         elif self.mode=="sparql":
             eventQuery="""
-            PREFIX cr: <http://cr.bitplan.com/>
-SELECT ?eventId ?acronym ?name ?year ?country ?city ?startDate ?endDate ?url ?source WHERE { 
-   ?event cr:Event_eventId ?eventId.
-   ?event cr:Event_acronym ?acronym.
-   ?event cr:Event_name ?name.
-   ?event cr:Event_year ?year.  
-   ?event cr:Event_country ?country.
-   ?event cr:Event_city ?city.
-   ?event cr:Event_startDate ?startDate.
-   ?event cr:Event_endDate ?endDate.
-   ?event cr:Event_url ?url.
+PREFIX cr: <http://cr.bitplan.com/>
+SELECT ?eventId ?acronym ?series ?name ?year ?country ?city ?startDate ?endDate ?url ?source WHERE { 
+   OPTIONAL { ?event cr:Event_eventId ?eventId. }
+   OPTIONAL { ?event cr:Event_acronym ?acronym. }
+   OPTIONAL { ?event cr:Event_series ?series. }
+   OPTIONAL { ?event cr:Event_name ?name. }
+   OPTIONAL { ?event cr:Event_year ?year.  }
+   OPTIONAL { ?event cr:Event_country ?country. }
+   OPTIONAL { ?event cr:Event_city ?city. }
+   OPTIONAL { ?event cr:Event_startDate ?startDate. }
+   OPTIONAL { ?event cr:Event_endDate ?endDate. }
+   OPTIONAL { ?event cr:Event_url ?url. }
    ?event cr:Event_source ?source.
 }
-"""    
+"""         
+            eventList=self.sparql.queryAsListOfDicts(eventQuery)
+            for eventRecord in eventList:
+                event=Event()
+                event.fromDict(eventRecord)
+                self.add(event)
+
         else:
             raise Exception("unsupported store mode %s",self.mode)
         if em is not None:
@@ -164,6 +194,9 @@ SELECT ?eventId ?acronym ?name ?year ?country ?city ?startDate ?endDate ?url ?so
         self.showProgress("found %d events" % (len(self.events)))        
     
     def getListOfDicts(self):
+        '''
+        get the list of Dicts for me
+        '''
         eventList=[]
         for event in self.events.values():
             d=event.__dict__
@@ -184,13 +217,12 @@ SELECT ?eventId ?acronym ?name ?year ?country ?city ?startDate ?endDate ?url ?so
             self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
         elif self.mode=="sparql":
             eventList=self.getListOfDicts()
-            sparql=SPARQL(self.endpoint,debug=self.debug,profile=self.profile)
             startTime=time.time()
             self.showProgress ("storing %d events to %s" % (len(self.events),self.mode))    
             entityType="cr:Event"
             prefixes="PREFIX cr: <http://cr.bitplan.com/>"
-            primaryKey="identifier"
-            sparql.insertListOfDicts(eventList, entityType, primaryKey, prefixes,limit=limit,batchSize=batchSize)
+            primaryKey="event"
+            self.sparql.insertListOfDicts(eventList, entityType, primaryKey, prefixes,limit=limit,batchSize=batchSize)
             self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
         else:
             raise Exception("unsupported store mode %s" % self.mode)    
@@ -265,7 +297,8 @@ class Event(object):
             if type(self.country) is list:
                 print("warning country for %s is a list: %s" % (self.event,self.country))
             else:
-                self.country=self.country.replace("Category:","")     
+                self.country=self.country.replace("Category:","")   
+        self.eventId=self.event          
         self.url="https://www.openresearch.org/wiki/%s" % (self.event) 
         self.getLookupAcronym()
             
