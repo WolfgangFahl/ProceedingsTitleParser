@@ -11,6 +11,7 @@ import os
 from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
 from storage.dgraph import Dgraph
+from storage.sparql import SPARQL
 import pyparsing as pp
 import time
 
@@ -18,7 +19,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,url=None,title=None,debug=False,mode='json',withShowProgress=True,host='localhost'):
+    def __init__(self,name,url=None,title=None,debug=False,mode='json',withShowProgress=True,host='localhost', endpoint=None, profile=False):
         '''
         Constructor
         '''
@@ -31,9 +32,14 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.eventsByCheckedAcronym={}
         self.withShowProgress=True
         self.debug=debug
+        self.profile=profile
         self.showProgress ("Creating Eventmanager(%s) for %s" % (self.mode,self.name))
         if self.mode=='dgraph':
-            self.dgraph=Dgraph(debug=self.debug,host=host,profile=True)
+            self.dgraph=Dgraph(debug=self.debug,host=host,profile=self.profile)
+        if self.mode=='sparql':
+            if endpoint is None:
+                raise Exception("no endpoint set for mode sparql")    
+            self.endpoint=endpoint    
         
     def showProgress(self,msg):
         ''' display a progress message '''
@@ -132,6 +138,22 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         em=None
         if self.mode=="json":   
             em=JsonAbleMixin.readJson(cacheFile)
+        elif self.mode=="sparql":
+            eventQuery="""
+            PREFIX cr: <http://cr.bitplan.com/>
+SELECT ?eventId ?acronym ?name ?year ?country ?city ?startDate ?endDate ?url ?source WHERE { 
+   ?event cr:Event_eventId ?eventId.
+   ?event cr:Event_acronym ?acronym.
+   ?event cr:Event_name ?name.
+   ?event cr:Event_year ?year.  
+   ?event cr:Event_country ?country.
+   ?event cr:Event_city ?city.
+   ?event cr:Event_startDate ?startDate.
+   ?event cr:Event_endDate ?endDate.
+   ?event cr:Event_url ?url.
+   ?event cr:Event_source ?source.
+}
+"""    
         else:
             raise Exception("unsupported store mode %s",self.mode)
         if em is not None:
@@ -140,7 +162,14 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             if em.eventsByAcronym:
                 self.eventsByAcronym=em.eventsByAcronym    
         self.showProgress("found %d events" % (len(self.events)))        
-        
+    
+    def getListOfDicts(self):
+        eventList=[]
+        for event in self.events.values():
+            d=event.__dict__
+            eventList.append(d)
+        return eventList
+                    
     def store(self,limit=10000000,batchSize=250):
         ''' store me '''
         if self.mode=="json":    
@@ -148,13 +177,20 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             self.showProgress ("storing %d events to cache %s" % (len(self.events),cacheFile))
             self.writeJson(cacheFile)
         elif self.mode=="dgraph":
-            eventList=[]
+            eventList=self.getListOfDicts()
             startTime=time.time()
-            for event in self.events.values():
-                d=event.__dict__
-                eventList.append(d)
             self.showProgress ("storing %d events to %s" % (len(self.events),self.mode))    
             self.dgraph.addData(eventList,limit=limit,batchSize=batchSize)
+            self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
+        elif self.mode=="sparql":
+            eventList=self.getListOfDicts()
+            sparql=SPARQL(self.endpoint,debug=self.debug,profile=self.profile)
+            startTime=time.time()
+            self.showProgress ("storing %d events to %s" % (len(self.events),self.mode))    
+            entityType="cr:Event"
+            prefixes="PREFIX cr: <http://cr.bitplan.com/>"
+            primaryKey="identifier"
+            sparql.insertListOfDicts(eventList, entityType, primaryKey, prefixes,limit=limit,batchSize=batchSize)
             self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
         else:
             raise Exception("unsupported store mode %s" % self.mode)    
