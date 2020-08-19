@@ -164,7 +164,7 @@ GROUP by ?source
         elif self.mode=="sparql":
             eventQuery="""
 PREFIX cr: <http://cr.bitplan.com/>
-SELECT ?eventId ?acronym ?series ?name ?year ?country ?city ?startDate ?endDate ?url ?source WHERE { 
+SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate ?url ?source WHERE { 
    OPTIONAL { ?event cr:Event_eventId ?eventId. }
    OPTIONAL { ?event cr:Event_acronym ?acronym. }
    OPTIONAL { ?event cr:Event_series ?series. }

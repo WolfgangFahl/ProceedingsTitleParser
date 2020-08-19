@@ -183,8 +183,9 @@ class SPARQL(object):
                             print("%s(%s)=%s" % (key,valueType,value))
                         tPredicate="%s_%s" % (entityType,key)
                         tObject=value    
-                        if valueType == str:   
-                            tObject='"%s"' % value.replace('"','\\"')
+                        if valueType == str:
+                            escapedString=self.controlEscape(value)
+                            tObject='"%s"' % escapedString
                         elif valueType==int:
                             if self.typedLiterals:
                                 tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#integer>' %value
@@ -212,6 +213,19 @@ class SPARQL(object):
         if self.profile:    
             print("%7s for %9d - %9d of %9d %s in %6.1f s -> %6.1f s" % (title,batchIndex+1,batchIndex+size,total,entityType,time.time()-batchStartTime,time.time()-startTime))    
         return errors
+    
+    controlChars = [chr(c) for c in range(0x20)]
+    
+    @staticmethod
+    def controlEscape(s):
+        '''
+        escape control characters
+        
+        see https://stackoverflow.com/a/9778992/1497139
+        '''
+        escaped=u''.join([c.encode('unicode_escape').decode('ascii') if c in SPARQL.controlChars else c for c in s])
+        escaped=escaped.replace('"','\\"')
+        return escaped
 
     def query(self,queryString,method=POST):
         '''

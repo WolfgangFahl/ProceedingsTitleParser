@@ -18,11 +18,24 @@ class TestCrossref(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-
-    def testCrossref(self):
+    
+    def testFixUmlauts(self):
+        '''
+        workaround Umlaut issue see https://stackoverflow.com/questions/63486767/how-can-i-get-the-fuseki-api-via-sparqlwrapper-to-properly-report-a-detailed-err
+        '''
         crossRef=Crossref()
+        eventInfo={'location':'M\\\"unster, Germany'}
+        crossRef.fixEncodings(eventInfo)
+        self.assertEqual(eventInfo['location'],"Münster, Germany")
+  
+    def testCrossref(self):
+        '''
+        test loading crossref data
+        '''
+        crossRef=Crossref(debug=False,profile=True)
         crossRef.cacheEvents()
+        self.assertTrue(crossRef.em.isCached())
+        self.assertTrue(len(crossRef.em.events)>45000)
 
     def testCrossref_DOI_Lookup(self):
         ''' test crossref API access 
