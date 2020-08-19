@@ -19,7 +19,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,url=None,title=None,debug=False,mode='json',withShowProgress=True,host='localhost', endpoint="http://localhost:3030/cr", profile=True):
+    def __init__(self,name,url=None,title=None,debug=False,mode='sparql',withShowProgress=True,host='localhost', endpoint="http://localhost:3030/cr", profile=True):
         '''
         Constructor
         Args:
@@ -51,7 +51,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
   
     def add(self,event):
         ''' add the given event '''
-        self.events[event.event]=event
+        self.events[event.eventId]=event
         if hasattr(event,"lookupAcronym"):
             self.eventsByAcronym[event.lookupAcronym]=event
         
@@ -157,7 +157,7 @@ GROUP by ?source
         restore me from the store
         '''
         cacheFile=self.getCacheFile()
-        self.showProgress("reading events from cache %s" % (cacheFile))
+        self.showProgress("reading events for %s from cache %s" % (self.name,cacheFile))
         em=None
         if self.mode=="json":   
             em=JsonAbleMixin.readJson(cacheFile)
@@ -168,7 +168,7 @@ SELECT ?eventId ?acronym ?series ?name ?year ?country ?city ?startDate ?endDate 
    OPTIONAL { ?event cr:Event_eventId ?eventId. }
    OPTIONAL { ?event cr:Event_acronym ?acronym. }
    OPTIONAL { ?event cr:Event_series ?series. }
-   OPTIONAL { ?event cr:Event_name ?name. }
+   OPTIONAL { ?event cr:Event_title ?title. }
    OPTIONAL { ?event cr:Event_year ?year.  }
    OPTIONAL { ?event cr:Event_country ?country. }
    OPTIONAL { ?event cr:Event_city ?city. }
@@ -207,7 +207,7 @@ SELECT ?eventId ?acronym ?series ?name ?year ?country ?city ?startDate ?endDate 
         ''' store me '''
         if self.mode=="json":    
             cacheFile=self.getCacheFile()
-            self.showProgress ("storing %d events to cache %s" % (len(self.events),cacheFile))
+            self.showProgress ("storing %d events for %s to cache %s" % (len(self.events),self.name,cacheFile))
             self.writeJson(cacheFile)
         elif self.mode=="dgraph":
             eventList=self.getListOfDicts()
@@ -221,7 +221,7 @@ SELECT ?eventId ?acronym ?series ?name ?year ?country ?city ?startDate ?endDate 
             self.showProgress ("storing %d events to %s" % (len(self.events),self.mode))    
             entityType="cr:Event"
             prefixes="PREFIX cr: <http://cr.bitplan.com/>"
-            primaryKey="event"
+            primaryKey="eventId"
             self.sparql.insertListOfDicts(eventList, entityType, primaryKey, prefixes,limit=limit,batchSize=batchSize)
             self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
         else:
@@ -313,13 +313,11 @@ class Event(object):
             
     def fromDict(self,srcDict):
         ''' fill my data from the given source Dict'''
-        if 'acronym' in srcDict:
-            srcDict['event']=srcDict['acronym']
         d=self.__dict__
         for key in srcDict:
             targetKey=key
             if key=="id":
-                targetKey='identifier'
+                targetKey='eventId'
             value=srcDict[key]
             d[targetKey]=value        
         self.getLookupAcronym()         

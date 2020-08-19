@@ -21,7 +21,7 @@ class CEURWS(object):
         self.debug=debug
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
-        self.em=EventManager("ceur-ws",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings')
+        self.em=EventManager("CEUR-WS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings')
         
     def cacheEvents(self):
         ''' test caching the events of CEUR-WS derived from the sample proceeding titles'''
@@ -34,14 +34,13 @@ class CEURWS(object):
             print(tc)
             print("%d errs %d titles" % (len(errs),len(result)))
         for title in result:
-            if 'acronym' in title.metadata():
-                if self.debug:
-                    print(title.metadata())
-                if 'eventId' in title.info:    
-                    event=Event()
-                    event.fromTitle(title)
-                    event.url="http://ceur-ws.org/%s" % (title.info['eventId'])
-                    self.em.add(event)     
+            if self.debug:
+                print(title.metadata())
+            if 'eventId' in title.info:    
+                event=Event()
+                event.fromTitle(title)
+                event.url="http://ceur-ws.org/%s" % (title.info['eventId'])
+                self.em.add(event)     
         self.em.store()
             
     def initEventManager(self):

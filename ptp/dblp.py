@@ -37,7 +37,6 @@ class Dblp(object):
                 rawevent['acronym']="%s %s" % (rawevent['booktitle'],rawevent['year'])
             event=Event()
             event.fromDict(rawevent)
-            event.event=rawevent['@key']
             event.source=self.em.name
             if 'url' in rawevent:
                 event.url='https://dblp.org/%s' % rawevent['url']

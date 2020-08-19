@@ -139,7 +139,7 @@ class SPARQL(object):
             if self.profile:
                 print("insertListOfDicts for %9d records in %6.1f secs" % (len(listOfDicts),time.time()-startTime))
             return errors    
-       
+           
     def insertListOfDictsBatch(self,listOfDicts,entityType,primaryKey,prefixes,title='batch',batchIndex=None,total=None,startTime=None):                
         '''
         insert a Batch part of listOfDicts
@@ -169,37 +169,42 @@ class SPARQL(object):
                 errors.append("missing primary key %s in record %d" % (primaryKey,index))
             else:    
                 primaryValue=record[primaryKey]
-                encodedPrimaryValue=self.getLocalName(primaryValue)
-                tSubject="%s__%s" %(entityType,encodedPrimaryValue)
-                for keyValue in record.items():
-                    key,value=keyValue
-                    valueType=type(value)
-                    if self.debug:
-                        print("%s(%s)=%s" % (key,valueType,value))
-                    tPredicate="%s_%s" % (entityType,key)
-                    tObject=value    
-                    if valueType == str:   
-                        tObject='"%s"' % value.replace('"','\\"')
-                    elif valueType==int:
-                        if self.typedLiterals:
-                            tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#integer>' %value
-                        pass
-                    elif valueType==float:
-                        if self.typedLiterals:
-                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#decimal>' %value
-                        pass
-                    elif valueType==bool:
-                        pass
-                    elif valueType==datetime.date:
-                        #if self.typedLiterals:
-                        tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#date>' %value
-                        pass
-                    else:
-                        errors.append("can't handle type %s in record %d" % (valueType,index))
-                        tObject=None
-                    if tObject is not None:   
-                        insertRecord='  %s %s %s.\n' % (tSubject,tPredicate,tObject)
-                        insertCommand+=insertRecord
+                if primaryValue is None:
+                    errors.append("primary key %s value is None in record %d" % (primaryKey,index))    
+                else:    
+                    encodedPrimaryValue=self.getLocalName(primaryValue)
+                    tSubject="%s__%s" %(entityType,encodedPrimaryValue)
+                    for keyValue in record.items():
+                        key,value=keyValue
+                        # convert key if necessary
+                        key=self.getLocalName(key)
+                        valueType=type(value)
+                        if self.debug:
+                            print("%s(%s)=%s" % (key,valueType,value))
+                        tPredicate="%s_%s" % (entityType,key)
+                        tObject=value    
+                        if valueType == str:   
+                            tObject='"%s"' % value.replace('"','\\"')
+                        elif valueType==int:
+                            if self.typedLiterals:
+                                tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#integer>' %value
+                            pass
+                        elif valueType==float:
+                            if self.typedLiterals:
+                                tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#decimal>' %value
+                            pass
+                        elif valueType==bool:
+                            pass
+                        elif valueType==datetime.date:
+                            #if self.typedLiterals:
+                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#date>' %value
+                            pass
+                        else:
+                            errors.append("can't handle type %s in record %d" % (valueType,index))
+                            tObject=None
+                        if tObject is not None:   
+                            insertRecord='  %s %s %s.\n' % (tSubject,tPredicate,tObject)
+                            insertCommand+=insertRecord
         insertCommand+="\n}"
         if self.debug:
             print (insertCommand)

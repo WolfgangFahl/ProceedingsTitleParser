@@ -17,6 +17,7 @@ get_abs_filename() {
 pwd=$(pwd)
 scriptPath=$(get_abs_filename $(dirname $0))
 libPath=$(get_abs_filename $scriptPath/../lib)
+binPath=$libPath/$jena/bin
 dataPath=$(get_abs_filename $scriptPath/../data)
 
 #ansi colors
@@ -58,8 +59,9 @@ error() {
 # show usage
 #
 usage() {
-  echo "$0 [-f|--fuseki|-h|--help|-k|--kill|-l|--load]"
+  echo "$0 [-b|--backup|-f|--fuseki|-h|--help|-k|--kill|-l|--load]"
   echo ""
+  echo "-b | --backup: create a backup"
   echo "-f | --fuseki [dataset]: download and start fuseki server with the given dataset"
   echo "-h | --help: show this usage"
   echo "-k | --kill: kill the running fuseki server"
@@ -145,11 +147,22 @@ startFuseki() {
   tail $log
 }
 
+#
+# create a backup
+#
+backup() {
+  tdbbackup=$binPath/tdb2.tdbbackup
+  $tdbbackup --loc $dataPath
+}
+
 # commandline option
 while [  "$1" != ""  ]
 do
   option="$1"
   case $option in
+    -b|--backup)
+      backup
+      ;;
     -f|--fuseki)
       shift
       if [ $# -lt 1 ]

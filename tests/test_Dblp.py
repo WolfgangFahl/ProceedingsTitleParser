@@ -8,18 +8,17 @@ from ptp.dblp import Dblp
 
 
 class TestDblp(unittest.TestCase):
-
-
+    '''
+    test Dblp handling
+    '''
     def setUp(self):
         pass
-
 
     def tearDown(self):
         pass
 
-
     def testDblp(self):
-        ''' test reading confRef data '''
+        ''' test reading dblp data '''
         dblp=Dblp()
         dblp.em.removeCacheFile()
         #EventManager.debug=True
