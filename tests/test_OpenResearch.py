@@ -5,7 +5,6 @@ Created on 2020-07-04
 '''
 import unittest
 
-import time
 from ptp.openresearch import OpenResearch
 from ptp.plot import Plot
 import pyparsing as pp
@@ -87,10 +86,11 @@ class TestOpenResearch(unittest.TestCase):
             }
         examples=[]
         for event in opr.em.events.values():
-            if event.acronym is not None:
-                acLen=len(event.acronym)
-                acLenList.append(acLen)
-                examples.append(event.acronym)
+            if hasattr(event, 'acronym'):
+                if event.acronym is not None:
+                    acLen=len(event.acronym)
+                    acLenList.append(acLen)
+                    examples.append(event.acronym)
         plot=Plot(acLenList,"acronym length",debug=True)     
         plot.hist(mode='save')
         print (plot.counter.most_common(10))
