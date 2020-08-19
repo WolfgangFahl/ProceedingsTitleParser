@@ -8,7 +8,9 @@ from ptp.crossref import Crossref
 
 
 class TestCrossref(unittest.TestCase):
-
+    '''
+    import data from Crossref
+    '''
 
     def setUp(self):
         pass
@@ -19,6 +21,10 @@ class TestCrossref(unittest.TestCase):
 
 
     def testCrossref(self):
+        crossRef=Crossref()
+        crossRef.cacheEvents()
+
+    def testCrossref_DOI_Lookup(self):
         ''' test crossref API access 
         see https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/28
         '''

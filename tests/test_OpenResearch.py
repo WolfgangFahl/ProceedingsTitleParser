@@ -15,7 +15,7 @@ class TestOpenResearch(unittest.TestCase):
     ''' test accessing open research data '''
 
     def setUp(self):
-        self.debug=True
+        self.debug=False
         pass
 
     def tearDown(self):
