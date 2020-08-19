@@ -13,6 +13,7 @@ class TestConfRef(unittest.TestCase):
 
     def setUp(self):
         self.debug=False
+        self.forceCaching=False
         pass
 
 
@@ -46,14 +47,20 @@ class TestConfRef(unittest.TestCase):
         limit=100000
         batchSize=2000
         confRef=ConfRef(mode=mode,endpoint=endpoint,debug=False,profile=True)
-        confRef.em.removeCacheFile()
+        if self.forceCaching:   
+            confRef.em.removeCacheFile()
         #EventManager.debug=True
-        confRef.cacheEvents(limit=limit,batchSize=batchSize)
-        foundEvents=len(confRef.rawevents)
+        if not confRef.em.isCached():
+            confRef.cacheEvents(limit=limit,batchSize=batchSize)
+            foundEvents=len(confRef.rawevents)
+            self.assertEqual(37945,foundEvents)
+        else:
+            confRef.em.fromStore()
+            foundEvents=len(confRef.em.events)
+        self.assertTrue(confRef.em.isCached())
         cachedEvents=len(confRef.em.events)
         confRef.em.extractCheckedAcronyms() 
-        self.assertEqual(37945,foundEvents)
-        self.assertEqual(37945,cachedEvents)
+        self.assertTrue(37900<=cachedEvents)
         print("found %d  and cached %d events from confref" % (foundEvents,cachedEvents))
         pass
 

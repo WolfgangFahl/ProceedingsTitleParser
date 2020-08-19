@@ -156,6 +156,7 @@ GROUP by ?source
         '''
         restore me from the store
         '''
+        startTime=time.time()
         cacheFile=self.getCacheFile()
         self.showProgress("reading events for %s from cache %s" % (self.name,cacheFile))
         em=None
@@ -175,9 +176,9 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
    OPTIONAL { ?event cr:Event_startDate ?startDate. }
    OPTIONAL { ?event cr:Event_endDate ?endDate. }
    OPTIONAL { ?event cr:Event_url ?url. }
-   ?event cr:Event_source ?source.
+   ?event cr:Event_source ?source FILTER(?source='%s').
 }
-"""         
+""" % self.name        
             eventList=self.sparql.queryAsListOfDicts(eventQuery)
             for eventRecord in eventList:
                 event=Event()
@@ -191,7 +192,7 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
                 self.events=em.events     
             if em.eventsByAcronym:
                 self.eventsByAcronym=em.eventsByAcronym    
-        self.showProgress("found %d events" % (len(self.events)))        
+        self.showProgress("read %d events in %5.1f s" % (len(self.events),time.time()-startTime))     
     
     def getListOfDicts(self):
         '''
@@ -302,9 +303,10 @@ class Event(object):
         self.url="https://www.openresearch.org/wiki/%s" % (self.event) 
         self.getLookupAcronym()
             
-    def fromTitle(self,title):
+    def fromTitle(self,title,debug=False):
         ''' fill my data from the given Title '''
         md=title.metadata()
+        Event.fixEncodings(md,debug)  
         # fix event field
         if 'event' in md:
             md['eventType']=md['event']
@@ -332,7 +334,26 @@ class Event(object):
         if hasattr(self,'lookupAcronym'):
             if hasattr(self, 'year') and not re.search(r'[0-9]{4}',self.lookupAcronym):
                 self.lookupAcronym="%s %s" % (self.lookupAcronym,str(self.year))
-            pass       
+            pass    
+        
+    @staticmethod    
+    def fixEncodings(eventInfo,debug=False):    
+        for keyValue in eventInfo.items():
+            key,value=keyValue
+            oldvalue=value
+            if isinstance(value,str):
+                # work around Umlaut encodings like "M\\"unster"
+                # and \S encoded as \\S
+                found=False
+                for umlautTuple in [('\\"a',"ä"),('\\"o',"ö"),('\\"u',"ü"),('\\',' ')]:
+                    uc,u=umlautTuple
+                    if uc in value:
+                        value=value.replace(uc,u)
+                        found=True
+                if found:
+                    if debug:
+                        print("Warning: fixing '%s' to '%s'" % (oldvalue,value))
+                    eventInfo[key]=value       
     
     def asJson(self):
         ''' return me as a JSON record 

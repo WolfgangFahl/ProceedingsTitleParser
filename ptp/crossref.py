@@ -64,7 +64,7 @@ class Crossref(object):
         eventInfo=rawEvent['event']
         eventInfo['source']=self.em.name
         if 'title' in rawEvent: eventInfo['title']=rawEvent["title"][0]
-        self.fixEncodings(eventInfo)
+        Event.fixEncodings(eventInfo,self.debug)
                             
         doi=rawEvent["DOI"]
         eventInfo['id']=doi
@@ -73,23 +73,7 @@ class Crossref(object):
         event.fromDict(eventInfo)
         self.em.add(event)
         
-    def fixEncodings(self,eventInfo):    
-        for keyValue in eventInfo.items():
-            key,value=keyValue
-            oldvalue=value
-            if isinstance(value,str):
-                # work around Umlaut encodings like "M\\"unster"
-                # and \S encoded as \\S
-                found=False
-                for umlautTuple in [('\\"a',"ä"),('\\"o',"ö"),('\\"u',"ü"),('\\',' ')]:
-                    uc,u=umlautTuple
-                    if uc in value:
-                        value=value.replace(uc,u)
-                        found=True
-                if found:
-                    if self.debug:
-                        print("Warning: fixing '%s' to '%s'" % (oldvalue,value))
-                    eventInfo[key]=value
+    
         
     def getDateParts(self,eventInfo,key):
         '''

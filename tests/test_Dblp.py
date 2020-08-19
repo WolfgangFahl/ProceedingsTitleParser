@@ -12,6 +12,7 @@ class TestDblp(unittest.TestCase):
     test Dblp handling
     '''
     def setUp(self):
+        self.forceCaching=False
         pass
 
     def tearDown(self):
@@ -20,10 +21,15 @@ class TestDblp(unittest.TestCase):
     def testDblp(self):
         ''' test reading dblp data '''
         dblp=Dblp()
-        dblp.em.removeCacheFile()
+        if self.forceCaching:
+            dblp.em.removeCacheFile()
         #EventManager.debug=True
-        dblp.cacheEvents()
-        foundEvents=len(dblp.rawevents)
+        if not dblp.em.isCached():
+            dblp.cacheEvents()
+            foundEvents=len(dblp.rawevents)
+        else:
+            dblp.em.fromStore()
+            foundEvents=len(dblp.em.events)
         cachedEvents=len(dblp.em.events)
         dblp.em.extractCheckedAcronyms() 
         self.assertEqual(43978,foundEvents)

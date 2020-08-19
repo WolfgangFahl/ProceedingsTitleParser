@@ -5,6 +5,7 @@ Created on 2020-07-25
 '''
 import unittest
 from ptp.crossref import Crossref
+from ptp.event import Event
 
 
 class TestCrossref(unittest.TestCase):
@@ -23,9 +24,8 @@ class TestCrossref(unittest.TestCase):
         '''
         workaround Umlaut issue see https://stackoverflow.com/questions/63486767/how-can-i-get-the-fuseki-api-via-sparqlwrapper-to-properly-report-a-detailed-err
         '''
-        crossRef=Crossref()
         eventInfo={'location':'M\\\"unster, Germany'}
-        crossRef.fixEncodings(eventInfo)
+        Event.fixEncodings(eventInfo,debug=True)
         self.assertEqual(eventInfo['location'],"Münster, Germany")
   
     def testCrossref(self):
@@ -33,7 +33,10 @@ class TestCrossref(unittest.TestCase):
         test loading crossref data
         '''
         crossRef=Crossref(debug=False,profile=True)
-        crossRef.cacheEvents()
+        if not crossRef.em.isCached():
+            crossRef.cacheEvents()
+        else:
+            crossRef.em.fromStore()    
         self.assertTrue(crossRef.em.isCached())
         self.assertTrue(len(crossRef.em.events)>45000)
 

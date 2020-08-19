@@ -32,17 +32,18 @@ class TestOpenResearch(unittest.TestCase):
     def testOpenResearchCaching(self):
         ''' test caching of open research results '''
         opr=OpenResearch(debug=self.debug)
-        opr.cacheEvents(opr.em,limit=20000,batch=2000)
-        minexpected=8500
-        #opr.cacheEvents(opr.em,limit=500,batch=500)
-        #minexpected=500
-        self.assertTrue(len(opr.em.events)>=minexpected)
-        opr.em.store()
+        # only cache if not cached yet
+        if not opr.em.isCached():
+            opr.cacheEvents(opr.em,limit=20000,batch=2000)
+            minexpected=8500
+            self.assertTrue(len(opr.em.events)>=minexpected)
+            opr.em.store()
+        else:
+            opr.em.fromStore()    
         self.assertTrue(opr.em.isCached())
-        start_time = time.time()
+      
         opr2=OpenResearch(debug=self.debug)
         opr2.em.fromStore()
-        print("fromStore took %5.1f s" % (time.time() - start_time))
         self.assertEqual(len(opr2.em.events),len(opr.em.events))
         events=opr2.em.lookup("ZEUS 2018")
         self.assertEqual(1,len(events))
