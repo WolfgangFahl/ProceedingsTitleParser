@@ -45,6 +45,14 @@ class Crossref(object):
             print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
         self.em.store(self.limit,self.batchSize)
         
+    def initEventManager(self):
+        ''' initialize my event manager '''
+        if not self.em.isCached():
+            self.cacheEvents()
+        else:
+            self.em.fromStore()    
+        self.em.extractCheckedAcronyms()    
+        
     def addEvent(self,rawEvent):
         '''
         add the given rawEvent e.g.

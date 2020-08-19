@@ -14,6 +14,8 @@
 							 </tr>
 						</thead>
 						<tbody>
+						   {% set events = namespace(value=0) %}
+						   {% set acronyms = namespace(value=0) %}
 	                       {% for em in lookup.ems %}
 	                       <tr>
 							   	<th scope="row">{{ loop.index }}</th>
@@ -21,8 +23,17 @@
 							    <td>{{em.mode}}</td>
 							    <td  style="text-align:right">{{ em.events|length }} </td>
         						<td  style="text-align:right">{{ em.eventsByAcronym|length }} </td>
+        						{% set events.value = events.value + em.events|length   %}
+        						{% set acronyms.value = acronyms.value + em.eventsByAcronym|length   %}
 							</tr>
 	                       {% endfor %}
+	                       <tr>
+	                       	  <th scope="row">∑</th>
+	                       	  <td></td>
+	                       	  <td></td>
+	                       	  <td style="text-align:right">{{ events.value }}</td>
+	                       	  <td style="text-align:right">{{ acronyms.value }}</td>
+	                       </tr>
 	                    </tbody>
 	                </table>      
                   </div>
