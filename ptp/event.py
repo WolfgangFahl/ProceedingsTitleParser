@@ -204,10 +204,11 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             eventList.append(d)
         return eventList
                     
-    def store(self,limit=10000000,batchSize=250):
+    def store(self,limit=10000000,batchSize=250,cacheFile=None):
         ''' store me '''
         if self.mode=="json":    
-            cacheFile=self.getCacheFile()
+            if cacheFile is None:
+                cacheFile=self.getCacheFile()
             self.showProgress ("storing %d events for %s to cache %s" % (len(self.events),self.name,cacheFile))
             self.writeJson(cacheFile)
         elif self.mode=="dgraph":

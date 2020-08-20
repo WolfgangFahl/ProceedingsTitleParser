@@ -146,3 +146,5 @@ scripts/ratel
 # jena directories
 lib
 data
+# eclipse
+.settings
