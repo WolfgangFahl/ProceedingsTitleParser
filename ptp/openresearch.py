@@ -14,13 +14,14 @@ class OpenResearch(object):
     OpenResearch Semantic Media API
     '''
 
-    def __init__(self,debug=False):
+    def __init__(self,debug=False,profile=True):
         '''
         Constructor
         '''
         self.smw=OpenResearch.getSMW()
         self.debug=debug
-        self.em=EventManager('or',url='https://www.openresearch.org/wiki/Main_Page',title='OPENRESEARCH',debug=self.debug)
+        self.profile=profile
+        self.em=EventManager('or',url='https://www.openresearch.org/wiki/Main_Page',title='OPENRESEARCH',debug=self.debug,profile=self.profile)
         
     def getAsk(self,condition,limit=50,offset=0):    
         ask="""{{#ask: [[%s]]
@@ -43,11 +44,11 @@ class OpenResearch(object):
 
     def cacheEvents(self,em,limit=500,batch=5000):
         offset=0
-        if self.debug:
-            print("retrieving events for openresearch.org cache")
+        if self.profile:
+            print("retrieving events for openresearch.org cache from SMW")
         while True:
             found,event=self.cacheEventBatch(em,limit=batch,offset=offset)
-            if self.debug:
+            if self.profile:
                 em.showProgress("retrieved events %5d-%5d" % (offset+1,offset+found))
                 em.showProgress(event.asJson())
             offset=offset+batch

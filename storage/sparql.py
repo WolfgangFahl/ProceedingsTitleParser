@@ -7,6 +7,7 @@ from SPARQLWrapper import SPARQLWrapper2
 from SPARQLWrapper.Wrapper import POSTDIRECTLY, POST
 import datetime
 import time
+from sys import stderr
 
 class SPARQL(object):
     '''
@@ -137,7 +138,7 @@ class SPARQL(object):
                 batchErrors=self.insertListOfDictsBatch(recordBatch, entityType, primaryKey, prefixes,batchIndex=i,total=total,startTime=startTime)
                 errors.extend(batchErrors)
             if self.profile:
-                print("insertListOfDicts for %9d records in %6.1f secs" % (len(listOfDicts),time.time()-startTime))
+                print("insertListOfDicts for %9d records in %6.1f secs" % (len(listOfDicts),time.time()-startTime),flush=True)
             return errors    
            
     def insertListOfDictsBatch(self,listOfDicts,entityType,primaryKey,prefixes,title='batch',batchIndex=None,total=None,startTime=None):                
@@ -208,10 +209,10 @@ class SPARQL(object):
                             insertCommand+=insertRecord
         insertCommand+="\n}"
         if self.debug:
-            print (insertCommand)
+            print (insertCommand,flush=True)
         self.insert(insertCommand)
         if self.profile:    
-            print("%7s for %9d - %9d of %9d %s in %6.1f s -> %6.1f s" % (title,batchIndex+1,batchIndex+size,total,entityType,time.time()-batchStartTime,time.time()-startTime))    
+            print("%7s for %9d - %9d of %9d %s in %6.1f s -> %6.1f s" % (title,batchIndex+1,batchIndex+size,total,entityType,time.time()-batchStartTime,time.time()-startTime),flush=True)    
         return errors
     
     controlChars = [chr(c) for c in range(0x20)]
@@ -304,7 +305,7 @@ class SPARQL(object):
         if len(errors)>0:
             print("ERRORS:")
             for error in errors:
-                print(error)
+                print(error,flush=True,file=stderr)
             return True
         else:
             return False    

@@ -192,7 +192,7 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
                 self.events=em.events     
             if em.eventsByAcronym:
                 self.eventsByAcronym=em.eventsByAcronym    
-        self.showProgress("read %d events in %5.1f s" % (len(self.events),time.time()-startTime))     
+        self.showProgress("read %d events from %s in %5.1f s" % (len(self.events),self.name,time.time()-startTime))     
     
     def getListOfDicts(self):
         '''
@@ -213,7 +213,7 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
         elif self.mode=="dgraph":
             eventList=self.getListOfDicts()
             startTime=time.time()
-            self.showProgress ("storing %d events to %s" % (len(self.events),self.mode))    
+            self.showProgress ("storing %d events for %s to %s" % (len(self.events),self.name,self.mode))    
             self.dgraph.addData(eventList,limit=limit,batchSize=batchSize)
             self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
         elif self.mode=="sparql":

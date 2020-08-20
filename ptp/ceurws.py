@@ -21,7 +21,7 @@ class CEURWS(object):
         self.debug=debug
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
-        self.em=EventManager("CEUR-WS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings')
+        self.em=EventManager("CEUR-WS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings',debug=self.debug)
         
     def cacheEvents(self):
         ''' test caching the events of CEUR-WS derived from the sample proceeding titles'''

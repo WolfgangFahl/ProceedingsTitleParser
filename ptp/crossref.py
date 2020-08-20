@@ -17,18 +17,18 @@ class Crossref(object):
     Access to Crossref's search api see https://github.com/CrossRef/rest-api-doc
     '''
 
-    def __init__(self, limit=1000000,batchSize=1000,debug=False,profile=False,mode='sparql',host=None,endpoint=None):
+    def __init__(self, limit=1000000,batchSize=1000,debug=False,profile=True):
         '''
         Constructor
         '''
-        self.profile=profile
         self.limit=limit
         self.batchSize=batchSize
         self.cr=habanero.Crossref()
         self.debug=debug
+        self.profile=profile
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
-        self.em=EventManager('crossref',url='https://www.crossref.org/',title='crossref.org',profile=profile,debug=debug,mode=mode)
+        self.em=EventManager('crossref',url='https://www.crossref.org/',title='crossref.org',debug=debug,profile=profile)
         
     def cacheEvents(self):
         '''

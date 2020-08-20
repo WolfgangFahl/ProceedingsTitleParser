@@ -42,11 +42,9 @@ class TestConfRef(unittest.TestCase):
 #        '''
         #dgraph.addSchema(schema)
         #mode="dgraph"
-        mode='sparql'
-        endpoint="http://localhost:3030/cr"
         limit=100000
         batchSize=2000
-        confRef=ConfRef(mode=mode,endpoint=endpoint,debug=False,profile=True)
+        confRef=ConfRef(debug=self.debug)
         if self.forceCaching:   
             confRef.em.removeCacheFile()
         #EventManager.debug=True
