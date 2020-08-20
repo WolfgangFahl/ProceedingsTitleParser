@@ -55,7 +55,7 @@ class WikiCFP(object):
             jsonEm.fromStore()
         else:
             #self.crawl(startId=startId,stopId=stopId)
-        pass
+            pass
      
     def initEventManager(self):
         ''' initialize my event manager '''
