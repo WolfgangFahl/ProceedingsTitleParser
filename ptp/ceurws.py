@@ -5,8 +5,7 @@ Created on 2020-07-06
 '''
 import os
 import ptp.lookup
-import urllib.request
-from bs4 import BeautifulSoup
+from ptp.webscrape import WebScrape
 from ptp.event import EventManager, Event
 
 class CEURWS(object):
@@ -74,30 +73,19 @@ class CeurwsEvent(object):
         
     def htmlParse(self,url):
         # e.g. http://ceur-ws.org/Vol-2635/
-        try:
-            response = urllib.request.urlopen(url)
-    
-            html = response.read()
-            soup = BeautifulSoup(html, 'html.parser', from_encoding="utf-8")    
-                
-            self.acronym=self.fromSpan(soup,'CEURVOLACRONYM')
-            self.title=self.fromSpan(soup,"CEURFULLTITLE")
-            self.loctime=self.fromSpan(soup,"CEURLOCTIME")
-            self.valid=True
-        except urllib.error.HTTPError as herr:
-            self.err=herr
-         
-    
-    def fromSpan(self,soup,spanClass):
-        # <span class="CEURVOLACRONYM">DL4KG2020</span>
-        # https://stackoverflow.com/a/16248908/1497139
-        # find a list of all span elements
-        spans = soup.find_all('span', {'class' : spanClass})
-        lines = [span.get_text() for span in spans]
-        if len(lines)>0:
-            return lines[0]
-        else:
-            return None
+        scrape=WebScrape()
+        scrapeDescr=[
+            {'key':'acronym', 'attribute':'class', 'value':'CEURVOLACRONYM'},
+            {'key':'title',   'attribute':'class', 'value':'CEURFULLTITLE'},
+            {'key':'loctime', 'attribute':'class', 'value':'CEURLOCTIME'}
+        ]
+        scrapedDict=scrape.parseWithScrapeDescription(url,scrapeDescr)
+        self.valid=scrape.valid
+        self.err=scrape.err
+        if self.valid:
+            self.acronym=scrapedDict['acronym']
+            self.title=scrapedDict['title']
+            self.loctime=scrapedDict['loctime']
             
     def __str__(self):
         ''' convert me to printable text form '''        

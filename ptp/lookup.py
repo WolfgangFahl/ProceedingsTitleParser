@@ -10,6 +10,7 @@ import ptp.confref
 import ptp.wikidata
 import ptp.dblp
 import ptp.crossref
+import ptp.wikicfp
 import os
 import yaml
 
@@ -72,6 +73,11 @@ class Lookup(object):
             doi=doi.replace("https:","") 
             doi=doi.replace("http:","")
             return self.extractFromDOI(doi) 
+        elif '//www.wikicfp.com/cfp' in url:
+            wikiCFPEvent=ptp.wikicfp.WikiCFPEvent()
+            rawEvent=wikiCFPEvent.fromUrl(url)
+            result={'source':'wikicfp','eventId': rawEvent['eventId'], 'title': rawEvent['title'],'metadata':rawEvent}
+            return result
         return result
     
     def extractFromDOI(self,doi):
