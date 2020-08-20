@@ -177,8 +177,19 @@ do
       pgrep -fla fuseki-server.jar
       if [ $? -eq 0 ]
       then
+        os=$(uname)
+        case $os in
+          Linux)
+            pkill="pkill --full"
+            ;;
+          Darwin)
+            pkill="pkill -fla"
+            ;;
+          *)
+            error "unsupported operating system $os"
+        esac
         color_msg $blue "killing running fuseki server"
-        pkill -fla fuseki-server.jar
+        $pkill fuseki-server.jar
       else
         color_msg $green "no running fuseki server found"
       fi
