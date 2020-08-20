@@ -9,7 +9,7 @@ Created on 2020-08-20
   @param stopId
   @param threads - number of threads the script should create to improve performance
   
-  example: python3 wikicfp.py 2000 2999 10
+  example: python3 wikicfp.py --startId 2000 --stopId 2999 10
 
   @author:     svantje, wf
   @copyright:  2020 TIB Hannover, Wolfgang Fahl. All rights reserved.
@@ -105,9 +105,9 @@ class WikiCFP(object):
            startId(int): id of the event to start crawling with
            stopId(int): id of the event to stop crawling
         '''
-        # determine the id range for each thread
-        id_range = int(stopId) - int(startId)
-        batchSize = int(id_range) / int(threads)
+        # determine the eventId range for each threaded job
+        total = stopId-startId+1
+        batchSize = total / threads
         startTime=time.time()
         
         msg='Crawling WikiCFP from %d - %d with %d threads with batches of %d event IDs each' % (startId,stopId,threads,batchSize)
@@ -117,14 +117,11 @@ class WikiCFP(object):
         jobs = []
 
         # now start each thread with its id range and own filename
-        for threadIndex in range(int(threads)):
+        for threadIndex in range(threads):
 
-            s = int(startId) + (threadIndex * batchSize)
-            e = s + (batchSize - 1)
-            # last chunk we do not want to forget the last id
-            if threadIndex == int(threads) - 1:
-                e += 1
-
+            s = startId + threadIndex * batchSize
+            e = s + batchSize-1
+        
             thread = threading.Thread(target = self.crawl, args=(threadIndex,s, e))
             jobs.append(thread)
             
