@@ -91,6 +91,9 @@ class WikiCFP(object):
             event=Event()
             event.fromDict(rawEvent)
             batchEm.add(event)
+            print(".",end='',flush=True)
+            if eventId%80==0:
+                print("%04d" % eventId,flush=True)
         batchEm.store(cacheFile=jsonFilepath)
             
     def threadedCrawl(self,threads,startId,stopId):
