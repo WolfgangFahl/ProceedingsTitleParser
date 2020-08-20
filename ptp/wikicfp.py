@@ -54,7 +54,7 @@ class WikiCFP(object):
         if jsonEm.isCached():
             jsonEm.fromStore()
         else:
-            self.crawl(startId=startId,stopId=stopId)
+            #self.crawl(startId=startId,stopId=stopId)
         pass
      
     def initEventManager(self):
@@ -91,9 +91,9 @@ class WikiCFP(object):
             event=Event()
             event.fromDict(rawEvent)
             batchEm.add(event)
+            if eventId%100==0:
+                print("\n%05d" % eventId,end='',flush=True)
             print(".",end='',flush=True)
-            if eventId%80==0:
-                print("%04d" % eventId,flush=True)
         batchEm.store(cacheFile=jsonFilepath)
             
     def threadedCrawl(self,threads,startId,stopId):
@@ -114,7 +114,7 @@ class WikiCFP(object):
         print(msg)
 
         # this list will contain all threads -> we can wait for all to finish at the end
-        allThreads = []
+        jobs = []
 
         # now start each thread with its id range and own filename
         for threadIndex in range(int(threads)):
@@ -125,13 +125,15 @@ class WikiCFP(object):
             if threadIndex == int(threads) - 1:
                 e += 1
 
-            thread = threading.Thread(target = self.crawl(threadIndex,s, e))
-            thread.start()
-            allThreads.append(thread)
+            thread = threading.Thread(target = self.crawl, args=(threadIndex,s, e))
+            jobs.append(thread)
+            
+        for job in jobs:
+            job.start()   
 
         # wait till all threads have finished before print the last output
-        for t in allThreads:
-            t.join()
+        for job in jobs:
+            job.join()
 
         if self.debug:
             print('crawling done after %5.1f s' % (time.time()-startTime))
