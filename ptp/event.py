@@ -92,7 +92,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                         print(event.acronym)
                         print(pe)
                     pass
-        self.showProgress ("found %d checked acronyms of %d events with acronyms" % (len(self.eventsByCheckedAcronym),len(self.eventsByAcronym)))          
+        self.showProgress ("found %d checked acronyms for %s of %d events with acronyms" % (len(self.eventsByCheckedAcronym),self.name,len(self.eventsByAcronym)))          
     
     def isCached(self):
         ''' check whether there is a file containing cached 
@@ -215,16 +215,16 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             startTime=time.time()
             self.showProgress ("storing %d events for %s to %s" % (len(self.events),self.name,self.mode))    
             self.dgraph.addData(eventList,limit=limit,batchSize=batchSize)
-            self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
+            self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
         elif self.mode=="sparql":
             eventList=self.getListOfDicts()
             startTime=time.time()
-            self.showProgress ("storing %d events to %s" % (len(self.events),self.mode))    
+            self.showProgress ("storing %d events for %s to %s" % (len(self.events),self.name,self.mode))    
             entityType="cr:Event"
             prefixes="PREFIX cr: <http://cr.bitplan.com/>"
             primaryKey="eventId"
             self.sparql.insertListOfDicts(eventList, entityType, primaryKey, prefixes,limit=limit,batchSize=batchSize)
-            self.showProgress ("store done after %5.1f secs" % (time.time()-startTime))
+            self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
         else:
             raise Exception("unsupported store mode %s" % self.mode)    
   
