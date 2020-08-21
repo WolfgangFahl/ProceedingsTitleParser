@@ -109,9 +109,11 @@ getDblp() {
 getWikiCFP() {
   source=wikicfp.tgz
   download http://wiki.bitplan.com/images/$source $sampledir/$source
+  pwd=$(pwd)
   cd $sampledir
   # unpack
   tar xvfz $source
+  cd $pwd
 }
 
 #

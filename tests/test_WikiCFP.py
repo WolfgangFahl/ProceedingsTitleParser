@@ -25,7 +25,7 @@ class TestWikiCFP(unittest.TestCase):
         wikiCFP=WikiCFP()
         crawlFiles=wikiCFP.jsonFiles()
         print ("found %d wikiCFP crawl files" % len(crawlFiles))
-        self.assertTrue(len(crawlFiles)>70)
+        self.assertTrue(len(crawlFiles)>=70)
 
     def testWikiCFP(self):
         '''
