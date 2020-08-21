@@ -76,6 +76,7 @@ class WikiCFP(object):
                 print("%4d: %s" % (len(batchEm.events),jsonFilePath))
             for event in batchEm.events.values():
                 event.source=self.em.name
+                event.url=WikiCFPEvent.getEventUrl(self.eventId)
                 jsonEm.add(event)
         if self.profile:
             print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
@@ -213,12 +214,17 @@ class WikiCFPEvent(object):
                 recentSummary=o 
             else: 
                 recentSummary=None
+                
+    @staticmethod       
+    def getEventUrl(eventId):
+        url= "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid="+str(eventId)
+        return url   
                            
     def fromEventId(self,eventId):
         '''
         see e.g. https://github.com/andreeaiana/graph_confrec/blob/master/src/data/WikiCFPCrawler.py
         '''
-        url = "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid="+str(eventId)
+        url=WikiCFPEvent.getEventUrl(eventId)
         return self.fromUrl(url)
     
     def fromUrl(self,url):
