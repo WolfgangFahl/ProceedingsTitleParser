@@ -60,6 +60,9 @@ class WikiCFP(object):
             jsonEm.fromStore()
         else:    
             self.crawlFilesToJson(jsonEm)
+        for event in jsonEm.events.values():
+            self.em.add(event)
+        self.em.store(limit=self.limit, batchSize=self.batchSize)    
         
     def crawlFilesToJson(self,jsonEm):    
         # crawling is not done on startup but need to be done
