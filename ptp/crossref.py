@@ -135,6 +135,7 @@ class Crossref(object):
                 if response['status']=='ok':
                     eventBatch=response['message']['items']
         return eventBatch
+    
     def doiMetaData(self,doi):
         ''' get the meta data for the given doi '''
         metadata=None

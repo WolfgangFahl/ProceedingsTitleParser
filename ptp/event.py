@@ -152,12 +152,13 @@ GROUP by ?source
             cachepath="%s %s" % (self.mode,self.endpoint)    
         return cachepath
     
-    def fromStore(self):
+    def fromStore(self,cacheFile=None):
         '''
         restore me from the store
         '''
         startTime=time.time()
-        cacheFile=self.getCacheFile()
+        if cacheFile is None:
+            cacheFile=self.getCacheFile()
         self.showProgress("reading events for %s from cache %s" % (self.name,cacheFile))
         em=None
         if self.mode=="json":   

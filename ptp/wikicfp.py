@@ -32,12 +32,14 @@ class WikiCFP(object):
     support events from http://www.wikicfp.com/cfp/
     '''
 
-    def __init__(self,debug=False,profile=False):
+    def __init__(self,debug=False,profile=False,limit=200000,batchSize=1000):
         '''
         Constructor
         '''
         self.debug=debug
         self.profile=profile
+        self.limit=limit
+        self.batchSize=batchSize
         self.em=self.getEventManager(debug, profile)
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
@@ -49,16 +51,31 @@ class WikiCFP(object):
         em=EventManager('wikicfp',url='http://www.wikicfp.com',title='WikiCFP',debug=debug,profile=profile,mode=mode)
         return em
     
-    def cacheEvents(self,startId=3860,stopId=3870):
+    def cacheEvents(self):
         '''
         cache my events to my eventmanager
         '''
         jsonEm=self.getEventManager(self.debug,self.profile, 'json')
         if jsonEm.isCached():
             jsonEm.fromStore()
-        else:
-            #self.crawl(startId=startId,stopId=stopId)
-            pass
+        else:    
+            self.crawlFilesToJson(jsonEm)
+        
+    def crawlFilesToJson(self,jsonEm):    
+        # crawling is not done on startup but need to be done
+        # in command line mode ... we just collect the json crawl result files here
+        #self.crawl(startId=startId,stopId=stopId)
+        startTime=time.time()
+        for jsonFilePath in self.jsonFiles():
+            batchEm=self.getEventManager(self.debug, self.profile, 'json')
+            batchEm.fromStore(cacheFile=jsonFilePath)
+            if self.debug:
+                print("%4d: %s" % (len(batchEm.events),jsonFilePath))
+            for event in batchEm.events.values():
+                jsonEm.add(event)
+        if self.profile:
+            print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
+        jsonEm.store(self.limit,self.batchSize)
      
     def initEventManager(self):
         ''' initialize my event manager '''
