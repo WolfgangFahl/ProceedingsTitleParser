@@ -18,6 +18,7 @@ Created on 2020-08-20
 from ptp.event import EventManager, Event
 from ptp.webscrape import WebScrape
 import datetime
+import glob
 import re
 import os
 import sys
@@ -38,6 +39,8 @@ class WikiCFP(object):
         self.debug=debug
         self.profile=profile
         self.em=self.getEventManager(debug, profile)
+        path=os.path.dirname(__file__)
+        self.jsondir=path+"/../sampledata/"
         
     def getEventManager(self,debug=False,profile=False,mode='sparql'):
         '''
@@ -65,12 +68,17 @@ class WikiCFP(object):
             self.em.fromStore()    
         self.em.extractCheckedAcronyms() 
         
+    def jsonFiles(self):  
+        '''
+        get the list of the json files that have my data
+        '''
+        jsonFiles=sorted(glob.glob(self.jsondir+"wikicfp_*.json"),key=lambda path:int(re.findall(r'\d+',path)[0]))
+        return jsonFiles    
+        
     def getJsonFileName(self,startId,stopId):
         '''
         get the JsonFileName for the given startId to stopId
         '''
-        path=os.path.dirname(__file__)
-        self.jsondir=path+"/../sampledata/"
         jsonFilePath=self.jsondir+"wikicfp_%04d-%04d.json" % (startId,stopId)
         return jsonFilePath
         

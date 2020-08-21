@@ -18,6 +18,14 @@ class TestWikiCFP(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def testCrawledJsonFiles(self):
+        '''
+        get the crawl files
+        '''
+        wikiCFP=WikiCFP()
+        crawlFiles=wikiCFP.jsonFiles()
+        print ("found %d wikiCFP crawl files" % len(crawlFiles))
+        self.assertTrue(len(crawlFiles)>70)
 
     def testWikiCFP(self):
         '''

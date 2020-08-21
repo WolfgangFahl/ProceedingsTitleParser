@@ -22,7 +22,7 @@ download() {
     echo "$l_target already downloaded"
   fi
   # show number of lines
-  # check if the file has json format 
+  # check if the file has json format
   if [[ $l_target =~ ^.*\.json$ ]]; then
     jq . $l_target | wc -l
   else
@@ -104,6 +104,17 @@ getDblp() {
 }
 
 #
+# get wikiCFP crawled json files
+#
+getWikiCFP() {
+  source=wikicfp.tgz
+  download http://wiki.bitplan.com/images/$source $sampledir/$source
+  cd $sampledir
+  # unpack
+  tar xvfz $source
+}
+
+#
 # get the text files
 #
 getText() {
@@ -173,12 +184,12 @@ getCrossRef() {
 # get sample data from confref http://portal.confref.org/api
 #
 getConfRef() {
-for entity in countries areas conferences
-do
-  target=$sampledir/confref-$entity.json
-  src=http://portal.confref.org/api/$entity/ 
-  download $src $target
-done
+  for entity in countries areas conferences
+  do
+    target=$sampledir/confref-$entity.json
+    src=http://portal.confref.org/api/$entity/
+    download $src $target
+  done
 }
 
 #
@@ -189,6 +200,7 @@ getAll() {
   getCrossRef
   getCEURWS
   getDblp
+  getWikiCFP
   getText
 }
 
