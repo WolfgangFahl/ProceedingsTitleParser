@@ -34,7 +34,7 @@ class Lookup(object):
             self.butNot=butNot
         lookupIds=['or']
         if getAll:
-            lookupIds=['or','ceur-ws','crossref','confref','wikidata','dblp']
+            lookupIds=['or','ceur-ws','crossref','confref','wikicfp','wikidata','dblp']
         for lookupId  in lookupIds:
             lem=None
             if not lookupId in self.butNot:
@@ -48,7 +48,10 @@ class Lookup(object):
                     # confref http://portal.confref.org/
                     lem=ptp.confref.ConfRef(debug=self.debug)
                 elif lookupId=='crossref':
-                    lem=ptp.crossref.Crossref(debug=self.debug)    
+                    lem=ptp.crossref.Crossref(debug=self.debug)   
+                elif lookupId=='wikicfp':
+                    # http://www.wikicfp.com/cfp/
+                    lem=ptp.wikicfp.WikiCFP(debug=self.debug)       
                 elif lookupId=='wikidata':
                     # https://www.wikidata.org/wiki/Wikidata:Main_Page
                     lem=ptp.wikidata.WikiData(debug=self.debug)      

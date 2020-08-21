@@ -32,7 +32,7 @@ class WikiCFP(object):
     support events from http://www.wikicfp.com/cfp/
     '''
 
-    def __init__(self,debug=False,profile=False,limit=200000,batchSize=1000):
+    def __init__(self,debug=False,profile=True,limit=200000,batchSize=1000):
         '''
         Constructor
         '''
@@ -75,6 +75,7 @@ class WikiCFP(object):
             if self.debug:
                 print("%4d: %s" % (len(batchEm.events),jsonFilePath))
             for event in batchEm.events.values():
+                event.source=self.em.name
                 jsonEm.add(event)
         if self.profile:
             print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))

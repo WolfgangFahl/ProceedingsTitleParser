@@ -11,7 +11,7 @@ class WikiData(object):
     WikiData proceedings titles event source
     '''
 
-    def __init__(self, debug=False,profile=False):
+    def __init__(self, debug=False,profile=True):
         '''
         Constructor
         '''
