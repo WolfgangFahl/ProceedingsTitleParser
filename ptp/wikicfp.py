@@ -76,7 +76,7 @@ class WikiCFP(object):
                 print("%4d: %s" % (len(batchEm.events),jsonFilePath))
             for event in batchEm.events.values():
                 event.source=self.em.name
-                event.url=WikiCFPEvent.getEventUrl(self.eventId)
+                event.url=WikiCFPEvent.getEventUrl(event.eventId)
                 jsonEm.add(event)
         if self.profile:
             print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
