@@ -1,0 +1,21 @@
+#
+# Queries for Proceedings Title Parser Event lookup database
+#
+# WF 2020-08-22
+'Count of Events grouped by source': |
+    PREFIX cr: <http://cr.bitplan.com/>
+    SELECT  ?source (COUNT(?source) AS ?sourcecount)
+    WHERE { 
+       ?event cr:Event_source ?source.
+    }
+    GROUP by ?source
+'Predicate usage grouped by source': |
+    PREFIX cr: <http://cr.bitplan.com/>
+    SELECT ?p (count(?p) as ?numberOfPredicates) ?source
+    WHERE {
+        ?s ?p ?o ;
+        cr:Event_source ?source.
+    }
+    group by ?p ?source
+    order by ?source desc(?numberOfPredicates)
+
