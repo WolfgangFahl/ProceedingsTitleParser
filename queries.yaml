@@ -9,6 +9,13 @@
        ?event cr:Event_source ?source.
     }
     GROUP by ?source
+'Predicate usage': |
+    SELECT ?p (count(?p) as ?numberOfPredicates) 
+    WHERE {
+        ?s ?p ?o .
+    }
+    group by ?p
+    order by desc(?numberOfPredicates)    
 'Predicate usage grouped by source': |
     PREFIX cr: <http://cr.bitplan.com/>
     SELECT ?p (count(?p) as ?numberOfPredicates) ?source
@@ -18,4 +25,21 @@
     }
     group by ?p ?source
     order by ?source desc(?numberOfPredicates)
+'Basic event information sample': |
+    PREFIX cr: <http://cr.bitplan.com/>
+    SELECT ?eventId ?acronym ?series ?name ?year ?country ?city ?startDate ?endDate ?url ?source WHERE { 
+       OPTIONAL { ?event cr:Event_eventId ?eventId. }
+       OPTIONAL { ?event cr:Event_acronym ?acronym. }
+       OPTIONAL { ?event cr:Event_series ?series. }
+       OPTIONAL { ?event cr:Event_title ?title. }
+       OPTIONAL { ?event cr:Event_name ?name. }
+       OPTIONAL { ?event cr:Event_year ?year.  }
+       OPTIONAL { ?event cr:Event_country ?country. }
+       OPTIONAL { ?event cr:Event_city ?city. }
+       OPTIONAL { ?event cr:Event_startDate ?startDate. }
+       OPTIONAL { ?event cr:Event_endDate ?endDate. }
+       OPTIONAL { ?event cr:Event_url ?url. }
+       ?event cr:Event_source ?source.
+    }    
+    limit 20
 
