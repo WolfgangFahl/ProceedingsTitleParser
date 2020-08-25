@@ -12,6 +12,8 @@ from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
 from storage.dgraph import Dgraph
 from storage.sparql import SPARQL
+from storage.sql import SQLDB
+
 import pyparsing as pp
 import time
 
@@ -22,8 +24,10 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     def __init__(self,name,url=None,title=None,debug=False,mode='sparql',withShowProgress=True,host='localhost', endpoint="http://localhost:3030/cr", profile=True):
         '''
         Constructor
+        
         Args:
             name(string): the name of this event manager
+            url(sring): the url of the event source
         '''
         self.name=name
         self.mode=mode
@@ -38,11 +42,13 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.showProgress ("Creating Eventmanager(%s) for %s" % (self.mode,self.name))
         if self.mode=='dgraph':
             self.dgraph=Dgraph(debug=self.debug,host=host,profile=self.profile)
-        if self.mode=='sparql':
+        elif self.mode=='sparql':
             if endpoint is None:
                 raise Exception("no endpoint set for mode sparql") 
             self.endpoint=endpoint   
             self.sparql=SPARQL(endpoint,debug=self.debug,profile=self.profile)
+        elif self.mode=='sql':
+            self.sqldb=SQLDB(debug=self.debug)
         
     def showProgress(self,msg):
         ''' display a progress message '''
@@ -97,6 +103,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     def isCached(self):
         ''' check whether there is a file containing cached 
         data for me '''
+        result=False
         if self.mode=='json':
             result=os.path.isfile(self.getCacheFile())
         elif self.mode=='sparql':
@@ -109,12 +116,15 @@ WHERE {
 GROUP by ?source
 """                                 
             sourceCountList=self.sparql.queryAsListOfDicts(query)
-            result=False
             for sourceCount in sourceCountList:
                 source=sourceCount['source'];
                 recordCount=sourceCount['sourcecount']
                 if source==self.name and recordCount>100:
                     result=True
+        elif self.mode=='sql':
+            pass        
+        else:
+            raise Exception("unsupported mode %s" % self.mode)            
         return result
     
     def removeCacheFile(self):
@@ -227,6 +237,12 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             primaryKey="eventId"
             self.sparql.insertListOfDicts(eventList, entityType, primaryKey, prefixes,limit=limit,batchSize=batchSize)
             self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
+        elif self.mode=="sql":
+            eventList=self.getListOfDicts() 
+            startTime=time.time()
+            self.showProgress ("storing %d events for %s to %s" % (len(self.events),self.name,self.mode)) 
+            entityInfo=self.sqldb.createTable(eventList, "Event_%s" % self.name, "eventId")   
+            self.sqldb.store(eventList, entityInfo)
         else:
             raise Exception("unsupported store mode %s" % self.mode)    
   
