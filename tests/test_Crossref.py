@@ -7,7 +7,6 @@ import unittest
 from ptp.crossref import Crossref
 from ptp.event import Event
 
-
 class TestCrossref(unittest.TestCase):
     '''
     import data from Crossref

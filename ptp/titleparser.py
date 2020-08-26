@@ -298,7 +298,17 @@ class Title(object):
     def metadata(self):
         ''' extract the metadata of the given title '''
         if self.md is None:
-            self.md={}
+            self.md={
+                'enum': None, 
+                'event': None,
+                'month': None,
+                'ordinal': None,
+                'publish': None,
+                'scope': None,
+                'syntax': None,
+                'topic': None,
+                'year': None
+            }
             if self.parseResult is not None:
                 for pitem in self.parseResult:
                     if isinstance(pitem,ParseResults):

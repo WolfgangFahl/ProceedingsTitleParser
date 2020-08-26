@@ -48,8 +48,19 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             self.endpoint=endpoint   
             self.sparql=SPARQL(endpoint,debug=self.debug,profile=self.profile)
         elif self.mode=='sql':
-            self.sqldb=SQLDB(debug=self.debug)
+            self.executeMany=False # may be True when issues are fixed
+            self.tableName="Event_%s" % self.name
         
+    def getSQLDB(self,cacheFile):
+        '''
+        get the SQL database for the given cacheFile
+        
+        Args:
+            cacheFile(string): the file to get the SQL db from
+        '''
+        sqldb=self.sqldb=SQLDB(cacheFile,debug=self.debug,errorDebug=True)
+        return sqldb
+            
     def showProgress(self,msg):
         ''' display a progress message '''
         if self.withShowProgress:
@@ -122,7 +133,17 @@ GROUP by ?source
                 if source==self.name and recordCount>100:
                     result=True
         elif self.mode=='sql':
-            pass        
+            cacheFile=self.getCacheFile()
+            if os.path.isfile(cacheFile):
+                sqlQuery="SELECT COUNT(*) AS count FROM %s" % self.tableName
+                try:
+                    sqlDB=self.getSQLDB(cacheFile)
+                    countResult=sqlDB.query(sqlQuery)
+                    count=countResult[0]['count']
+                    result=count>100
+                except Exception as ex:
+                    # e.g. sqlite3.OperationalError: no such table: Event_crossref
+                    pass      
         else:
             raise Exception("unsupported mode %s" % self.mode)            
         return result
@@ -150,17 +171,34 @@ GROUP by ?source
   }
 }'''        
             self.dgraph.query(mutation)"""
-                    
-        
+                          
     def getCacheFile(self):
+        '''
+        get the cache file for this event manager
+        '''
+        path=os.path.dirname(__file__)
+        cachedir=path+"/../cache"
         ''' get the path to the file for my cached data '''  
         if self.mode=='json':  
-            path=os.path.dirname(__file__)
-            cachedir=path+"/../cache"
             cachepath="%s/%s-%s.%s" % (cachedir,self.name,"events",self.mode)
-        else:
+        elif self.mode=='sparql':
             cachepath="%s %s" % (self.mode,self.endpoint)    
+        elif self.mode=='sql':
+            cachepath="%s/%s.db" % (cachedir,self.tableName)
+        else:
+            cachepath="undefined cachepath for %s" % (self.mode)
         return cachepath
+    
+    def fromEventList(self,eventList):
+        ''' 
+        restore my events form the given ListOfDicts
+        Args:
+           eventList(list): the list of event Records/Dicts
+        '''
+        for eventRecord in eventList:
+            event=Event()
+            event.fromDict(eventRecord)
+            self.add(event)
     
     def fromStore(self,cacheFile=None):
         '''
@@ -191,13 +229,14 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
 }
 """ % self.name        
             eventList=self.sparql.queryAsListOfDicts(eventQuery)
-            for eventRecord in eventList:
-                event=Event()
-                event.fromDict(eventRecord)
-                self.add(event)
-
+            self.fromEventList(eventList)
+        elif self.mode=='sql':
+            sqlQuery="SELECT * FROM %s" % self.tableName
+            eventList=self.getSQLDB(cacheFile).query(sqlQuery)
+            self.fromEventList(eventList)
+            pass
         else:
-            raise Exception("unsupported store mode %s",self.mode)
+            raise Exception("unsupported store mode %s" % self.mode)
         if em is not None:
             if em.events is not None:
                 self.events=em.events     
@@ -240,9 +279,13 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
         elif self.mode=="sql":
             eventList=self.getListOfDicts() 
             startTime=time.time()
+            if cacheFile is None:
+                cacheFile=self.getCacheFile()
+            sqldb=self.getSQLDB(cacheFile)
             self.showProgress ("storing %d events for %s to %s" % (len(self.events),self.name,self.mode)) 
-            entityInfo=self.sqldb.createTable(eventList, "Event_%s" % self.name, "eventId")   
-            self.sqldb.store(eventList, entityInfo)
+            entityInfo=sqldb.createTable(eventList, self.tableName, "eventId",withDrop=True)   
+            self.sqldb.store(eventList, entityInfo,executeMany=self.executeMany)
+            self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
         else:
             raise Exception("unsupported store mode %s" % self.mode)    
   
@@ -276,8 +319,7 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
                 if value is not None:
                     wikison+="|%s=%s\n" % (key,value)
         wikison+="}}\n"  
-        return wikison  
-  
+        return wikison
 
 class Event(object):
     '''
@@ -290,6 +332,9 @@ class Event(object):
         '''
         self.foundBy=None
         self.homepage=None
+        self.acronym=None
+        self.city=None
+        self.country=None
         
     def hasUrl(self):
         result=False
@@ -312,6 +357,10 @@ class Event(object):
             if key in askRecord:
                 d[key]=askRecord[key]
         ''' individual fixes '''
+        if self.series is not None:
+            if type(self.series) is list:
+                print("warning series for %s is a list: %s - using only 1st entry" % (self.event,self.series))
+                self.series=self.series[0]
         if self.country is not None:
             if type(self.country) is list:
                 print("warning country for %s is a list: %s" % (self.event,self.country))
@@ -350,9 +399,12 @@ class Event(object):
             if hasattr(self,'event'):
                 self.lookupAcronym=self.event
         if hasattr(self,'lookupAcronym'):
-            if hasattr(self, 'year') and not re.search(r'[0-9]{4}',self.lookupAcronym):
-                self.lookupAcronym="%s %s" % (self.lookupAcronym,str(self.year))
-            pass    
+            if self.lookupAcronym is not None:
+                try:
+                    if hasattr(self, 'year') and self.year is not None and not re.search(r'[0-9]{4}',self.lookupAcronym):
+                        self.lookupAcronym="%s %s" % (self.lookupAcronym,str(self.year))
+                except TypeError as te:
+                    print ('Warning getLookupAcronym faile for year: %s and lookupAcronym %s' % (self.year,self.lookupAcronym)) 
         
     @staticmethod    
     def fixEncodings(eventInfo,debug=False):    

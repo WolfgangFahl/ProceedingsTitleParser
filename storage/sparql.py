@@ -76,11 +76,18 @@ class SPARQL(object):
             a response
         '''
         self.sparql.setRequestMethod(POSTDIRECTLY)
-        response=self.rawQuery(insertCommand, method=POST)
-        #see https://github.com/RDFLib/sparqlwrapper/issues/159#issuecomment-674523696
-        # dummy read the body
-        response.response.read()
-        return response
+        response=None
+        exception=None
+        try:
+            response=self.rawQuery(insertCommand, method=POST)
+            #see https://github.com/RDFLib/sparqlwrapper/issues/159#issuecomment-674523696
+            # dummy read the body
+            response.response.read()
+        except Exception as ex:
+            exception=ex
+            if self.debug:
+                print (ex)
+        return response,exception
     
     def getLocalName(self,name):
         '''
@@ -201,6 +208,9 @@ class SPARQL(object):
                             #if self.typedLiterals:
                             tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#date>' %value
                             pass
+                        elif valueType==datetime.datetime:
+                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#dateTime>' %value
+                            pass
                         else:
                             errors.append("can't handle type %s in record %d" % (valueType,index))
                             tObject=None
@@ -210,7 +220,9 @@ class SPARQL(object):
         insertCommand+="\n}"
         if self.debug:
             print (insertCommand,flush=True)
-        self.insert(insertCommand)
+        response,ex=self.insert(insertCommand)
+        if response is None and ex is not None:
+            errors.append("%s for record %d" % (str(ex),index))
         if self.profile:    
             print("%7s for %9d - %9d of %9d %s in %6.1f s -> %6.1f s" % (title,batchIndex+1,batchIndex+size,total,entityType,time.time()-batchStartTime,time.time()-startTime),flush=True)    
         return errors
@@ -283,6 +295,9 @@ class SPARQL(object):
                     elif datatype=="http://www.w3.org/2001/XMLSchema#date":
                         dt=datetime.datetime.strptime(value.value,"%Y-%m-%d")  
                         resultValue=dt.date()  
+                    elif datatype=="http://www.w3.org/2001/XMLSchema#dateTime":
+                        dt=datetime.datetime.strptime(value.value,"%Y-%m-%d %H:%M:%S.%f")  
+                        resultValue=dt
                     else:
                         # unsupported datatype
                         resultValue=value.value      

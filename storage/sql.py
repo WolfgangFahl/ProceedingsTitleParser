@@ -8,6 +8,7 @@ import sqlite3
 import datetime
 import time
 import sys
+import re
 
 class SQLDB(object):
     '''
@@ -15,10 +16,11 @@ class SQLDB(object):
     
     :ivar dbname(string): name of the database
     :ivar debug(boolean): True if debug info should be provided
+    :ivar errorDebug(boolean): True if debug info should be provided on errors (should not be used for production since it might reveal data)
     '''
     RAM=":memory:"
 
-    def __init__(self,dbname=':memory:',connection=None,debug=False):
+    def __init__(self,dbname=':memory:',connection=None,debug=False, errorDebug=False):
         '''
         Construct me for the given dbname and debug
         
@@ -27,11 +29,13 @@ class SQLDB(object):
            dbname(string): name of the database - default is a RAM based database
            connection(Connection): an optional connectio to be reused 
            debug(boolean): if True switch on debug
+           errorDebug(boolean): True if debug info should be provided on errors (should not be used for production since it might reveal data)
         '''
         self.dbname=dbname
         self.debug=debug
+        self.errorDebug=errorDebug
         if connection is None:
-            self.c=sqlite3.connect(dbname)
+            self.c=sqlite3.connect(dbname,detect_types=sqlite3.PARSE_DECLTYPES)
         else:
             self.c=connection
         
@@ -39,7 +43,7 @@ class SQLDB(object):
         ''' close my connection '''
         self.c.close()    
         
-    def createTable(self,listOfRecords,entityName,primaryKey):
+    def createTable(self,listOfRecords,entityName,primaryKey,withDrop=False):
         '''
         derive  Data Definition Language CREATE TABLE command from list of Records by examining first recorda
         as defining sample record and execute DDL command
@@ -57,11 +61,29 @@ class SQLDB(object):
         if len(listOfRecords)<1:
             raise Exception("Need a sample record to createTable")
         sampleRecord=listOfRecords[0]
-        entityInfo=EntityInfo(sampleRecord,entityName,primaryKey,debug=self.debug) 
+        entityInfo=EntityInfo(sampleRecord,entityName,primaryKey,debug=self.debug)
+        if withDrop:
+            self.c.execute(entityInfo.dropTableCmd) 
         self.c.execute(entityInfo.createTableCmd)
         return entityInfo
+    
+    def getDebugInfo(self,record,index,executeMany):
+        '''
+        get the debug info for the given record at the given index depending on the state of executeMany
+        
+        Args:
+            record(dict): the record to show
+            index(int): the index of the record
+            executeMany(boolean): if True the record may be valid else not
+        '''
+        debugInfo=""
+        if not executeMany:
+            if self.errorDebug:
+                debugInfo="\nrecord  #%d=%s" % (index,repr(record))
+        return debugInfo
+        
        
-    def store(self,listOfRecords,entityInfo):
+    def store(self,listOfRecords,entityInfo,executeMany=False):
         '''
         store the given list of records based on the given entityInfo
         
@@ -71,8 +93,33 @@ class SQLDB(object):
            entityInfo(EntityInfo): the meta data to be used for storing
         '''
         insertCmd=entityInfo.insertCmd
-        self.c.executemany(insertCmd,listOfRecords)
-        self.c.commit()
+        record=None
+        try:
+            if executeMany:
+                self.c.executemany(insertCmd,listOfRecords)
+            else:
+                index=0
+                for record in listOfRecords:
+                    index+=1
+                    self.c.execute(insertCmd,record)
+            self.c.commit()
+        except sqlite3.ProgrammingError as pe:
+            msg=pe.args[0]
+            if "You did not supply a value for binding" in msg:
+                columnIndex=int(re.findall(r'\d+',msg)[0])
+                columnName=list(entityInfo.typeMap.keys())[columnIndex-1]
+                debugInfo=self.getDebugInfo(record, index, executeMany)
+                raise Exception("%s\nfailed: no value supplied for column '%s'%s" % (insertCmd,columnName,debugInfo))
+            else:
+                raise pe
+        except sqlite3.InterfaceError as ie:
+            msg=ie.args[0]
+            if "Error binding parameter" in msg:
+                columnName=re.findall(r':[_a-zA-Z]\w*',msg)[0]
+                debugInfo=self.getDebugInfo(record, index, executeMany)
+                raise Exception("%s\nfailed: error binding column '%s'%s" % (insertCmd,columnName,debugInfo))
+            else:
+                raise ie
         
     def query(self,sqlQuery):
         '''
@@ -195,6 +242,7 @@ class EntityInfo(object):
         self.debug=debug
         self.typeMap={}
         self.createTableCmd=self.getCreateTableCmd(sampleRecord)
+        self.dropTableCmd="DROP TABLE IF EXISTS %s" % self.name
         self.insertCmd=self.getInsertCmd()
         
     def getCreateTableCmd(self,sampleRecord):
@@ -232,6 +280,8 @@ class EntityInfo(object):
                 sqlType="BOOLEAN"      
             elif valueType == datetime.date:
                 sqlType="DATE"    
+            elif valueType== datetime.datetime:
+                sqlType="TIMESTAMP"
             else:
                 raise Exception("unsupported type %s for column %s " % (str(valueType),key))
             ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")

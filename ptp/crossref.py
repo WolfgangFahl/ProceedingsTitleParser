@@ -70,6 +70,8 @@ class Crossref(object):
         '''
         event=Event()
         eventInfo=rawEvent['event']
+        if not 'location' in eventInfo:
+            eventInfo['location']=None
         eventInfo['source']=self.em.name
         if 'title' in rawEvent: eventInfo['title']=rawEvent["title"][0]
         Event.fixEncodings(eventInfo,self.debug)

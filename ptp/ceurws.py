@@ -20,10 +20,10 @@ class CEURWS(object):
         self.debug=debug
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
-        self.em=EventManager("CEUR-WS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings',debug=self.debug)
+        self.em=EventManager("CEURWS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings',debug=self.debug)
         
     def cacheEvents(self):
-        ''' test caching the events of CEUR-WS derived from the sample proceeding titles'''
+        ''' cache the events of CEUR-WS derived from the sample proceeding titles'''
         self.lookup=ptp.lookup.Lookup("CEUR-WS",getAll=False)
         tp=self.lookup.tp
         samplefile=self.sampledir+"proceedings-ceur-ws.txt"
@@ -54,6 +54,9 @@ class CeurwsEvent(object):
     ''' an Event derived from CEUR-WS '''
     
     def __init__(self,debug=False):
+        '''
+        Constructor 
+        '''
         self.debug=debug
         self.title=None
         self.acronym=None
@@ -64,6 +67,9 @@ class CeurwsEvent(object):
     def fromUrl(self,url):
         '''
         construct me from the given url
+        
+        Args:
+           url(string): the url to scrape my info from
         '''
         self.proceedingsUrl=url
         self.vol=url.replace("http://ceur-ws.org/","")
