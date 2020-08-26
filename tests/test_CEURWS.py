@@ -12,7 +12,7 @@ class TestCEURWS(unittest.TestCase):
     from http://ceur-ws.org/ Volumes '''
 
     def setUp(self):
-        self.debug=True
+        self.debug=False
         self.forceCaching=False
         pass
 
