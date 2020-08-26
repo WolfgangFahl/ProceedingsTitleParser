@@ -265,6 +265,7 @@ class EntityInfo(object):
         ddlCmd="CREATE TABLE %s(" %self.name
         delim=""
         for key,value in sampleRecord.items():
+            sqlType=None
             if value is None:
                 print("Warning sampleRecord column %s is None - using TEXT as type" % key)
                 valueType=str
@@ -283,9 +284,11 @@ class EntityInfo(object):
             elif valueType== datetime.datetime:
                 sqlType="TIMESTAMP"
             else:
-                raise Exception("unsupported type %s for column %s " % (str(valueType),key))
-            ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")
-            self.addType(key,valueType)
+                msg="warning: unsupported type %s for column %s " % (str(valueType),key)
+                print(msg)
+            if sqlType is not None:
+                ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")
+                self.addType(key,valueType)
             delim=","
         ddlCmd+=")"  
         if self.debug:

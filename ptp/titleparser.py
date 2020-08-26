@@ -300,9 +300,12 @@ class Title(object):
         if self.md is None:
             self.md={
                 'enum': None, 
+                'description': None,
                 'event': None,
+                'location': None,
                 'month': None,
                 'ordinal': None,
+                'organization': None,
                 'publish': None,
                 'scope': None,
                 'syntax': None,
