@@ -70,6 +70,12 @@ class WikiCFP(object):
         self.em.store(limit=self.limit, batchSize=self.batchSize)    
         
     def crawlFilesToJson(self,jsonEm):    
+        '''
+        convert the crawlFiles to Json
+        
+        Args:
+            jsonEm(EventManager): the JSON - storage based Eventmanager to use to collect the results
+        '''
         # crawling is not done on startup but need to be done
         # in command line mode ... we just collect the json crawl result files here
         #self.crawl(startId=startId,stopId=stopId)

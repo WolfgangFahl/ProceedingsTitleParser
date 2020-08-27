@@ -19,6 +19,9 @@ class TestStats(unittest.TestCase):
         pass
 
     def test_SPARQL(self):
+        '''
+        test a SPARQL query
+        '''
         qm=QueryManager(debug=False)
         self.assertEqual(4,len(qm.queriesByName))
         endpoint="http://localhost:3030/cr"
