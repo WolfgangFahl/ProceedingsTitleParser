@@ -35,6 +35,12 @@ class WikiCFP(object):
     def __init__(self,debug=False,profile=True,limit=200000,batchSize=1000):
         '''
         Constructor
+        
+        Args:
+            debug(boolean): True if debug should be switched on
+            profile(boolean): True if profiling/timing information should be gathered
+            limit(int): maximum number of entries to be crawled
+            batchSize(int): default size of batches
         '''
         self.debug=debug
         self.profile=profile
@@ -136,6 +142,7 @@ class WikiCFP(object):
                 print("\n%05d" % eventId,end='',flush=True)
             print(".",end='',flush=True)
         batchEm.store(cacheFile=jsonFilepath)
+        return jsonFilepath
             
     def threadedCrawl(self,threads,startId,stopId):
         '''

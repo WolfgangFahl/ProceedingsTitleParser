@@ -51,15 +51,20 @@ class TestWikiCFP(unittest.TestCase):
         except:
             pass
     
-    def testEvents(self):
+    def testEventScraping(self):
         '''
-        test crawling th given events
+        test scraping the given event
         '''
         eventIds=[3862]
         event=WikiCFPEvent(debug=True)
         for eventId in eventIds:
             rawEvent=event.fromEventId(eventId)
             print (rawEvent)
+            
+    def testCrawlEvents(self):
+        wikiCFP=WikiCFP()
+        jsonFilePath=wikiCFP.crawl(0, 3860, 3869)
+                
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
