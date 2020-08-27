@@ -21,13 +21,14 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,url=None,title=None,debug=False,mode='sparql',withShowProgress=True,host='localhost', endpoint="http://localhost:3030/cr", profile=True):
+    def __init__(self,name,url=None,title=None,debug=False,mode='sql',withShowProgress=True,host='localhost', endpoint="http://localhost:3030/cr", profile=True):
         '''
         Constructor
         
         Args:
-            name(string): the name of this event manager
-            url(sring): the url of the event source
+            name(string): the name of this event manager e.g. "confref"
+            url(string): the url of the event source  e.g. "http://portal.confref.org/"
+            title(string): title of the event source e.g. "confref.org"
         '''
         self.name=name
         self.mode=mode
@@ -36,7 +37,7 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
         self.events={}
         self.eventsByAcronym={}
         self.eventsByCheckedAcronym={}
-        self.withShowProgress=True
+        self.withShowProgress=withShowProgress
         self.debug=debug
         self.profile=profile
         self.showProgress ("Creating Eventmanager(%s) for %s" % (self.mode,self.name))

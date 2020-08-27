@@ -44,9 +44,14 @@ class WikiCFP(object):
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
         
-    def getEventManager(self,debug=False,profile=False,mode='sparql'):
+    def getEventManager(self,debug=False,profile=False,mode='sql'):
         '''
         get an EventManager
+        
+        Args:
+            debug(boolean): True if debugging should be on
+            profile(boolean): True if profile/timing information should be shown
+            mode(string): the storage mode to use e.g. "json"
         '''
         em=EventManager('wikicfp',url='http://www.wikicfp.com',title='WikiCFP',debug=debug,profile=profile,mode=mode)
         return em

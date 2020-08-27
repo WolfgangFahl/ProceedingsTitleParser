@@ -11,7 +11,6 @@ class TestExamples(unittest.TestCase):
     test the example yaml file handling
     '''
 
-
     def setUp(self):
         pass
 
@@ -21,6 +20,9 @@ class TestExamples(unittest.TestCase):
 
 
     def testExamples(self):
+        '''
+        test reading the examples
+        '''
         examples=Lookup.getExamples()
         print (examples)
         self.assertEqual(10,len(examples.keys()))
