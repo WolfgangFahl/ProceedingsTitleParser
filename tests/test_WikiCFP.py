@@ -5,6 +5,7 @@ Created on 2020-08-20
 '''
 import unittest
 from ptp.wikicfp import WikiCFP, WikiCFPEvent
+import os
 
 class TestWikiCFP(unittest.TestCase):
     '''
@@ -62,8 +63,15 @@ class TestWikiCFP(unittest.TestCase):
             print (rawEvent)
             
     def testCrawlEvents(self):
+        '''
+        test crawling a few events and storing the result to a json file
+        '''
         wikiCFP=WikiCFP()
         jsonFilePath=wikiCFP.crawl(0, 3860, 3869)
+        size=os.stat(jsonFilePath).st_size
+        print ("JSON file has size %d" % size)
+        self.assertTrue(size>5000)
+        os.remove(jsonFilePath)
                 
 
 if __name__ == "__main__":
