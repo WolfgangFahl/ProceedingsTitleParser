@@ -307,6 +307,7 @@ class Title(object):
                 'month': None,
                 'ordinal': None,
                 'organization': None,
+                'prefix': None,
                 'publish': None,
                 'scope': None,
                 'syntax': None,
