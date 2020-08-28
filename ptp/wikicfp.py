@@ -142,9 +142,8 @@ class WikiCFP(object):
             event=Event()
             event.fromDict(rawEvent)
             batchEm.add(event)
-            if eventId%100==0:
-                print("\n%05d" % eventId,end='',flush=True)
-            print(".",end='',flush=True)
+            title="? deleted: %r" %event.deleted if not 'title' in rawEvent else event.title
+            print("%06d: %s" % (eventId,title))
         batchEm.store(cacheFile=jsonFilepath)
         return jsonFilepath
             
@@ -258,17 +257,25 @@ class WikiCFPEvent(object):
             raise Exception("Invalid URL %s" % (url))
         else:
             eventId=int(m.group(1))
-        scrape=WebScrape(debug=self.debug)
-        triples=scrape.parseRDFa(url)
         rawEvent={}
         rawEvent['eventId']="wikiCFP#%d" % eventId
         rawEvent['wikiCFPId']=eventId
-        self.fromTriples(rawEvent,triples)
-        if 'summary' in rawEvent:
-            rawEvent['acronym']=rawEvent.pop('summary')
-        if 'description' in rawEvent:
-            rawEvent['title']=rawEvent.pop('description')
-       
+        rawEvent['deleted']=False
+    
+        scrape=WebScrape(debug=self.debug)
+        triples=scrape.parseRDFa(url)
+        if len(triples)==0:
+            #scrape.printPrettyHtml(scrape.soup)
+            firstH3=scrape.fromTag(scrape.soup, 'h3')
+            if "This item has been deleted" in firstH3:
+                rawEvent['deleted']=True
+        else:        
+            self.fromTriples(rawEvent,triples)
+            if 'summary' in rawEvent:
+                rawEvent['acronym']=rawEvent.pop('summary').strip()
+            if 'description' in rawEvent:
+                rawEvent['title']=rawEvent.pop('description').strip()
+           
         return rawEvent
     
 __version__ = 0.1

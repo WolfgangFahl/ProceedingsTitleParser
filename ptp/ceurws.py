@@ -81,9 +81,9 @@ class CeurwsEvent(object):
         # e.g. http://ceur-ws.org/Vol-2635/
         scrape=WebScrape()
         scrapeDescr=[
-            {'key':'acronym', 'attribute':'class', 'value':'CEURVOLACRONYM'},
-            {'key':'title',   'attribute':'class', 'value':'CEURFULLTITLE'},
-            {'key':'loctime', 'attribute':'class', 'value':'CEURLOCTIME'}
+            {'key':'acronym', 'tag':'span','attribute':'class', 'value':'CEURVOLACRONYM'},
+            {'key':'title',   'tag':'span','attribute':'class', 'value':'CEURFULLTITLE'},
+            {'key':'loctime', 'tag':'span','attribute':'class', 'value':'CEURLOCTIME'}
         ]
         scrapedDict=scrape.parseWithScrapeDescription(url,scrapeDescr)
         self.valid=scrape.valid

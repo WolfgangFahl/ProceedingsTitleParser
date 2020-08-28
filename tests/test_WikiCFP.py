@@ -18,7 +18,6 @@ class TestWikiCFP(unittest.TestCase):
         self.profile=False
         pass
 
-
     def tearDown(self):
         pass
 
@@ -58,19 +57,25 @@ class TestWikiCFP(unittest.TestCase):
     def testEventScraping(self):
         '''
         test scraping the given event
+        
+         test "This item has been deleted" WikiCFP items
+        e.g.
+        http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=3
         '''
-        eventIds=[3862]
+        eventIds=[3862,1]
+        isDeleted=[False,True]
         event=WikiCFPEvent(debug=True)
-        for eventId in eventIds:
+        for index,eventId in enumerate(eventIds):
             rawEvent=event.fromEventId(eventId)
             print (rawEvent)
+            self.assertTrue(isDeleted[index]==rawEvent['deleted'])
             
     def testCrawlEvents(self):
         '''
         test crawling a few events and storing the result to a json file
         '''
         wikiCFP=WikiCFP()
-        jsonFilePath=wikiCFP.crawl(0, 3860, 3869)
+        jsonFilePath=wikiCFP.crawl(0, 1, 10)
         size=os.stat(jsonFilePath).st_size
         print ("JSON file has size %d" % size)
         self.assertTrue(size>5000)
