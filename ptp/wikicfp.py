@@ -92,12 +92,13 @@ class WikiCFP(object):
             if self.debug:
                 print("%4d: %s" % (len(batchEm.events),jsonFilePath))
             for event in batchEm.events.values():
-                event.source=self.em.name
-                for field in ['startDate','endDate','locality','Submission_Deadline']:
-                    if not hasattr(event,field):
-                        event.__dict__[field]=None
-                event.url=WikiCFPEvent.getEventUrl(event.eventId)
-                jsonEm.add(event)
+                if hasattr(event,'title') and event.title is not None:
+                    event.source=self.em.name
+                    for field in ['startDate','endDate','locality','Submission_Deadline']:
+                        if not hasattr(event,field):
+                            event.__dict__[field]=None
+                    event.url=WikiCFPEvent.getEventUrl(event.wikiCFPId)
+                    jsonEm.add(event)
         if self.profile:
             print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
         jsonEm.store(self.limit,self.batchSize)
