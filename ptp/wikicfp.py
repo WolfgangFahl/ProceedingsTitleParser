@@ -93,6 +93,9 @@ class WikiCFP(object):
                 print("%4d: %s" % (len(batchEm.events),jsonFilePath))
             for event in batchEm.events.values():
                 event.source=self.em.name
+                for field in ['startDate','endDate','locality','Submission_Deadline']:
+                    if not hasattr(event,field):
+                        event.__dict__[field]=None
                 event.url=WikiCFPEvent.getEventUrl(event.eventId)
                 jsonEm.add(event)
         if self.profile:
