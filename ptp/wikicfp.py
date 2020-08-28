@@ -94,7 +94,7 @@ class WikiCFP(object):
             for event in batchEm.events.values():
                 if hasattr(event,'title') and event.title is not None:
                     event.source=self.em.name
-                    for field in ['startDate','endDate','locality','Submission_Deadline']:
+                    for field in ['startDate','endDate','locality','Submission_Deadline','Notification_Due']:
                         if not hasattr(event,field):
                             event.__dict__[field]=None
                     event.url=WikiCFPEvent.getEventUrl(event.wikiCFPId)

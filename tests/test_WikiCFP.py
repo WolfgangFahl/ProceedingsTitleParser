@@ -40,7 +40,7 @@ class TestWikiCFP(unittest.TestCase):
         else:
             wikiCFP.em.fromStore()    
         self.assertTrue(wikiCFP.em.isCached())
-        self.assertTrue(len(wikiCFP.em.events)>60000)
+        self.assertTrue(len(wikiCFP.em.events)>15000)
         pass
     
     def testInvalidUrl(self):
