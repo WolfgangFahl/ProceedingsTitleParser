@@ -118,7 +118,7 @@ class WikiCFP(object):
         '''
         get the JsonFileName for the given startId to stopId
         '''
-        jsonFilePath=self.jsondir+"wikicfp_%04d-%04d.json" % (startId,stopId)
+        jsonFilePath=self.jsondir+"wikicfp_%06d-%06d.json" % (startId,stopId)
         return jsonFilePath
         
     def crawl(self,threadIndex,startId,stopId):
@@ -132,7 +132,7 @@ class WikiCFP(object):
         batchEm=self.getEventManager(self.debug,self.profile, 'json')
  
         # get all ids
-        for eventId in range(int(startId), int(stopId), step):
+        for eventId in range(int(startId), int(stopId+1), step):
             wEvent=WikiCFPEvent()
             rawEvent=wEvent.fromEventId(eventId)
             event=Event()

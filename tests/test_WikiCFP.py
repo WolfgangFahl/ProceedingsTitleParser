@@ -6,6 +6,7 @@ Created on 2020-08-20
 import unittest
 from ptp.wikicfp import WikiCFP, WikiCFPEvent
 import os
+from pathlib import Path
 
 class TestWikiCFP(unittest.TestCase):
     '''
@@ -13,6 +14,8 @@ class TestWikiCFP(unittest.TestCase):
     '''
 
     def setUp(self):
+        self.debug=False
+        self.profile=False
         pass
 
 
@@ -71,7 +74,13 @@ class TestWikiCFP(unittest.TestCase):
         size=os.stat(jsonFilePath).st_size
         print ("JSON file has size %d" % size)
         self.assertTrue(size>5000)
-        os.remove(jsonFilePath)
+        batchEm=wikiCFP.getEventManager(self.debug, self.profile, 'json')
+        batchEm.fromStore(cacheFile=jsonFilePath)
+        self.assertEqual(len(batchEm.events.values()),10)
+        inspect=True
+        if inspect:
+            tmpPath="/tmp/%s" % os.path.basename(jsonFilePath)
+            Path(jsonFilePath).rename(tmpPath)
                 
 
 if __name__ == "__main__":
