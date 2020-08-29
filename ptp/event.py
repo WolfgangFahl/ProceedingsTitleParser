@@ -233,8 +233,10 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             self.fromEventList(eventList)
         elif self.mode=='sql':
             sqlQuery="SELECT * FROM %s" % self.tableName
-            eventList=self.getSQLDB(cacheFile).query(sqlQuery)
+            sqlDB=self.getSQLDB(cacheFile)
+            eventList=sqlDB.query(sqlQuery)
             self.fromEventList(eventList)
+            sqlDB.close()
             pass
         else:
             raise Exception("unsupported store mode %s" % self.mode)
