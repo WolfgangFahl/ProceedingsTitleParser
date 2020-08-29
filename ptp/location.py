@@ -9,13 +9,28 @@ import os
 import time
 import ptp.openresearch 
 from storage.sparql import SPARQL
-from storage.sql import SQLDB
+from storage.entity import EntityManager
+from storage.config import StoreMode
 
-class CityManager(object):
+class CityManager(EntityManager):
     ''' manage cities '''
     
-    def __init__(self):
+    def __init__(self,name):
+        '''
+        constructor 
+        
+        Args:
+            name(string): the name of this city Manager
+        '''
+        super().__init__(name,entityName="City",entityPluralName="Cities")
+        self.config.tableName="City_%s" % self.name
         pass
+    
+    def getListOfDicts(self):
+        '''
+        get the list of Dicts for this city manager
+        '''
+        return self.cityList
     
     def fromLutangar(self):
         ''' 
@@ -25,10 +40,11 @@ class CityManager(object):
         with urllib.request.urlopen(cityJsonUrl) as url:
             self.cityList=json.loads(url.read().decode())
         for city in self.cityList:
-            city['dgraph.type']='City'
-            lat=float(city['lat'])
-            lng=float(city['lng'])
-            city['location']={'type': 'Point', 'coordinates': [lng,lat] }   
+            if self.config.mode is StoreMode.DGRAPH:
+                city['dgraph.type']='City'
+                lat=float(city['lat'])
+                lng=float(city['lng'])
+                city['location']={'type': 'Point', 'coordinates': [lng,lat] }   
             
     def fromOpenResearch(self,limit=10000,batch=500,showProgress=False):
         '''

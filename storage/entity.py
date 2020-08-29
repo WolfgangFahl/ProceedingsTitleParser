@@ -82,6 +82,18 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         config=self.config
         sqldb=self.sqldb=SQLDB(cacheFile,debug=config.debug,errorDebug=config.errorDebug)
         return sqldb   
+    
+    def setNone4List(self,listOfDicts,fields):
+        for record in listOfDicts:
+            self.setNone(record, fields)
+    
+    def setNone(self,record,fields):
+        '''
+        make sure the given fields in the given record are set to none
+        '''
+        for field in fields:
+            if not field in record:
+                record[field]=None
             
     def isCached(self):
         ''' check whether there is a file containing cached 
@@ -205,8 +217,8 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             if cacheFile is None:
                 cacheFile=self.getCacheFile()
             sqldb=self.getSQLDB(cacheFile)
-            self.showProgress ("storing %d %s for %s to %s" % (len(self.events),self.entityPluralName,self.name,config.mode)) 
-            entityInfo=sqldb.createTable(listOfDicts, self.tableName, "eventId",withDrop=True)   
+            self.showProgress ("storing %d %s for %s to %s:%s" % (len(listOfDicts),self.entityPluralName,self.name,config.mode,cacheFile)) 
+            entityInfo=sqldb.createTable(listOfDicts, config.tableName, "eventId",withDrop=True)   
             self.sqldb.store(listOfDicts, entityInfo,executeMany=self.executeMany)
             self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
         else:

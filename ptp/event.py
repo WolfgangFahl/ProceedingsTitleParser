@@ -11,9 +11,7 @@ import os
 
 from storage.entity import EntityManager
 from storage.config import StoreMode
-
 import pyparsing as pp
-import time
 
 class EventManager(EntityManager):
     ''' handle a catalog of events '''

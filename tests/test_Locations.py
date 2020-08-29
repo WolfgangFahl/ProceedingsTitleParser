@@ -26,6 +26,15 @@ class TestLocations(unittest.TestCase):
     def tearDown(self):
         pass
     
+    def testCityStorage(self):
+        '''
+        try storing city data in cache
+        '''
+        cim=CityManager(name="github")
+        cim.fromLutangar()
+        cim.store(cim.cityList)
+        
+    
     def testCities(self):
         '''
         test consolidating cities from different sources
@@ -58,18 +67,27 @@ class TestLocations(unittest.TestCase):
         https://github.com/LITMUS-Benchmark-Suite/dbpedia-graph-convertor/blob/master/get_data.py
         '''
         dbpedia=self.getDBPedia()
+        limit=100
         # Query to get the population of cities
         citiesWithPopulationQuery = """
             PREFIX dbo: <http://dbpedia.org/ontology/>
-            SELECT ?city_name ?enName ?population
+            PREFIX dbp: <http://dbpedia.org/property/>
+            PREFIX dbr: <http://dbpedia.org/resource/>
+            SELECT DISTINCT ?dbCity ?country ?name ?website ?population
             WHERE {
-                ?city_name a dbo:City .
-                OPTIONAL { ?city_name dbo:populationTotal ?population . }
+                ?dbCity a dbo:City .
+                ?dbCity dbp:name ?name .
+                ?dbCity dbo:country ?country .
+                OPTIONAL { ?dbCity dbo:populationTotal ?population . }
+                OPTIONAL { ?dbCity dbp:website ?website . }
             }
-            """
-        citiesResult=dbpedia.query(citiesWithPopulationQuery)
-        print(len(citiesResult))
-
+            LIMIT %d
+            """ % limit
+        cityList=dbpedia.queryAsListOfDicts(citiesWithPopulationQuery)
+        cim=CityManager("dbpedia")      
+        cim.setNone4List(cityList, ["population","website"])
+        cim.store(cityList)
+  
     def testDBPediaCountries(self):
         '''
         http://dbpedia.org/ontology/Country
