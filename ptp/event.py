@@ -143,8 +143,14 @@ class EventManager(EntityManager):
             eventList.append(d)
         return eventList
                     
-    def store(self):
-        super().store(self.getListOfDicts())  
+    def store(self,cacheFile=None):
+        '''
+        store my events
+        
+        Args:
+            cacheFile(string): the cacheFile to use
+        '''
+        super().store(self.getListOfDicts(),cacheFile=cacheFile)  
   
     @staticmethod
     def asWikiSon(eventDicts):  

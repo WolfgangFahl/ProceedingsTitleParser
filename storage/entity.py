@@ -179,7 +179,8 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
         Args:
             listOfDicts(list): the list of dicts to store
         '''
-        mode=self.config.mode
+        config=self.config
+        mode=config.mode
         if mode is StoreMode.JSON:    
             if cacheFile is None:
                 cacheFile=self.getCacheFile()
@@ -204,7 +205,7 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             if cacheFile is None:
                 cacheFile=self.getCacheFile()
             sqldb=self.getSQLDB(cacheFile)
-            self.showProgress ("storing %d %s for %s to %s" % (len(self.events),self.entityPluralName,self.name,self.mode)) 
+            self.showProgress ("storing %d %s for %s to %s" % (len(self.events),self.entityPluralName,self.name,config.mode)) 
             entityInfo=sqldb.createTable(listOfDicts, self.tableName, "eventId",withDrop=True)   
             self.sqldb.store(listOfDicts, entityInfo,executeMany=self.executeMany)
             self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
