@@ -28,7 +28,7 @@ class Crossref(object):
         self.profile=profile
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
-        self.em=EventManager('crossref',url='https://www.crossref.org/',title='crossref.org',debug=debug,profile=profile)
+        self.em=EventManager('crossref',url='https://www.crossref.org/',title='crossref.org')
         
     def cacheEvents(self):
         '''
