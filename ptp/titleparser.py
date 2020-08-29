@@ -308,6 +308,7 @@ class Title(object):
                 'ordinal': None,
                 'organization': None,
                 'prefix': None,
+                'province': None,
                 'publish': None,
                 'scope': None,
                 'syntax': None,

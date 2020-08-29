@@ -81,9 +81,8 @@ class Crossref(object):
         if 'start' in eventInfo: self.getDateParts(eventInfo,'start')
         if 'end'   in eventInfo: self.getDateParts(eventInfo,'end')
         event.fromDict(eventInfo)
+        event.url="https://api.crossref.org/v1/works/%s" % doi
         self.em.add(event)
-        
-    
         
     def getDateParts(self,eventInfo,key):
         '''

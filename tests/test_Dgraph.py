@@ -60,7 +60,7 @@ type Pokemon {
         sortindex=[1,0,2,3]
         for index,pokemon in enumerate(pokemons):
             expected=pokemonList[sortindex[index]]
-            self.assertEquals(expected,pokemon)
+            self.assertEqual(expected,pokemon)
         # close the database connection
         dgraph.close()
 
