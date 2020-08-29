@@ -13,10 +13,22 @@
     http://ceur-ws.org/Vol-2599/
     http://ceur-ws.org/Vol-1259
     http://ceur-ws.org/Vol-1461
+'Scrape mode (WikiCFP)': |
+    http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=40428
+    http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=40771
+    http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=40923
+'CEUR-WS examples': |
+    QUATIC 1998
+    SemAnnot 2005
+    SafeAI 2020    
 'confref examples': |    
     ARCS 2017
     Architecture of Computing Systems - ARCS 2017 30th International Conference, Vienna, Austria, April 3–6, 2017, Proceedings
     VISSOFT 2013
+'crossref examples': |
+    DSM 2015
+    SIGGRAPH '11 
+    22º CIAED    
 'dblp examples': |
     URSW 2014
     WOP 2015
@@ -27,6 +39,10 @@
     Euro-Par 2020
     ICFEM 2020
     ICFP 2014
+'WikiCFP examples': |
+    POPL 2010
+    MDA 2014 
+    IFAC 2017   
 'WikiData examples': |
     GIW 2013
     ESDAR 2018
@@ -50,9 +66,18 @@
     http://ceur-ws.org/Vol-2599/
     http://ceur-ws.org/Vol-1259
     http://ceur-ws.org/Vol-1461
+    http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=40428
+    http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=40771
+    http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=40923
+    QUATIC 1998
+    SemAnnot 2005
+    SafeAI 2020    
     ARCS 2017
     Architecture of Computing Systems - ARCS 2017 30th International Conference, Vienna, Austria, April 3–6, 2017, Proceedings
     VISSOFT 2013
+    DSM 2015
+    SIGGRAPH '11 
+    22º CIAED
     URSW 2014
     WOP 2015
     SSN 2012
@@ -61,6 +86,9 @@
     Euro-Par 2020
     ICFEM 2020
     ICFP 2014
+    POPL 2010
+    MDA 2014 
+    IFAC 2017   
     GIW 2013
     ESDAR 2018
     PGSSCR 2010
