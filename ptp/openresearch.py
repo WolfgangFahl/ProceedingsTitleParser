@@ -21,7 +21,7 @@ class OpenResearch(object):
         self.smw=OpenResearch.getSMW()
         self.debug=debug
         self.profile=profile
-        self.em=EventManager('or',url='https://www.openresearch.org/wiki/Main_Page',title='OPENRESEARCH',debug=self.debug,profile=self.profile)
+        self.em=EventManager('or',url='https://www.openresearch.org/wiki/Main_Page',title='OPENRESEARCH')
         
     def getAsk(self,condition,limit=50,offset=0):    
         ask="""{{#ask: [[%s]]
