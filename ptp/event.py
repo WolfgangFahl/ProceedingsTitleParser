@@ -8,20 +8,18 @@ import io
 import json
 import re
 import os
-from storage.yamlablemixin import YamlAbleMixin
-from storage.jsonablemixin import JsonAbleMixin
-from storage.dgraph import Dgraph
-from storage.sparql import SPARQL
-from storage.sql import SQLDB
+
+from storage.entity import EntityManager
+from storage.config import StoreMode
 
 import pyparsing as pp
 import time
 
-class EventManager(YamlAbleMixin, JsonAbleMixin):
+class EventManager(EntityManager):
     ''' handle a catalog of events '''
     debug=False
     
-    def __init__(self,name,url=None,title=None,debug=False,mode='sql',withShowProgress=True,host='localhost', endpoint="http://localhost:3030/cr", profile=True):
+    def __init__(self,name,url=None,title=None,config=None):
         '''
         Constructor
         
@@ -30,42 +28,13 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
             url(string): the url of the event source  e.g. "http://portal.confref.org/"
             title(string): title of the event source e.g. "confref.org"
         '''
-        self.name=name
-        self.mode=mode
+        super().__init__(name,entityName="Event",entityPluralName="Events",config=config)
         self.url=url
         self.title=title
         self.events={}
         self.eventsByAcronym={}
         self.eventsByCheckedAcronym={}
-        self.withShowProgress=withShowProgress
-        self.debug=debug
-        self.profile=profile
-        self.showProgress ("Creating Eventmanager(%s) for %s" % (self.mode,self.name))
-        if self.mode=='dgraph':
-            self.dgraph=Dgraph(debug=self.debug,host=host,profile=self.profile)
-        elif self.mode=='sparql':
-            if endpoint is None:
-                raise Exception("no endpoint set for mode sparql") 
-            self.endpoint=endpoint   
-            self.sparql=SPARQL(endpoint,debug=self.debug,profile=self.profile)
-        elif self.mode=='sql':
-            self.executeMany=False # may be True when issues are fixed
-            self.tableName="Event_%s" % self.name
-        
-    def getSQLDB(self,cacheFile):
-        '''
-        get the SQL database for the given cacheFile
-        
-        Args:
-            cacheFile(string): the file to get the SQL db from
-        '''
-        sqldb=self.sqldb=SQLDB(cacheFile,debug=self.debug,errorDebug=True)
-        return sqldb
-            
-    def showProgress(self,msg):
-        ''' display a progress message '''
-        if self.withShowProgress:
-            print (msg,flush=True)    
+        self.config.tableName="Event_%s" % self.name
   
     def add(self,event):
         ''' add the given event '''
@@ -112,43 +81,6 @@ class EventManager(YamlAbleMixin, JsonAbleMixin):
                     pass
         self.showProgress ("found %d checked acronyms for %s of %d events with acronyms" % (len(self.eventsByCheckedAcronym),self.name,len(self.eventsByAcronym)))          
     
-    def isCached(self):
-        ''' check whether there is a file containing cached 
-        data for me '''
-        result=False
-        if self.mode=='json':
-            result=os.path.isfile(self.getCacheFile())
-        elif self.mode=='sparql':
-            query="""
-PREFIX cr: <http://cr.bitplan.com/>
-SELECT  ?source (COUNT(?source) AS ?sourcecount)
-WHERE { 
-   ?event cr:Event_source ?source.
-}
-GROUP by ?source
-"""                                 
-            sourceCountList=self.sparql.queryAsListOfDicts(query)
-            for sourceCount in sourceCountList:
-                source=sourceCount['source'];
-                recordCount=sourceCount['sourcecount']
-                if source==self.name and recordCount>100:
-                    result=True
-        elif self.mode=='sql':
-            cacheFile=self.getCacheFile()
-            if os.path.isfile(cacheFile):
-                sqlQuery="SELECT COUNT(*) AS count FROM %s" % self.tableName
-                try:
-                    sqlDB=self.getSQLDB(cacheFile)
-                    countResult=sqlDB.query(sqlQuery)
-                    count=countResult[0]['count']
-                    result=count>100
-                except Exception as ex:
-                    # e.g. sqlite3.OperationalError: no such table: Event_crossref
-                    pass      
-        else:
-            raise Exception("unsupported mode %s" % self.mode)            
-        return result
-    
     def removeCacheFile(self):
         '''  remove my cache file '''
         if self.mode=='json':
@@ -172,23 +104,6 @@ GROUP by ?source
   }
 }'''        
             self.dgraph.query(mutation)"""
-                          
-    def getCacheFile(self):
-        '''
-        get the cache file for this event manager
-        '''
-        path=os.path.dirname(__file__)
-        cachedir=path+"/../cache"
-        ''' get the path to the file for my cached data '''  
-        if self.mode=='json':  
-            cachepath="%s/%s-%s.%s" % (cachedir,self.name,"events",self.mode)
-        elif self.mode=='sparql':
-            cachepath="%s %s" % (self.mode,self.endpoint)    
-        elif self.mode=='sql':
-            cachepath="%s/%s.db" % (cachedir,self.tableName)
-        else:
-            cachepath="undefined cachepath for %s" % (self.mode)
-        return cachepath
     
     def fromEventList(self,eventList):
         ''' 
@@ -204,49 +119,20 @@ GROUP by ?source
     def fromStore(self,cacheFile=None):
         '''
         restore me from the store
+        Args:
+            cacheFile(String): the cacheFile to use if None use the preconfigured Cachefile
         '''
-        startTime=time.time()
-        if cacheFile is None:
-            cacheFile=self.getCacheFile()
-        self.showProgress("reading events for %s from cache %s" % (self.name,cacheFile))
-        em=None
-        if self.mode=="json":   
-            em=JsonAbleMixin.readJson(cacheFile)
-        elif self.mode=="sparql":
-            eventQuery="""
-PREFIX cr: <http://cr.bitplan.com/>
-SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate ?url ?source WHERE { 
-   OPTIONAL { ?event cr:Event_eventId ?eventId. }
-   OPTIONAL { ?event cr:Event_acronym ?acronym. }
-   OPTIONAL { ?event cr:Event_series ?series. }
-   OPTIONAL { ?event cr:Event_title ?title. }
-   OPTIONAL { ?event cr:Event_year ?year.  }
-   OPTIONAL { ?event cr:Event_country ?country. }
-   OPTIONAL { ?event cr:Event_city ?city. }
-   OPTIONAL { ?event cr:Event_startDate ?startDate. }
-   OPTIONAL { ?event cr:Event_endDate ?endDate. }
-   OPTIONAL { ?event cr:Event_url ?url. }
-   ?event cr:Event_source ?source FILTER(?source='%s').
-}
-""" % self.name        
-            eventList=self.sparql.queryAsListOfDicts(eventQuery)
-            self.fromEventList(eventList)
-        elif self.mode=='sql':
-            sqlQuery="SELECT * FROM %s" % self.tableName
-            sqlDB=self.getSQLDB(cacheFile)
-            eventList=sqlDB.query(sqlQuery)
-            self.fromEventList(eventList)
-            sqlDB.close()
-            pass
+        listOfDicts=super().fromStore(cacheFile)
+        if self.config.mode is StoreMode.JSON:
+            em=listOfDicts
+            if em is not None:
+                if em.events is not None:
+                    self.events=em.events     
+                if em.eventsByAcronym:
+                    self.eventsByAcronym=em.eventsByAcronym  
         else:
-            raise Exception("unsupported store mode %s" % self.mode)
-        if em is not None:
-            if em.events is not None:
-                self.events=em.events     
-            if em.eventsByAcronym:
-                self.eventsByAcronym=em.eventsByAcronym    
-        self.showProgress("read %d events from %s in %5.1f s" % (len(self.events),self.name,time.time()-startTime))     
-    
+            self.fromEventList(listOfDicts)
+       
     def getListOfDicts(self):
         '''
         get the list of Dicts for me
@@ -257,40 +143,8 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             eventList.append(d)
         return eventList
                     
-    def store(self,limit=10000000,batchSize=250,cacheFile=None):
-        ''' store me '''
-        if self.mode=="json":    
-            if cacheFile is None:
-                cacheFile=self.getCacheFile()
-            self.showProgress ("storing %d events for %s to cache %s" % (len(self.events),self.name,cacheFile))
-            self.writeJson(cacheFile)
-        elif self.mode=="dgraph":
-            eventList=self.getListOfDicts()
-            startTime=time.time()
-            self.showProgress ("storing %d events for %s to %s" % (len(self.events),self.name,self.mode))    
-            self.dgraph.addData(eventList,limit=limit,batchSize=batchSize)
-            self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
-        elif self.mode=="sparql":
-            eventList=self.getListOfDicts()
-            startTime=time.time()
-            self.showProgress ("storing %d events for %s to %s" % (len(self.events),self.name,self.mode))    
-            entityType="cr:Event"
-            prefixes="PREFIX cr: <http://cr.bitplan.com/>"
-            primaryKey="eventId"
-            self.sparql.insertListOfDicts(eventList, entityType, primaryKey, prefixes,limit=limit,batchSize=batchSize)
-            self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
-        elif self.mode=="sql":
-            eventList=self.getListOfDicts() 
-            startTime=time.time()
-            if cacheFile is None:
-                cacheFile=self.getCacheFile()
-            sqldb=self.getSQLDB(cacheFile)
-            self.showProgress ("storing %d events for %s to %s" % (len(self.events),self.name,self.mode)) 
-            entityInfo=sqldb.createTable(eventList, self.tableName, "eventId",withDrop=True)   
-            self.sqldb.store(eventList, entityInfo,executeMany=self.executeMany)
-            self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
-        else:
-            raise Exception("unsupported store mode %s" % self.mode)    
+    def store(self):
+        super().store(self.getListOfDicts())  
   
     @staticmethod
     def asWikiSon(eventDicts):  

@@ -84,7 +84,10 @@ class Lookup(object):
         return result
     
     def extractFromDOI(self,doi):
-        ''' extract Meta Data from the given DOI '''
+        ''' extract Meta Data from the given DOI 
+        Args:
+           doi(string): the DOI to extract the meta data for
+        '''
         cr=ptp.crossref.Crossref()
         metadata=cr.doiMetaData(doi)
         title=metadata['title'][0]

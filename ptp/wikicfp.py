@@ -26,6 +26,7 @@ import threading
 import time
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
+from storage.config import StorageConfig
 
 class WikiCFP(object):
     '''
@@ -59,7 +60,12 @@ class WikiCFP(object):
             profile(boolean): True if profile/timing information should be shown
             mode(string): the storage mode to use e.g. "json"
         '''
-        em=EventManager('wikicfp',url='http://www.wikicfp.com',title='WikiCFP',debug=debug,profile=profile,mode=mode)
+        if mode=='sql':
+            config=StorageConfig.getSQL(debug)
+        elif mode=='json':
+            config=StorageConfig.getJSON(debug)    
+        config.profile=profile
+        em=EventManager('wikicfp',url='http://www.wikicfp.com',title='WikiCFP',config=config) 
         return em
     
     def cacheEvents(self):

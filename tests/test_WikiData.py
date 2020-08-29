@@ -5,6 +5,7 @@ Created on 2020-07-11
 '''
 import unittest
 from ptp.wikidata import WikiData
+from storage.config import StoreMode
 import os
 
 class TestWikiData(unittest.TestCase):
@@ -30,7 +31,7 @@ class TestWikiData(unittest.TestCase):
             wd.em.fromStore()    
         print("found %d wikidata events" % (len(wd.em.events)))
         self.assertTrue(len(wd.em.events)>310)
-        if wd.em.mode=='json':
+        if wd.em.config.mode is StoreMode.JSON:
             size=os.stat(cacheFile).st_size
             print (size)
             self.assertTrue(size>208000)

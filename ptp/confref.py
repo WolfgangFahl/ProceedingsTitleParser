@@ -16,8 +16,7 @@ class ConfRef(object):
         '''
         Constructor
         '''
-        self.debug=debug
-        self.em=EventManager('confref',url='http://portal.confref.org/',title='confref.org',debug=debug)
+        self.em=EventManager('confref',url='http://portal.confref.org/',title='confref.org')
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
         self.jsonFilePath=self.jsondir+"confref-conferences.json"

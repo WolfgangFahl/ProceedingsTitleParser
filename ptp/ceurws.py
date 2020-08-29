@@ -7,6 +7,7 @@ import os
 import ptp.lookup
 from ptp.webscrape import WebScrape
 from ptp.event import EventManager, Event
+from storage.config import StorageConfig
 
 class CEURWS(object):
     '''
@@ -20,7 +21,8 @@ class CEURWS(object):
         self.debug=debug
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
-        self.em=EventManager("CEURWS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings',debug=self.debug)
+        self.em=EventManager("CEURWS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings')
+        # self.em.config.debug=debug
         
     def cacheEvents(self):
         ''' cache the events of CEUR-WS derived from the sample proceeding titles'''

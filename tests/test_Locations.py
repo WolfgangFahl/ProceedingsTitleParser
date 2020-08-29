@@ -97,9 +97,9 @@ WHERE {
         # check we have local wikidata copy:
         if getpass.getuser()=="wf":
             # use 2018 wikidata copy
-            endpoint="http://blazegraph.bitplan.com/sparql"
+            #endpoint="http://blazegraph.bitplan.com/sparql"
             # use 2020 wikidata copy
-            #endpoint="http://jena.bitplan.com/wikidata"
+            endpoint="http://jena.bitplan.com/wikidata"
             cm=CountryManager()
             cm.fromWikiData(endpoint)      
             self.assertTrue(len(cm.countryList)>=195) 

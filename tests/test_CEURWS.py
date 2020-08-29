@@ -6,6 +6,7 @@ Created on 2020-07-06
 import unittest
 import os
 from ptp.ceurws import CEURWS, CeurwsEvent
+from storage.config import StoreMode
 
 class TestCEURWS(unittest.TestCase):
     ''' test handling proceeding titles retrieved
@@ -33,7 +34,7 @@ class TestCEURWS(unittest.TestCase):
         print(len(cw.em.events))
         self.assertTrue(cw.em.isCached())
         self.assertTrue(len(cw.em.events)>940)
-        if cw.em.mode=='json':
+        if cw.em.config.mode is StoreMode.JSON:
             size=os.stat(cacheFile).st_size
             print (size)
             self.assertTrue(size>500000)

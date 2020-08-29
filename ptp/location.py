@@ -9,6 +9,7 @@ import os
 import time
 import ptp.openresearch 
 from storage.sparql import SPARQL
+from storage.sql import SQLDB
 
 class CityManager(object):
     ''' manage cities '''
@@ -62,7 +63,7 @@ class CityManager(object):
 class CountryManager(object):
     ''' manage countries '''
     
-    def __init__(self):
+    def __init__(self,mode='sql'):
         '''
         Constructor
         '''
@@ -147,6 +148,14 @@ ORDER BY ?countryLabel"""
         for country in self.countryList:
             country['wikidataurl']=country.pop('country')
             country['name']=country.pop('countryLabel')  
+            
+    def store(self):
+        '''
+        store the countries to the given SQL DB
+        '''
+        if self.mode=='sql':
+            pass
+                    
             
     def storeToRDF(self,sparql):
         '''

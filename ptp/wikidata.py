@@ -17,7 +17,7 @@ class WikiData(object):
         '''
         self.debug=debug
         self.profile=profile
-        self.em=EventManager('wikidata',url='https://www.wikidata.org/wiki/Wikidata:Main_Page',title='Wikidata',debug=self.debug,profile=self.profile)
+        self.em=EventManager('wikidata',url='https://www.wikidata.org/wiki/Wikidata:Main_Page',title='Wikidata')
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
         self.sampleFilePath=self.sampledir+"proceedings-wikidata.txt"
