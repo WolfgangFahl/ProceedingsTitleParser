@@ -301,8 +301,9 @@ class Title(object):
             self.md={
                 'enum': None, 
                 'description': None,
+                'daterange': None,
                 'event': None,
-								'extract': None,
+				'extract': None,
                 'field': None,
                 'location': None,
                 'month': None,
