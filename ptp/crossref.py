@@ -73,7 +73,12 @@ class Crossref(object):
         if not 'location' in eventInfo:
             eventInfo['location']=None
         eventInfo['source']=self.em.name
-        if 'title' in rawEvent: eventInfo['title']=rawEvent["title"][0]
+        if 'title' in rawEvent:
+            title=rawEvent["title"][0]
+            # remove encoded CR 
+            # https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/38
+            title=title.replace("&#x0D;",'') 
+            eventInfo['title']=title
         Event.fixEncodings(eventInfo,self.debug)
                             
         doi=rawEvent["DOI"]

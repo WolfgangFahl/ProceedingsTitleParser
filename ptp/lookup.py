@@ -125,7 +125,8 @@ class Lookup(object):
             os.remove(dbfile)
         backup=SQLDB(dbfile)    
         print ("storing %s to %s" % (self.name,dbfile))  
-        backup.c.execute("CREATE TABLE Event_test(foundBy TEXT)")
+        # debugging of CREATE TABLE 
+        # backup.c.execute("CREATE TABLE Event_test(foundBy TEXT)")
         for em in self.ems:
             if not em.config.mode is StoreMode.SQL:
                 raise Exception("lookup store only support SQL storemode but found %s for %s" % (em.config.mode,em.name))
@@ -140,7 +141,7 @@ class Lookup(object):
                 #sqlDB.backup(dbfile)
         backup.close()
         
-    def executeDump(self,connection,dump,title,maxErrors=1000,errorDisplayLimit=3):
+    def executeDump(self,connection,dump,title,maxErrors=100,errorDisplayLimit=12):
         '''
         execute the given dump for the given connection
         
@@ -154,9 +155,9 @@ class Lookup(object):
             self.showDump(dump)
         startTime=time.time()    
         print("dump of %s has size %4.1f MB" % (title,len(dump)/1024/1024))
-        #s=io.StringIO(dump)
         errors=[]
         index=0
+        # fixes https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/37
         for line in dump.split(";\n"):
             try:
                 connection.execute(line)
