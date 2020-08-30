@@ -118,14 +118,14 @@ class Lookup(object):
         implemented as SQL storage
         '''
         cachedir=EntityManager.getCachePath()
-        dbfile="%s/%s.db" % (cachedir,cacheFileName)
-        dbfile=":memory:"
+        dbfile="%s/%s.db" % (cachedir,cacheFileName) 
         dbfile=os.path.abspath(dbfile)
-        backup=SQLDB(dbfile)
         # remove existing database dump if it exists
         if os.path.exists(dbfile):
             os.remove(dbfile)
+        backup=SQLDB(dbfile)    
         print ("storing %s to %s" % (self.name,dbfile))  
+        backup.c.execute("CREATE TABLE Event_test(foundBy TEXT)")
         for em in self.ems:
             if not em.config.mode is StoreMode.SQL:
                 raise Exception("lookup store only support SQL storemode but found %s for %s" % (em.config.mode,em.name))
@@ -134,30 +134,43 @@ class Lookup(object):
                 sqlDB=em.getSQLDB(cacheFile)
                 startTime=time.time()
                 dump="\n".join(sqlDB.c.iterdump())
-                self.executeDump(backup.c,dump,em.name)
                 #cursor.executescript(dump)
-                print("finished dump of %s in %5.1f s" % (em.name,time.time()-startTime))
+                print("finished getting dump of %s in %5.1f s" % (em.name,time.time()-startTime))
+                self.executeDump(backup.c,dump,em.name)
                 #sqlDB.backup(dbfile)
         backup.close()
         
-    def executeDump(self,cursor,dump,title,maxErrors=10):
+    def executeDump(self,connection,dump,title,maxErrors=1000,errorDisplayLimit=3):
+        '''
+        execute the given dump for the given connection
+        
+        Args:
+            connection(Connection): the sqlite3 connection to use
+            dump(string): the SQL commands for the dump
+            title(string): the title of the dump
+            maxErrors(int): maximum number of errors to be tolerated before stopping and doing a rollback
+        '''
         if self.debug:
             self.showDump(dump)
-            
+        startTime=time.time()    
         print("dump of %s has size %4.1f MB" % (title,len(dump)/1024/1024))
         s=io.StringIO(dump)
         errors=[]
         index=0
         for line in s:
             try:
-                cursor.execute(line)
+                connection.execute(line)
             except  sqlite3.OperationalError as soe:
                 msg="SQL error %s in line %d:\n\t%s" % (soe,index,line)
                 errors.append(msg)
-                print(msg)    
+                if len(errors)<=errorDisplayLimit:
+                    print(msg)    
                 if len(errors)>=maxErrors:
+                    connection.execute("ROLLBACK;")
                     break
+                
             index=index+1
+        print("finished excuting dump %s with %d lines and %d errors in %5.1f s" % (title,index,len(errors),time.time()-startTime))    
         return errors
         
     def showDump(self,dump,limit=10):
