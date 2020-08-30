@@ -52,13 +52,18 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         '''
         if self.config.withShowProgress:
             print (msg,flush=True)      
+            
+    @staticmethod        
+    def getCachePath():
+        path=os.path.dirname(__file__)
+        cachedir=path+"/../cache"
+        return cachedir
      
     def getCacheFile(self):
         '''
         get the cache file for this event manager
         '''
-        path=os.path.dirname(__file__)
-        cachedir=path+"/../cache"
+        cachedir=EntityManager.getCachePath()
         config=self.config
         mode=self.config.mode
         ''' get the path to the file for my cached data '''  
@@ -178,10 +183,10 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
         else:
             raise Exception("unsupported store mode %s" % self.mode)
           
-        self.showProgress("read %d %s from %s in %5.1f s" % (len(listOfDicts),self.entityPluralName,self.name,time.time()-startTime))     
         if JSONem is not None:
             return JSONem
         else:
+            self.showProgress("read %d %s from %s in %5.1f s" % (len(listOfDicts),self.entityPluralName,self.name,time.time()-startTime))     
             return listOfDicts
         
     def store(self,listOfDicts,limit=10000000,batchSize=250,cacheFile=None):

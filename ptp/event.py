@@ -8,6 +8,7 @@ import io
 import json
 import re
 import os
+import time
 
 from storage.entity import EntityManager
 from storage.config import StoreMode
@@ -120,12 +121,15 @@ class EventManager(EntityManager):
         Args:
             cacheFile(String): the cacheFile to use if None use the preconfigured Cachefile
         '''
+        startTime=time.time()
         listOfDicts=super().fromStore(cacheFile)
         if self.config.mode is StoreMode.JSON:
             em=listOfDicts
             if em is not None:
                 if em.events is not None:
-                    self.events=em.events     
+                    self.events=em.events    
+                    self.showProgress("read %d %s from %s in %5.1f s" % (len(em.events),self.entityPluralName,self.name,time.time()-startTime))     
+ 
                 if em.eventsByAcronym:
                     self.eventsByAcronym=em.eventsByAcronym  
         else:

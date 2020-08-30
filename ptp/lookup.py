@@ -11,8 +11,11 @@ import ptp.wikidata
 import ptp.dblp
 import ptp.crossref
 import ptp.wikicfp
+from storage.entity import EntityManager
+from storage.config import StoreMode
 import os
 import yaml
+from storage.config import StorageConfig
 
 class Lookup(object):
     '''
@@ -93,6 +96,24 @@ class Lookup(object):
         title=metadata['title'][0]
         result={'source': 'Crossref','eventId': doi,'title':title, 'proceedingsUrl':'https://doi.org/%s' % doi,'metadata': metadata}
         return result
+    
+    def store(self,cacheFileName):
+        '''
+        store my contents to the given cacheFileName - 
+        implemented as SQL storage
+        '''
+        cachedir=EntityManager.getCachePath()
+        dbfile="%s/%s.db" % (cachedir,cacheFileName)
+        # remove existing database dump if it exists
+        if os.path.exists(dbfile):
+            os.remove(dbfile)
+        for em in self.ems:
+            if not em.config.mode is StoreMode.SQL:
+                raise Exception("lookup store only support SQL storemode but found %s for %s" % (em.config.mode,em.name))
+            else:
+                cacheFile=em.getCacheFile()
+                sqlDB=em.getSQLDB(cacheFile)
+                sqlDB.backup(dbfile)
 
     @staticmethod
     def getExamples():
