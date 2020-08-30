@@ -280,11 +280,13 @@ class Event(object):
                 # work around Umlaut encodings like "M\\"unster"
                 # and \S encoded as \\S
                 found=False
-                for umlautTuple in [('\\"a',"ä"),('\\"o',"ö"),('\\"u',"ü"),('\\',' ')]:
+                # see also https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/38
+                # remove encoded CR 
+                for umlautTuple in [('\\"a',"ä"),('\\"o',"ö"),('\\"u',"ü"),('\\',' '),('&#x0D;','')]:
                     uc,u=umlautTuple
                     if uc in value:
                         value=value.replace(uc,u)
-                        found=True
+                        found=True  
                 if found:
                     if debug:
                         print("Warning: fixing '%s' to '%s'" % (oldvalue,value))

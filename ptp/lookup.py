@@ -124,6 +124,7 @@ class Lookup(object):
         if os.path.exists(dbfile):
             os.remove(dbfile)
         backup=SQLDB(dbfile)    
+        errors=[]
         print ("storing %s to %s" % (self.name,dbfile))  
         # debugging of CREATE TABLE 
         # backup.c.execute("CREATE TABLE Event_test(foundBy TEXT)")
@@ -137,9 +138,11 @@ class Lookup(object):
                 dump="\n".join(sqlDB.c.iterdump())
                 #cursor.executescript(dump)
                 print("finished getting dump of %s in %5.1f s" % (em.name,time.time()-startTime))
-                self.executeDump(backup.c,dump,em.name)
+                dumpErrors=self.executeDump(backup.c,dump,em.name)
+                errors.extend(dumpErrors)
                 #sqlDB.backup(dbfile)
         backup.close()
+        return errors
         
     def executeDump(self,connection,dump,title,maxErrors=100,errorDisplayLimit=12):
         '''

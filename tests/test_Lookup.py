@@ -21,11 +21,12 @@ class TestLookup(unittest.TestCase):
 
     def testLookup(self):
         '''
-        test the number of sources
+        test the number of sources and storing to "Event_all"
         '''
         lookup=Lookup("test")
         self.assertEqual(7,len(lookup.ems))
-        lookup.store('Event_all')
+        errors=lookup.store('Event_all')
+        self.assertEqual(0,len(errors))
         pass
 
 if __name__ == "__main__":
