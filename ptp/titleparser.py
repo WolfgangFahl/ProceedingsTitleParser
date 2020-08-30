@@ -302,6 +302,7 @@ class Title(object):
                 'enum': None, 
                 'description': None,
                 'event': None,
+								'extract': None,
                 'field': None,
                 'location': None,
                 'month': None,
