@@ -76,13 +76,21 @@ class Crossref(object):
         if 'title' in rawEvent:
             title=rawEvent["title"][0]
             eventInfo['title']=title
+        if 'sponsor' in eventInfo:
+            sponsor=eventInfo['sponsor'][0]
+            eventInfo['sponsor']=sponsor    
         Event.fixEncodings(eventInfo,self.debug)
                             
         doi=rawEvent["DOI"]
         eventInfo['id']=doi
-        if 'start' in eventInfo: self.getDateParts(eventInfo,'start')
-        if 'end'   in eventInfo: self.getDateParts(eventInfo,'end')
+        if 'start' in eventInfo: 
+            self.getDateParts(eventInfo,'start')
+        if 'end'   in eventInfo: 
+            self.getDateParts(eventInfo,'end')
+        self.em.setNone(eventInfo, ['lookupAcronym','number','sponsor','month','year','startDate','endDate'])
         event.fromDict(eventInfo)
+        if event.year is not None and type(event.year) is tuple:
+            event.year=event.year[0]
         event.url="https://api.crossref.org/v1/works/%s" % doi
         self.em.add(event)
         
@@ -108,7 +116,6 @@ class Crossref(object):
                 dt = datetime.datetime(year=year,month=month,day=day)
                 date=dt.date()
                 eventInfo["%sDate" %(key)]=date
-                eventInfo.pop(key)
             elif len(datetuple)==2:
                 year,month=datetuple
             elif len(datetuple)==1:
@@ -116,6 +123,7 @@ class Crossref(object):
             else:
                 if self.debug:
                     print("warning invalid date-tuple %s found" % (str(datetuple)))
+            eventInfo.pop(key)        
             if year is not None: eventInfo["year"]=year
             if month is not None: eventInfo["month"]=month
                        

@@ -43,7 +43,7 @@ class SQLDB(object):
         ''' close my connection '''
         self.c.close()    
         
-    def createTable(self,listOfRecords,entityName,primaryKey,withDrop=False):
+    def createTable(self,listOfRecords,entityName,primaryKey,withDrop=False,sampleRecordCount=1):
         '''
         derive  Data Definition Language CREATE TABLE command from list of Records by examining first recorda
         as defining sample record and execute DDL command
@@ -54,14 +54,16 @@ class SQLDB(object):
            listOfRecords(list): a list of Dicts
            entityName(string): the entity / table name to use
            primaryKey(string): the key/column to use as a  primary key
+           withDrop(boolean): true if the existing Table should be dropped
+           sampleRecords(int): number of sampleRecords expected and to be inspected
            
         Returns:
            EntityInfo: meta data information for the created table
         '''
-        if len(listOfRecords)<1:
-            raise Exception("Need a sample record to createTable")
-        sampleRecord=listOfRecords[0]
-        entityInfo=EntityInfo(sampleRecord,entityName,primaryKey,debug=self.debug)
+        if len(listOfRecords)<sampleRecordCount:
+            raise Exception("Need %d sample records to createTable" % (sampleRecordCount))
+        sampleRecords=listOfRecords[:sampleRecordCount]
+        entityInfo=EntityInfo(sampleRecords,entityName,primaryKey,debug=self.debug)
         if withDrop:
             self.c.execute(entityInfo.dropTableCmd) 
         self.c.execute(entityInfo.createTableCmd)
@@ -94,11 +96,11 @@ class SQLDB(object):
         '''
         insertCmd=entityInfo.insertCmd
         record=None
+        index=0
         try:
             if executeMany:
                 self.c.executemany(insertCmd,listOfRecords)
             else:
-                index=0
                 for record in listOfRecords:
                     index+=1
                     self.c.execute(insertCmd,record)
@@ -227,7 +229,7 @@ class EntityInfo(object):
     
     """
         
-    def __init__(self,sampleRecord,name,primaryKey=None,debug=False):
+    def __init__(self,sampleRecords,name,primaryKey=None,debug=False):
         '''
         construct me from the given name and primary key
         
@@ -236,21 +238,22 @@ class EntityInfo(object):
            primaryKey(string): the name of the primary key column
            debug(boolean): True if debug information should be shown
         '''
-        self.sampleRecord=sampleRecord
+        self.sampleRecords=sampleRecords
         self.name=name
         self.primaryKey=primaryKey
         self.debug=debug
         self.typeMap={}
-        self.createTableCmd=self.getCreateTableCmd(sampleRecord)
+        self.sqlTypeMap={}
+        self.createTableCmd=self.getCreateTableCmd(sampleRecords)
         self.dropTableCmd="DROP TABLE IF EXISTS %s" % self.name
         self.insertCmd=self.getInsertCmd()
         
-    def getCreateTableCmd(self,sampleRecord):
+    def getCreateTableCmd(self,sampleRecords):
         '''
-        get the CREATE TABLE DDL command for the given sample record
+        get the CREATE TABLE DDL command for the given sample records
         
         Args:
-            sampleRecord(dict): a sample Record    
+            sampleRecords(list): a list of Dicts of sample Records    
             
         Returns:
             string: CREATE TABLE DDL command for this entity info 
@@ -264,31 +267,36 @@ class EntityInfo(object):
         '''
         ddlCmd="CREATE TABLE %s(" %self.name
         delim=""
-        for key,value in sampleRecord.items():
-            sqlType=None
-            if value is None:
-                print("Warning sampleRecord column %s is None - using TEXT as type" % key)
-                valueType=str
-            else:
-                valueType=type(value)
-            if valueType == str:
-                sqlType="TEXT"
-            elif valueType == int:
-                sqlType="INTEGER"
-            elif valueType == float:
-                sqlType="FLOAT"
-            elif valueType == bool:
-                sqlType="BOOLEAN"      
-            elif valueType == datetime.date:
-                sqlType="DATE"    
-            elif valueType== datetime.datetime:
-                sqlType="TIMESTAMP"
-            else:
-                msg="warning: unsupported type %s for column %s " % (str(valueType),key)
-                print(msg)
-            if sqlType is not None:
-                ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")
-                self.addType(key,valueType)
+        for sampleRecord in sampleRecords:
+            for key,value in sampleRecord.items():
+                sqlType=None
+                valueType=None
+                if value is None:
+                    if len(sampleRecords)==1:
+                        print("Warning sampleRecord column %s is None - using TEXT as type" % key)
+                        valueType=str
+                else:
+                    valueType=type(value)
+                if valueType == str:
+                    sqlType="TEXT"
+                elif valueType == int:
+                    sqlType="INTEGER"
+                elif valueType == float:
+                    sqlType="FLOAT"
+                elif valueType == bool:
+                    sqlType="BOOLEAN"      
+                elif valueType == datetime.date:
+                    sqlType="DATE"    
+                elif valueType== datetime.datetime:
+                    sqlType="TIMESTAMP"
+                else:
+                    if valueType is not None:
+                        msg="warning: unsupported type %s for column %s " % (str(valueType),key)
+                        print(msg)
+                if sqlType is not None and valueType is not None:
+                    self.addType(key,valueType,sqlType)
+        for key,sqlType in self.sqlTypeMap.items():        
+            ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")
             delim=","
         ddlCmd+=")"  
         if self.debug:
@@ -316,7 +324,7 @@ class EntityInfo(object):
             print(insertCmd)
         return insertCmd
         
-    def addType(self,column,valueType):
+    def addType(self,column,valueType,sqlType):
         '''
         add the python type for the given column to the typeMap
         
@@ -325,7 +333,9 @@ class EntityInfo(object):
            
            valueType(type): the python type of the column
         '''
-        self.typeMap[column]=valueType     
+        if not column in self.typeMap:
+            self.typeMap[column]=valueType     
+            self.sqlTypeMap[column]=sqlType
         
     def fixDates(self,resultList):
         '''

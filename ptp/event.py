@@ -152,7 +152,7 @@ class EventManager(EntityManager):
         Args:
             cacheFile(string): the cacheFile to use 
         '''
-        super().store(self.getListOfDicts(),cacheFile=cacheFile,batchSize=batchSize,limit=limit)  
+        super().store(self.getListOfDicts(),cacheFile=cacheFile,batchSize=batchSize,limit=limit,sampleRecordCount=100)  
   
     @staticmethod
     def asWikiSon(eventDicts):  

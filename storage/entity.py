@@ -189,12 +189,16 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             self.showProgress("read %d %s from %s in %5.1f s" % (len(listOfDicts),self.entityPluralName,self.name,time.time()-startTime))     
             return listOfDicts
         
-    def store(self,listOfDicts,limit=10000000,batchSize=250,cacheFile=None):
+    def store(self,listOfDicts,limit=10000000,batchSize=250,cacheFile=None,sampleRecordCount=1):
         ''' 
         store my entities 
         
         Args:
             listOfDicts(list): the list of dicts to store
+            limit(int): maximumn number of records to store
+            batchSize(int): size of batch for storing
+            cacheFile(string): the name of the storage e.g path to JSON or sqlite3 file
+            sampleRecordCount(int): the number of records to analyze for type information
         '''
         config=self.config
         mode=config.mode
@@ -223,7 +227,7 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
                 cacheFile=self.getCacheFile()
             sqldb=self.getSQLDB(cacheFile)
             self.showProgress ("storing %d %s for %s to %s:%s" % (len(listOfDicts),self.entityPluralName,self.name,config.mode,cacheFile)) 
-            entityInfo=sqldb.createTable(listOfDicts, config.tableName, "eventId",withDrop=True)   
+            entityInfo=sqldb.createTable(listOfDicts, config.tableName, "eventId",withDrop=True,sampleRecordCount=sampleRecordCount)   
             self.sqldb.store(listOfDicts, entityInfo,executeMany=self.executeMany)
             self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
         else:
