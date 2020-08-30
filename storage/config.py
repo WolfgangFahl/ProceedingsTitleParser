@@ -4,9 +4,11 @@ Created on 2020-08-29
 @author: wf
 '''
 from enum import Enum
-from abc import abstractstaticmethod
 
 class StoreMode(Enum):
+    '''
+    possible supported storage modes
+    '''
     JSON = 1
     SQL = 2
     SPARQL = 3
