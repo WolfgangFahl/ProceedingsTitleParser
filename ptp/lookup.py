@@ -13,9 +13,11 @@ import ptp.crossref
 import ptp.wikicfp
 from storage.entity import EntityManager
 from storage.config import StoreMode
+import io
 import os
+import sqlite3
+import time
 import yaml
-from storage.config import StorageConfig
 
 class Lookup(object):
     '''
@@ -25,7 +27,14 @@ class Lookup(object):
     def __init__(self,name,getAll=True,butNot=None,debug=False):
         '''
         Constructor
+        
+        Args:
+            name(string): the name of this lookup
+            getAll(boolean): True if all sources should be considered
+            butNot(list): a list of sources to be ignored
+            debug(boolean): if True debug information should be shown
         '''
+        self.name=name
         self.debug=debug
         self.ptp=ProceedingsTitleParser.getInstance()
         self.dictionary=ProceedingsTitleParser.getDictionary()
@@ -68,7 +77,12 @@ class Lookup(object):
         self.tp=TitleParser(lookup=self,name=name,ptp=self.ptp,dictionary=self.dictionary,ems=self.ems)
 
     def extractFromUrl(self,url):
-        ''' extract a record from the given Url '''
+        ''' 
+        extract a record from the given Url (scrape mode)
+        
+        Args:
+            url(string): the url to extract from
+        '''
         result=None
         if '/ceur-ws.org/' in url:
             event=ptp.ceurws.CeurwsEvent()
@@ -104,16 +118,46 @@ class Lookup(object):
         '''
         cachedir=EntityManager.getCachePath()
         dbfile="%s/%s.db" % (cachedir,cacheFileName)
+        dbfile=os.path.abspath(dbfile)
+        backup=sqlite3.connect(dbfile)
         # remove existing database dump if it exists
         if os.path.exists(dbfile):
             os.remove(dbfile)
+        print ("storing %s to %s" % (self.name,dbfile))  
         for em in self.ems:
             if not em.config.mode is StoreMode.SQL:
                 raise Exception("lookup store only support SQL storemode but found %s for %s" % (em.config.mode,em.name))
             else:
                 cacheFile=em.getCacheFile()
                 sqlDB=em.getSQLDB(cacheFile)
-                sqlDB.backup(dbfile)
+                cursor=backup.cursor()
+                startTime=time.time()
+                dump="\n".join(sqlDB.c.iterdump())
+                if self.debug:
+                    self.showDump(dump)
+                    
+                print("dump of %s has size %4.1f MB" % (em.name,len(dump)/1024/1024))
+                cursor.executescript(dump)
+                print("finished dump of %s in %5.1f s" % (em.name,time.time()-startTime))
+                #sqlDB.backup(dbfile)
+        backup.close()
+        
+    def showDump(self,dump,limit=10):
+        '''
+        show the given dump up to the given limit
+        
+        Args:
+            dump(string): the SQL dump to show
+            limit(int): the maximum number of lines to display
+        '''
+        s=io.StringIO(dump)
+        index=0
+        for line in s:
+            if index <= limit:
+                print(line)
+                index+=1    
+            else:
+                break    
 
     @staticmethod
     def getExamples():

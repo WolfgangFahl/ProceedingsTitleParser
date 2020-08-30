@@ -107,7 +107,7 @@ class WikiCFP(object):
                     jsonEm.add(event)
         if self.profile:
             print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
-        jsonEm.store(self.limit,self.batchSize)
+        jsonEm.store(limit=self.limit,batchSize=self.batchSize)
      
     def initEventManager(self):
         ''' initialize my event manager '''
