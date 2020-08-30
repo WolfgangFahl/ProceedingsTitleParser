@@ -154,10 +154,10 @@ class Lookup(object):
             self.showDump(dump)
         startTime=time.time()    
         print("dump of %s has size %4.1f MB" % (title,len(dump)/1024/1024))
-        s=io.StringIO(dump)
+        #s=io.StringIO(dump)
         errors=[]
         index=0
-        for line in s:
+        for line in dump.split(";\n"):
             try:
                 connection.execute(line)
             except  sqlite3.OperationalError as soe:
