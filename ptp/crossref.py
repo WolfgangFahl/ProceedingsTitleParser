@@ -43,7 +43,7 @@ class Crossref(object):
                 self.addEvent(rawEvent)
         if self.profile:
             print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
-        self.em.store(self.limit,self.batchSize)
+        self.em.store(limit=self.limit,batchSize=self.batchSize)
         
     def initEventManager(self):
         ''' initialize my event manager '''
