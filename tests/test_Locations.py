@@ -39,7 +39,7 @@ class TestLocations(unittest.TestCase):
         '''
         test consolidating cities from different sources
         '''
-        cim=CityManager()
+        cim=CityManager('lutangarVersusOpenResearch')
         startTime=time.time()
         cim.fromLutangar()
         self.assertEqual(128769,(len(cim.cityList)))

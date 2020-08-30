@@ -11,6 +11,7 @@ import ptp.wikidata
 import ptp.dblp
 import ptp.crossref
 import ptp.wikicfp
+from storage.sql import SQLDB
 from storage.entity import EntityManager
 from storage.config import StoreMode
 import io
@@ -118,8 +119,9 @@ class Lookup(object):
         '''
         cachedir=EntityManager.getCachePath()
         dbfile="%s/%s.db" % (cachedir,cacheFileName)
+        dbfile=":memory:"
         dbfile=os.path.abspath(dbfile)
-        backup=sqlite3.connect(dbfile)
+        backup=SQLDB(dbfile)
         # remove existing database dump if it exists
         if os.path.exists(dbfile):
             os.remove(dbfile)
@@ -130,17 +132,33 @@ class Lookup(object):
             else:
                 cacheFile=em.getCacheFile()
                 sqlDB=em.getSQLDB(cacheFile)
-                cursor=backup.cursor()
                 startTime=time.time()
                 dump="\n".join(sqlDB.c.iterdump())
-                if self.debug:
-                    self.showDump(dump)
-                    
-                print("dump of %s has size %4.1f MB" % (em.name,len(dump)/1024/1024))
-                cursor.executescript(dump)
+                self.executeDump(backup.c,dump,em.name)
+                #cursor.executescript(dump)
                 print("finished dump of %s in %5.1f s" % (em.name,time.time()-startTime))
                 #sqlDB.backup(dbfile)
         backup.close()
+        
+    def executeDump(self,cursor,dump,title,maxErrors=10):
+        if self.debug:
+            self.showDump(dump)
+            
+        print("dump of %s has size %4.1f MB" % (title,len(dump)/1024/1024))
+        s=io.StringIO(dump)
+        errors=[]
+        index=0
+        for line in s:
+            try:
+                cursor.execute(line)
+            except  sqlite3.OperationalError as soe:
+                msg="SQL error %s in line %d:\n\t%s" % (soe,index,line)
+                errors.append(msg)
+                print(msg)    
+                if len(errors)>=maxErrors:
+                    break
+            index=index+1
+        return errors
         
     def showDump(self,dump,limit=10):
         '''
