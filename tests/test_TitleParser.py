@@ -40,7 +40,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
        
     def tryParse(self,line,parser,tc,eventId=None,doprint=False):
         """ try parsing the given line and return the title"""
-        title=Title(line,parser.grammar)
+        title=Title(line,parser.grammar,dictionary=parser.getDictionary())
         if eventId is not None and self.debug:
             print ("eventId=%s" % (eventId)) 
         if doprint:    
@@ -108,12 +108,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
             'Selected proceedings of the 2009 Summit on Translational Bioinformatics.',
             'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020']   
         expected=[
-            {
-                'enum': 'Thirty-First', 'description': None, 'delimiter': None, 'daterange': '4 - 9', 'eventType': 'Conference', 'extract': None, 'field': None, 'frequency': None, 
-                'location': None, 'lookupAcronym': None,'month': 'February', 'ordinal': None, 'organization': None, 'prefix': 'AAAI', 'province': 'California', 'publish': None, 'scope': None, 
-                'syntax': None, 'topic': 'Artificial Intelligence', 'year': '2017', 'city': 'San Francisco', 'country': 'USA', 
-                'title': 'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San Francisco, California, USA'
-            },
+            {'enum': 'Thirty-First', 'description': None, 'delimiter': None, 'daterange': '4 - 9', 'eventType': 'Conference', 'extract': None, 'field': None, 'frequency': None, 'location': None, 'lookupAcronym': None, 'month': 'February', 'ordinal': None, 'organization': None, 'prefix': 'AAAI', 'province': 'California', 'publish': None, 'scope': None, 'syntax': None, 'topic': 'Artificial Intelligence', 'year': '2017', 'city': 'San Francisco', 'country': 'USA', 'title': 'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San_Francisco, California, USA'}
+,
             {
                 'daterange': None,
                 'delimiter': None,

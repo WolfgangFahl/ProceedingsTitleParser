@@ -337,7 +337,8 @@ class Title(object):
                     if isinstance(pitem,ParseResults):
                         value=" ".join(pitem.asList())
                         if value:
-                            self.md[pitem.getName()]=value
+                            name=pitem.getName()
+                            self.md[name]=value
             if self.info is not None:
                 for name in self.info:
                     value=self.info[name]

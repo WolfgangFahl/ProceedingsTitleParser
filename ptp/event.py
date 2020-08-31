@@ -236,17 +236,23 @@ class Event(object):
         self.getLookupAcronym()
             
     def fromTitle(self,title,debug=False):
-        ''' fill my data from the given Title '''
+        ''' 
+        fill my data from the given Title 
+        Args:
+            title(Title): the title to get the information from
+            debug(boolean): True if debugging should be activated
+        '''
         md=title.metadata()
-        Event.fixEncodings(md,debug)  
-        # fix event field
-        if 'event' in md:
-            md['eventType']=md['event']
+        Event.fixEncodings(md,debug)
         self.fromDict(md)
         self.getLookupAcronym()
             
     def fromDict(self,srcDict):
-        ''' fill my data from the given source Dict'''
+        ''' 
+        fill my data from the given source Dict
+        Args:
+            srcDict(dict): the dict to fill my data from
+        '''
         d=self.__dict__
         for key in srcDict:
             targetKey=key
