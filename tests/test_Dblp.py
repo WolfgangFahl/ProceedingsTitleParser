@@ -32,8 +32,8 @@ class TestDblp(unittest.TestCase):
             foundEvents=len(dblp.em.events)
         cachedEvents=len(dblp.em.events)
         dblp.em.extractCheckedAcronyms() 
-        self.assertEqual(43978,foundEvents)
-        self.assertEqual(43978,cachedEvents)
+        self.assertTrue(foundEvents>43950)
+        self.assertTrue(cachedEvents>43950)
         print("found %d  and cached %d events from dblp" % (foundEvents,cachedEvents))
         pass
 
