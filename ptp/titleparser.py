@@ -315,7 +315,7 @@ class Title(object):
                 'description': None,
                 'delimiter': None,
                 'daterange': None,
-                'event': None,
+                'eventType': None,
 				'extract': None,
                 'field': None,
                 'frequency': None,
