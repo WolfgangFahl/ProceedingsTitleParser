@@ -16,7 +16,6 @@ from collections import Counter
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 from ptp.event import EventManager
-from abc import abstractstaticmethod
 
 class TitleParser(object):
     '''
@@ -30,7 +29,7 @@ class TitleParser(object):
         self.name=name
         self.lookup=lookup
         self.ptp=ptp
-        if dictionary is None:
+        if dictionary is None and ptp is not None:
             ptpdictionary=ptp.getDictionary()
             if ptpdictionary is not None:
                 self.dictionary=ptpdictionary
