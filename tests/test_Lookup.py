@@ -5,6 +5,7 @@ Created on 2020-08-30
 '''
 import unittest
 from ptp.lookup import Lookup
+from storage.sql import SQLDB
 
 class TestLookup(unittest.TestCase):
     '''
@@ -28,6 +29,14 @@ class TestLookup(unittest.TestCase):
         errors=lookup.store('Event_all')
         self.assertEqual(0,len(errors))
         pass
+    
+    def testPlantUml(self):
+        lookup=Lookup("plantuml")
+        dbfile=lookup.getDBFile('Event_all')
+        sqlDb=SQLDB(dbfile)
+        tableList=sqlDb.getTableList()
+        plantUml=SQLDB.tableListToPlantUml(tableList, 'Data Donations')
+        print (plantUml)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

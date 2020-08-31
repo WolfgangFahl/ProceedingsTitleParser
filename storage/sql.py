@@ -161,6 +161,43 @@ class SQLDB(object):
             entityInfo.fixDates(resultList)
         return resultList
     
+    def getTableList(self):
+        '''
+        get the schema information from this database
+        '''
+        tableQuery="SELECT name FROM sqlite_master WHERE type='table'"
+        tableList=self.query(tableQuery)
+        for table in tableList:
+            tableName=table['name']
+            columnQuery="PRAGMA table_info('%s')" % tableName
+            columns=self.query(columnQuery)
+            table['columns']=columns
+        return tableList
+    
+    @staticmethod
+    def tableListToPlantUml(tableList, packageName=None):
+        '''
+        convert tableList to PlantUml donation
+        Args:
+            tableList(list) the tableList list of Dicts from getTableList() to convert
+        '''
+        uml=""
+        indent=""
+        if packageName is not None:
+            uml+="package %s {\n" % packageName
+            indent="  "
+        for table in tableList:
+            colUml=""
+            for col in table['columns']:
+                mandatory="*" if col['notnull']==1 else ""
+                pk="<<PK>>" if col['pk']==1 else ""
+                colUml+="%s  %s%s : %s %s\n" % (indent,mandatory,col['name'],col['type'],pk)
+            uml+="%sentity %s {\n%s%s}\n" % (indent,table['name'],colUml,indent)
+        if packageName is not None:
+            uml+="}\n"
+        return uml
+        
+     
     def progress(self,status, remaining, total):
         '''
         show progress
@@ -335,7 +372,7 @@ class EntityInfo(object):
         '''
         if not column in self.typeMap:
             self.typeMap[column]=valueType     
-            self.sqlTypeMap[column]=sqlType
+            self.sqlTypeMap[column]=sqlType          
         
     def fixDates(self,resultList):
         '''

@@ -112,14 +112,24 @@ class Lookup(object):
         result={'source': 'Crossref','eventId': doi,'title':title, 'proceedingsUrl':'https://doi.org/%s' % doi,'metadata': metadata}
         return result
     
-    def store(self,cacheFileName):
+    def getDBFile(self,cacheFileName):
         '''
-        store my contents to the given cacheFileName - 
-        implemented as SQL storage
+        get the database file for the given cacheFileName
         '''
         cachedir=EntityManager.getCachePath()
         dbfile="%s/%s.db" % (cachedir,cacheFileName) 
         dbfile=os.path.abspath(dbfile)
+        return dbfile
+    
+    def store(self,cacheFileName):
+        '''
+        store my contents to the given cacheFileName - 
+        implemented as SQL storage
+        
+        Args:
+            cacheFileName(string): the path to the database
+        '''
+        dbfile=self.getDBFile(cacheFileName)
         # remove existing database dump if it exists
         if os.path.exists(dbfile):
             os.remove(dbfile)
