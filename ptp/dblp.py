@@ -51,8 +51,11 @@ class Dblp(object):
                         if warnings<maxWarnings:
                             print("warning %s has %d values" %(checkKey,len(value)))
                             warnings+=1
-                        if checkKey=='editor' and '@orcid' in value:
-                            rawevent['editorOrcid']=value['@orcid']    
+                        if checkKey=='editor':
+                            if '@orcid' in value:
+                                rawevent['editorOrcid']=value['@orcid']   
+                            else:
+                                rawevent['editorOrcid']=None 
                         rawevent[checkKey]=value
                     if type(value) is dict:    
             #  'ee': {'@type': 'oa', '#text': 'http://ceur-ws.org/Vol-1974'} 
