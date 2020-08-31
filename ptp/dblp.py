@@ -53,15 +53,14 @@ class Dblp(object):
                             warnings+=1
                         if checkKey=='editor':
                             if '@orcid' in value:
-                                rawevent['editorOrcid']=value['@orcid']   
-                            else:
-                                rawevent['editorOrcid']=None 
+                                rawevent['editorOrcid']=value['@orcid']
                         rawevent[checkKey]=value
                     if type(value) is dict:    
             #  'ee': {'@type': 'oa', '#text': 'http://ceur-ws.org/Vol-1974'} 
             # 'title': {'sup': 'th', '#text': 'Usability ...           
                         value=value['#text']   
                         rawevent[checkKey]=value 
+            self.em.setNone(rawevent, ['editorOrcid'])            
             event.fromDict(rawevent)
             event.source=self.em.name
             # make sure the values are set and there are not multiple ones
