@@ -320,6 +320,7 @@ class Title(object):
                 'field': None,
                 'frequency': None,
                 'location': None,
+                'lookupAcronym': None,
                 'month': None,
                 'ordinal': None,
                 'organization': None,

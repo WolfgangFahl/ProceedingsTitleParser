@@ -110,7 +110,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         expected=[
             {
                 'enum': 'Thirty-First', 'description': None, 'delimiter': None, 'daterange': '4 - 9', 'eventType': 'Conference', 'extract': None, 'field': None, 'frequency': None, 
-                'location': None, 'month': 'February', 'ordinal': None, 'organization': None, 'prefix': 'AAAI', 'province': 'California', 'publish': None, 'scope': None, 
+                'location': None, 'lookupAcronym': None,'month': 'February', 'ordinal': None, 'organization': None, 'prefix': 'AAAI', 'province': 'California', 'publish': None, 'scope': None, 
                 'syntax': None, 'topic': 'Artificial Intelligence', 'year': '2017', 'city': 'San Francisco', 'country': 'USA', 
                 'title': 'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San Francisco, California, USA'
             },
@@ -124,6 +124,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 'field': None,
                 'frequency': None,
                 'location': None,
+                'lookupAcronym': None,
                 'month': None,
                 'ordinal': None,
                 'organization': None,
@@ -137,7 +138,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 'topic': 'Translational Bioinformatics',
                 'year': '2009'
             },
-            {'enum': None, 'description': None, 'delimiter': None, 'daterange': None, 'eventType': 'Workshop', 'extract': None, 'field': None, 'frequency': None, 'location': 'virtual', 'month': None, 'ordinal': None, 'organization': None, 'prefix': None, 'province': None, 'publish': None, 'scope': 'International', 'syntax': None, 'topic': 'Algorithms & Theories for the Analysis of Event Data 2020', 'year': None, 'acronym': 'ATAED 2020', 'title': 'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020'}
+            {'enum': None, 'description': None, 'delimiter': None, 'daterange': None, 'eventType': 'Workshop', 'extract': None, 'field': None, 'frequency': None, 'location': 'virtual', 'lookupAcronym': None,'month': None, 'ordinal': None, 'organization': None, 'prefix': None, 'province': None, 'publish': None, 'scope': 'International', 'syntax': None, 'topic': 'Algorithms & Theories for the Analysis of Event Data 2020', 'year': None, 'acronym': 'ATAED 2020', 'title': 'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020'}
         ]
         parser=self.getParser()
         tc=Counter()
