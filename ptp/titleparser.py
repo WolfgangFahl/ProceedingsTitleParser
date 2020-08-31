@@ -31,7 +31,9 @@ class TitleParser(object):
         self.lookup=lookup
         self.ptp=ptp
         if dictionary is None:
-            self.dictionary=ptp.getDictionary()
+            ptpdictionary=ptp.getDictionary()
+            if ptpdictionary is not None:
+                self.dictionary=ptpdictionary
         else:
             self.dictionary=dictionary
         self.ems=ems
