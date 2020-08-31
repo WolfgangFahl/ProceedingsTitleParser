@@ -186,8 +186,10 @@ class ProceedingsTitleParser(object):
         d=Dictionary.fromFile(path+"/../dictionary.yaml")
         return d
 
-    def __init__(self, dictionary=None):
-        ''' constructor '''
+    def __init__(self, dictionary):
+        ''' constructor 
+        '''
+        self.dictionary=dictionary
         proc=Keyword("Proceedings") | Keyword("proceedings")
         descWord=~proc + Word(alphas+nums+"™æéç)>/'&—‐") # watch the utf-8 dash!
         initials="("+OneOrMore(Word(alphas)+".")+")"

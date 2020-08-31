@@ -40,7 +40,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
        
     def tryParse(self,line,parser,tc,eventId=None,doprint=False):
         """ try parsing the given line and return the title"""
-        title=Title(line,parser.grammar,dictionary=parser.getDictionary())
+        title=Title(line,parser.grammar,dictionary=parser.dictionary)
         if eventId is not None and self.debug:
             print ("eventId=%s" % (eventId)) 
         if doprint:    
