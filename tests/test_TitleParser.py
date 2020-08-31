@@ -109,21 +109,35 @@ class TestProceedingsTitleParser(unittest.TestCase):
             'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020']   
         expected=[
             {
-                'delimiter': None,'enum': 'Thirty-First','daterange': None, 'description': None, 'event': 'Conference','extract': None, 'field': None, 'location': None, 'month': 'February', 'ordinal': None, 'organization': None, 
-                'province': None, 'publish': None, 'scope': None, 'syntax': None, 'topic': 'Artificial Intelligence', 'year': '2017', 'prefix': 'AAAI', 'daterange': '4 - 9', 'city': 'San Francisco', 
-                'province': 'California', 'country': 'USA', 
-                'title': 'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San Francisco, California, USA'  
+                'enum': 'Thirty-First', 'description': None, 'delimiter': None, 'daterange': '4 - 9', 'event': 'Conference', 'extract': None, 'field': None, 'frequency': None, 
+                'location': None, 'month': 'February', 'ordinal': None, 'organization': None, 'prefix': 'AAAI', 'province': 'California', 'publish': None, 'scope': None, 
+                'syntax': None, 'topic': 'Artificial Intelligence', 'year': '2017', 'city': 'San Francisco', 'country': 'USA', 
+                'title': 'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San Francisco, California, USA'
             },
             {
-                'delimiter': None,'daterange': None, 'enum': None, 'description': None, 'event': 'Summit', 'extract': None,'field': None, 'location': None, 'month': None, 'ordinal': None, 'organization': None, 'prefix': None, 
-                'province': None,'publish': None, 'scope': None, 'syntax': None, 'topic': 'Translational Bioinformatics', 'year': '2009', 'extract': 'Selected', 
-                'title': 'Selected proceedings of the 2009 Summit on Translational Bioinformatics.'
+                'daterange': None,
+                'delimiter': None,
+                'description': None,
+                'enum': None,
+                'event': 'Summit',
+                'extract': 'Selected',
+                'field': None,
+                'frequency': None,
+                'location': None,
+                'month': None,
+                'ordinal': None,
+                'organization': None,
+                'prefix': None,
+                'province': None,
+                'publish': None,
+                'scope': None,
+                'syntax': None,
+                'title': 'Selected proceedings of the 2009 Summit on Translational '
+                        'Bioinformatics.',
+                'topic': 'Translational Bioinformatics',
+                'year': '2009'
             },
-            {
-                'delimiter': None,'daterange': None, 'enum': None, 'description': None, 'event': 'Workshop', 'extract': None,'field': None, 'location': 'virtual', 'month': None, 'ordinal': None, 'organization': None, 'prefix': None, 
-                'province': None,'publish': None, 'scope': 'International', 'syntax': None, 'topic': 'Algorithms & Theories for the Analysis of Event Data 2020', 'year': None, 'acronym': 'ATAED 2020', 
-                'title': 'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020'
-             }
+            {'enum': None, 'description': None, 'delimiter': None, 'daterange': None, 'event': 'Workshop', 'extract': None, 'field': None, 'frequency': None, 'location': 'virtual', 'month': None, 'ordinal': None, 'organization': None, 'prefix': None, 'province': None, 'publish': None, 'scope': 'International', 'syntax': None, 'topic': 'Algorithms & Theories for the Analysis of Event Data 2020', 'year': None, 'acronym': 'ATAED 2020', 'title': 'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020'}
         ]
         parser=self.getParser()
         tc=Counter()

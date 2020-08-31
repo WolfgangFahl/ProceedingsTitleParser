@@ -306,6 +306,7 @@ class Title(object):
                 'event': None,
 				'extract': None,
                 'field': None,
+                'frequency': None,
                 'location': None,
                 'month': None,
                 'ordinal': None,
