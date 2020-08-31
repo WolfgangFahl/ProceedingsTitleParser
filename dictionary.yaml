@@ -1711,45 +1711,45 @@ Ninety-Ninth:
   type: enum
   value: 99
 Conference:
-  type: event
+  type: eventType
 Colloquium:
-  type: event
+  type: eventType
 Congress:
-  type: event
+  type: eventType
 Consensus Meeting:
-  type: event
+  type: eventType
 Consensus Conference:
-  type: event
+  type: eventType
 Forum:
-  type: event
+  type: eventType
 Meeting:
-  type: event
+  type: eventType
 round-table discussion:
-  type: event
+  type: eventType
 School:
-  type: event
+  type: eventType
 Seminar:
-  type: event
+  type: eventType
 Session:
-  type: event
+  type: eventType
 Summit:
-  type: event
+  type: eventType
 Symposium:
-  type: event
+  type: eventType
 Workshop:
-  type: event
+  type: eventType
 conference:
-  type: event
+  type: eventType
 congress:
-  type: event
+  type: eventType
 meeting:
-  type: event
+  type: eventType
 symposium:
-  type: event
+  type: eventType
 satellite symposium:
-  type: event
+  type: eventType
 workshop:
-  type: event
+  type: eventType
 A summary of:
   type: extract
 Highlights of:

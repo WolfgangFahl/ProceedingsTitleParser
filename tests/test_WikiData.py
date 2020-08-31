@@ -12,7 +12,7 @@ class TestWikiData(unittest.TestCase):
     ''' test the WikiData proceedings titles source '''
 
     def setUp(self):
-        self.forceCaching=False
+        self.forceCaching=True
         pass
 
     def tearDown(self):

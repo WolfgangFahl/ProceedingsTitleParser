@@ -4,7 +4,7 @@ Created on 2020-07-11
 @author: wf
 '''
 import os
-import ptp.lookup
+from ptp.titleparser import TitleParser
 from ptp.event import EventManager, Event
 class WikiData(object):
     '''
@@ -24,8 +24,9 @@ class WikiData(object):
         
     def cacheEvents(self,limit=1000000,batchSize=500):
         ''' initialize me from my sample file '''
-        self.lookup=ptp.lookup.Lookup("wikidata",getAll=False)
-        tp=self.lookup.tp
+        #self.lookup=ptp.lookup.Lookup("wikidata",getAll=False)
+        #tp=self.lookup.tp
+        tp=TitleParser.getDefault(self.em.name)
         tp.fromFile(self.sampleFilePath, "wikidata")
         tc,errs,result=tp.parseAll()
         if self.debug:

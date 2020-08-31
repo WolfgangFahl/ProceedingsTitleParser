@@ -16,6 +16,7 @@ from collections import Counter
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 from ptp.event import EventManager
+from abc import abstractstaticmethod
 
 class TitleParser(object):
     '''
@@ -29,9 +30,18 @@ class TitleParser(object):
         self.name=name
         self.lookup=lookup
         self.ptp=ptp
-        self.dictionary=dictionary
+        if dictionary is None:
+            self.dictionary=ptp.getDictionary()
+        else:
+            self.dictionary=dictionary
         self.ems=ems
         self.records=[]
+        
+    @staticmethod
+    def getDefault(name=None):
+        ptp=ProceedingsTitleParser.getInstance()
+        tp=TitleParser(name,ptp=ptp)
+        return tp
 
     def parseAll(self):
         ''' get parse result with the given proceedings title parser, entity manager and list of titles '''
@@ -54,7 +64,8 @@ class TitleParser(object):
                 except Exception as ex:
                     tc["fail"]+=1
                     errs.append(ex)
-                title.lookup(self.ems,notfound)
+                if self.ems is not None:    
+                    title.lookup(self.ems,notfound)
                 result.append(title)
         return tc,errs,result
 
@@ -182,13 +193,13 @@ class ProceedingsTitleParser(object):
         desc=Optional("[")+OneOrMore(descWord|initials)+oneOf(". ? : ( , ; -")
         enumGroup=dictionary.getGroup("enum")
         scopeGroup=dictionary.getGroup("scope")
-        eventGroup=dictionary.getGroup("event")
+        eventGroup=dictionary.getGroup("eventType")
         freqGroup=dictionary.getGroup("frequency")
         yearGroup=dictionary.getGroup("year")
         cityGroup=dictionary.getGroup("city")
         provinceGroup=dictionary.getGroup("province")
         countryGroup=dictionary.getGroup("country")
-        eventClause=dictionary.getClause("event")
+        eventClause=dictionary.getClause("eventType")
         monthGroup=dictionary.getGroup("month")
         extractGroup=dictionary.getGroup("extract")
         dateRangeGroup=Group(Optional(Word(nums)+Optional("-"+Word(nums))))("daterange")
