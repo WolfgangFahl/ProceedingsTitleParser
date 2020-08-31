@@ -23,7 +23,7 @@ class Dblp(object):
         self.jsondir=path+"/../sampledata/"
         self.jsonFilePath=self.jsondir+"dblp.json"
         
-    def cacheEvents(self):
+    def cacheEvents(self,maxWarnings=10):
         ''' initialize me from my json file '''
         with open(self.jsonFilePath) as jsonFile:
             self.rawevents=json.load(jsonFile)
@@ -37,7 +37,10 @@ class Dblp(object):
                 rawevent['acronym']="%s %s" % (rawevent['booktitle'],rawevent['year'])
             if '@mdate' in rawevent:
                 rawevent['mdate']=rawevent.pop('@mdate')
+            if '@publtype' in rawevent:
+                rawevent['publtype']=rawevent.pop('@publtype')    
             event=Event()
+            warnings=0
             for checkKey in ['booktitle','ee','isbn','lookupAcronym','publisher','title','volume','url']:
                 if not checkKey in rawevent:
                     rawevent[checkKey]=None
@@ -45,7 +48,9 @@ class Dblp(object):
                     value=rawevent[checkKey]
                     if type(value) is list:
                         value=value[0]
-                        print("warning %s has %d values" %(checkKey,len(value)))
+                        if warnings<maxWarnings:
+                            print("warning %s has %d values" %(checkKey,len(value)))
+                            warnings+=1
                         rawevent[checkKey]=value
                     if type(value) is dict:    
             #  'ee': {'@type': 'oa', '#text': 'http://ceur-ws.org/Vol-1974'} 
