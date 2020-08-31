@@ -31,6 +31,7 @@ class Dblp(object):
             self.rawevents=self.rawevents['dblp']
         if 'proceedings' in self.rawevents:
             self.rawevents=self.rawevents['proceedings']
+        warnings=0    
         for rawevent in self.rawevents:
             rawevent['eventId']=rawevent.pop('@key')
             if 'year' in rawevent and 'booktitle' in rawevent:
@@ -40,8 +41,7 @@ class Dblp(object):
             if '@publtype' in rawevent:
                 rawevent['publtype']=rawevent.pop('@publtype')    
             event=Event()
-            warnings=0
-            for checkKey in ['booktitle','ee','isbn','lookupAcronym','publisher','title','volume','url']:
+            for checkKey in ['booktitle','ee','editor','isbn','lookupAcronym','publisher','title','volume','url']:
                 if not checkKey in rawevent:
                     rawevent[checkKey]=None
                 else:
@@ -51,6 +51,8 @@ class Dblp(object):
                         if warnings<maxWarnings:
                             print("warning %s has %d values" %(checkKey,len(value)))
                             warnings+=1
+                        if checkKey=='editor' and '@orcid' in value:
+                            rawevent['editorOrcid']=value['@orcid']    
                         rawevent[checkKey]=value
                     if type(value) is dict:    
             #  'ee': {'@type': 'oa', '#text': 'http://ceur-ws.org/Vol-1974'} 
