@@ -60,7 +60,13 @@
     sql: |
         select number,cast(number as integer) as enum,year,title 
         from event_crossref
-        where  enum> 53 and enum<1952                  
+        where  enum> 53 and enum<1952     
+'WikiCfP year distribution':
+    sql: |
+        select year,count(*) as count
+        from event_wikicfp
+        group by year
+        order by year                     
 'Predicate usage': 
     sparql: |
         SELECT ?p (count(?p) as ?numberOfPredicates) 
