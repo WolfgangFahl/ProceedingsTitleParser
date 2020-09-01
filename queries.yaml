@@ -44,6 +44,11 @@
 'Event_wikidata Schema':
     sql: |
         pragma table_info('event_wikidata');        
+'Portuguese Anais with numbers':
+    sql: |
+        select number,title,url from event_crossref
+        where number is not null and title like '%Anais%'
+        order by number             
 'Predicate usage': 
     sparql: |
         SELECT ?p (count(?p) as ?numberOfPredicates) 
