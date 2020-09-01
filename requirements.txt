@@ -3,6 +3,9 @@
 networkx
 # https://pypi.org/project/pyparsing/
 # https://github.com/pyparsing/pyparsing
+# Railroad diagrams
+# https://pyparsing-docs.readthedocs.io/en/latest/HowToUsePyparsing.html#generating-railroad-diagrams
+#pyparsing[diagrams]
 pyparsing
 # https://pypi.org/project/matplotlib/
 matplotlib

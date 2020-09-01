@@ -114,9 +114,9 @@ class TestProceedingsTitleParser(unittest.TestCase):
             'Selected proceedings of the 2009 Summit on Translational Bioinformatics.',
             'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020']   
         expected=[
-            {'enum': 'Thirty-First', 'description': None, 'delimiter': None, 'daterange': '4 - 9', 'eventType': 'Conference', 'extract': None, 'field': None, 'frequency': None, 'location': None, 'lookupAcronym': None, 'month': 'February', 'ordinal': None, 'organization': None, 'prefix': 'AAAI', 'province': 'California', 'publish': None, 'scope': None, 'syntax': None, 'topic': 'Artificial Intelligence', 'year': '2017', 'city': 'San Francisco', 'country': 'USA', 'title': 'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San_Francisco, California, USA'}
-,
-            {
+           {'enum': 'Thirty-First', 'description': None, 'delimiter': None, 'daterange': '4 - 9', 'eventType': 'Conference', 'extract': None, 'field': None, 'frequency': None, 'location': None, 'lookupAcronym': None, 'month': 'February', 'ordinal': None, 'organization': None, 'prefix': 'AAAI', 'province': 'California', 'publish': None, 'scope': None, 'syntax': None, 'topic': 'Artificial Intelligence', 'year': 2017, 'city': 'San Francisco', 'country': 'USA', 'title': 'Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San_Francisco, California, USA'}
+           ,       
+           {
                 'daterange': None,
                 'delimiter': None,
                 'description': None,
@@ -138,7 +138,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 'title': 'Selected proceedings of the 2009 Summit on Translational '
                         'Bioinformatics.',
                 'topic': 'Translational Bioinformatics',
-                'year': '2009'
+                'year': 2009
             },
             {'enum': None, 'description': None, 'delimiter': None, 'daterange': None, 'eventType': 'Workshop', 'extract': None, 'field': None, 'frequency': None, 'location': 'virtual', 'lookupAcronym': None,'month': None, 'ordinal': None, 'organization': None, 'prefix': None, 'province': None, 'publish': None, 'scope': 'International', 'syntax': None, 'topic': 'Algorithms & Theories for the Analysis of Event Data 2020', 'year': None, 'acronym': 'ATAED 2020', 'title': 'Proceedings of the International Workshop on Algorithms & Theories for the Analysis of Event Data 2020 (ATAED 2020),virtual workshop, June 24, 2020'}
         ]
@@ -363,6 +363,10 @@ class TestProceedingsTitleParser(unittest.TestCase):
         # expect 4 ok 1 fail and 2 invalid/ignored
         self.assertEqual(4,tc['success']);
         self.assertEqual(1,tc['fail']);
+    
+    # wait for version 3    
+    #def testRailroadDiagrams(self):
+            
                     
        
 if __name__ == "__main__":

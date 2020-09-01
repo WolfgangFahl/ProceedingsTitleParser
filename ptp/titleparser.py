@@ -11,6 +11,8 @@ import os
 import re
 from collections import OrderedDict
 from pyparsing import Keyword,Group,Word,OneOrMore,Optional,ParseResults,Regex,ZeroOrMore,alphas, nums, oneOf
+# wait for version 3
+#from pyparsing.diagram import to_railroad, railroad_to_html
 from num2words import num2words
 from collections import Counter
 from dicttoxml import dicttoxml
@@ -252,8 +254,7 @@ class Title(object):
         self.enum=None
         self.parseResult=None
         self.grammar=grammar
-        self.info={}
-        self.info['title']=line
+        self.info={'title':line}
         self.md=None
         self.events=[]
 
