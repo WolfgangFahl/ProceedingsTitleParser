@@ -186,8 +186,10 @@ class ProceedingsTitleParser(object):
         d=Dictionary.fromFile(path+"/../dictionary.yaml")
         return d
 
-    def __init__(self, dictionary=None):
-        ''' constructor '''
+    def __init__(self, dictionary):
+        ''' constructor 
+        '''
+        self.dictionary=dictionary
         proc=Keyword("Proceedings") | Keyword("proceedings")
         descWord=~proc + Word(alphas+nums+"™æéç)>/'&—‐") # watch the utf-8 dash!
         initials="("+OneOrMore(Word(alphas)+".")+")"
@@ -337,7 +339,8 @@ class Title(object):
                     if isinstance(pitem,ParseResults):
                         value=" ".join(pitem.asList())
                         if value:
-                            self.md[pitem.getName()]=value
+                            name=pitem.getName()
+                            self.md[name]=value
             if self.info is not None:
                 for name in self.info:
                     value=self.info[name]
