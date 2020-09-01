@@ -7,7 +7,6 @@ import os
 import ptp.lookup
 from ptp.webscrape import WebScrape
 from ptp.event import EventManager, Event
-from storage.config import StorageConfig
 
 class CEURWS(object):
     '''

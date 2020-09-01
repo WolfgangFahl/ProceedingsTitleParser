@@ -24,7 +24,7 @@ class TestStats(unittest.TestCase):
         test SQL queries
         '''
         qm=QueryManager(lang='sql',debug=False)
-        self.assertEqual(14,len(qm.queriesByName))
+        self.assertEqual(15,len(qm.queriesByName))
         lookup=Lookup("stats")
         sqlDB=lookup.getSQLDB()
         for name,query in qm.queriesByName.items():

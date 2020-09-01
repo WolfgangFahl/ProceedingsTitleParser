@@ -312,6 +312,7 @@ class Title(object):
     def metadata(self):
         ''' extract the metadata of the given title '''
         if self.md is None:
+            # initialize with None values
             self.md={
                 'enum': None, 
                 'description': None,
@@ -344,8 +345,12 @@ class Title(object):
             if self.info is not None:
                 for name in self.info:
                     value=self.info[name]
-                    if not name in self.md:
+                    # value is not None per definition
+                    # mdValue might be None
+                    if (not name in self.md) or (self.md[name] is None):
                         self.md[name]=value
+            if self.md['year'] is not None:
+                self.md['year']=int(self.md['year'])            
         return self.md
     
     def metadataDump(self):
@@ -365,14 +370,22 @@ class Title(object):
         pass
 
     def parse(self):
+        '''
+        parse with dictionary lookup
+        '''
         self.notfound=[]
         for token in self.tokens:
             dtoken=self.dictionary.getToken(token)
+            # if ther is a dictionary result
             if dtoken is not None:
-                if dtoken["type"]=="enum":
-                    self.enum=dtoken["value"]
-                    self.info["ordinal"]=self.enum
-                self.info[dtoken["type"]]=token
+                # for the kind e.g. enum, country, city ...
+                lookup=dtoken["type"]
+                # do not set same token e.g. enum twice
+                if not lookup in token:
+                    if lookup=="enum":
+                        self.info['ordinal']=dtoken["value"]
+                    # set the value for the token
+                    self.info[lookup]=token
             else:
                 self.notfound.append(self.dictionary.searchToken(token))
         return self.notfound

@@ -14,7 +14,7 @@ class TestCEURWS(unittest.TestCase):
 
     def setUp(self):
         self.debug=False
-        self.forceCaching=False
+        self.forceCaching=True
         pass
 
     def tearDown(self):

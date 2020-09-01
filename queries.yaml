@@ -72,7 +72,18 @@
         select year,count(*) as count
         from event_or
         group by year
-        order by year                       
+        order by year     
+'wikidata enums and ordinals':
+    sql: |
+        select count(*) as count,enum,ordinal 
+        from event_wikidata 
+        where enum is not null
+        group by enum,ordinal
+        union 
+        select count(*) as count,'total',''
+        from event_wikidata 
+        where enum is not null
+        order by 1 desc limit 20                          
 'Predicate usage': 
     sparql: |
         SELECT ?p (count(?p) as ?numberOfPredicates) 
