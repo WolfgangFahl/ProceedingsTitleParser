@@ -48,7 +48,19 @@
     sql: |
         select number,title,url from event_crossref
         where number is not null and title like '%Anais%'
-        order by number             
+        order by number   
+'Crossref number usage':
+    sql: |
+        select count(*) as count,cast(number as integer) as enum,number from event_crossref
+        where number is not null
+        group by enum,number
+        having count>1
+        order by enum        
+'Crossref events with long numbers':
+    sql: |
+        select number,cast(number as integer) as enum,year,title 
+        from event_crossref
+        where  enum> 53 and enum<1952                  
 'Predicate usage': 
     sparql: |
         SELECT ?p (count(?p) as ?numberOfPredicates) 

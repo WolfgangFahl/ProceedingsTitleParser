@@ -82,11 +82,12 @@ class EventManager(EntityManager):
     
     def removeCacheFile(self):
         '''  remove my cache file '''
-        if self.mode=='json':
+        mode=self.config.mode
+        if mode is StoreMode.JSON:
             cacheFile=self.getCacheFile()
             if os.path.isfile(cacheFile):
                 os.remove(cacheFile)
-        elif self.mode=='dgraph':
+        elif mode is StoreMode.DGRAPH:
             # https://discuss.dgraph.io/t/running-upsert-in-python/9364
             """mutation='''
             upsert {  

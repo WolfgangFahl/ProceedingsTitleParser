@@ -36,6 +36,8 @@ class Dblp(object):
             rawevent['eventId']=rawevent.pop('@key')
             if 'year' in rawevent and 'booktitle' in rawevent:
                 rawevent['acronym']="%s %s" % (rawevent['booktitle'],rawevent['year'])
+            if 'year' in rawevent:
+                rawevent['year']=int(rawevent['year'])    
             if '@mdate' in rawevent:
                 rawevent['mdate']=rawevent.pop('@mdate')
             else:
