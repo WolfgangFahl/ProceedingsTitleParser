@@ -63,9 +63,7 @@ class OpenResearch(object):
         askResult=self.smw.query(ask)
         event=None
         for askRecord in askResult.values():
-            event=Event()
-            event.fromAskResult(askRecord)
-            event.source=self.em.name
+            event=self.fromAskResult(askRecord)
             em.add(event)
         found=len(askResult.values())    
         return found,event
@@ -75,13 +73,46 @@ class OpenResearch(object):
         ask=self.getAsk(pageTitle)      
         askResult=self.smw.query(ask)
         if len(askResult)==1:
-            event=Event()
-            event.fromAskResult(next(iter(askResult.values())))
+            event=self.fromAskResult(next(iter(askResult.values())))
         elif len(askResult)==0:
             event=None
         else:
             raise Exception("%s is ambigous %d result found" % (pageTitle,len(askResult)))        
         return event  
+    
+    def fromAskResult(self,askRecord):
+        ''' 
+        initialize the event from the given ask result
+        Args:
+            askRecord(dict): the SMW ask query record to use as a basis
+        Returns:
+            even(Event): an event
+        '''
+        event=Event()
+        event.source=self.em.name
+     
+        d=event.__dict__
+        for key in ["event","series","acronym","title","city","homepage","country","start_date","end_date","creation_date","modification_date",'year']:
+            if key in askRecord:
+                d[key]=askRecord[key]
+            else:
+                d[key]=None
+        ''' individual fixes '''
+        if event.series is not None:
+            if type(event.series) is list:
+                print("warning series for %s is a list: %s - using only 1st entry" % (event.event,event.series))
+                event.series=event.series[0]
+        if event.country is not None:
+            if type(event.country) is list:
+                print("warning country for %s is a list: %s" % (event.event,event.country))
+            else:
+                event.country=event.country.replace("Category:","")  
+        if event.start_date is not None:
+            event.year=event.start_date.year         
+        event.eventId=event.event          
+        event.url="https://www.openresearch.org/wiki/%s" % (event.event) 
+        event.getLookupAcronym()
+        return event
 
     @staticmethod
     def getSMW():

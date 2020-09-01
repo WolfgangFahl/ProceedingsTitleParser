@@ -215,26 +215,6 @@ class Event(object):
             return self.url
         else:
             return self.homepage
-        
-    def fromAskResult(self,askRecord):
-        ''' initialize me from the given ask result'''
-        d=self.__dict__
-        for key in ["event","series","acronym","title","city","homepage","country","start_date","end_date","creation_date","modification_date"]:
-            if key in askRecord:
-                d[key]=askRecord[key]
-        ''' individual fixes '''
-        if self.series is not None:
-            if type(self.series) is list:
-                print("warning series for %s is a list: %s - using only 1st entry" % (self.event,self.series))
-                self.series=self.series[0]
-        if self.country is not None:
-            if type(self.country) is list:
-                print("warning country for %s is a list: %s" % (self.event,self.country))
-            else:
-                self.country=self.country.replace("Category:","")   
-        self.eventId=self.event          
-        self.url="https://www.openresearch.org/wiki/%s" % (self.event) 
-        self.getLookupAcronym()
             
     def fromTitle(self,title,debug=False):
         ''' 

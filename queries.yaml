@@ -66,7 +66,13 @@
         select year,count(*) as count
         from event_wikicfp
         group by year
-        order by year                     
+        order by year      
+'OPENRESEARCH year distribution':
+    sql: |
+        select year,count(*) as count
+        from event_or
+        group by year
+        order by year                       
 'Predicate usage': 
     sparql: |
         SELECT ?p (count(?p) as ?numberOfPredicates) 
