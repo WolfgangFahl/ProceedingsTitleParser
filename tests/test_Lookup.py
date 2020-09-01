@@ -28,6 +28,7 @@ class TestLookup(unittest.TestCase):
         self.assertEqual(7,len(lookup.ems))
         errors=lookup.store('Event_all')
         self.assertEqual(0,len(errors))
+        lookup.createView()
         pass
     
     def testPlantUml(self):

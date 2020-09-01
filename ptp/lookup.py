@@ -121,7 +121,39 @@ class Lookup(object):
         dbfile=os.path.abspath(dbfile)
         return dbfile
     
-    def store(self,cacheFileName):
+    def getSQLDB(self,cacheFileName='Event_all'):
+        dbfile=self.getDBFile(cacheFileName)
+        sqlDB=SQLDB(dbfile)   
+        return sqlDB
+    
+    def createView(self):
+        ''' 
+          create the general Event view
+          
+        Args:
+            cacheFileName(string): the path to the database
+        '''
+        viewDDL='''create view event as 
+   select eventId,title,url,lookupAcronym,acronym,source from event_CEURWS
+union 
+   select eventId,title,url,lookupAcronym,acronym,source from event_crossref
+union 
+   select eventId,title,url,lookupAcronym,acronym,source from event_confref
+union 
+   select eventId,title,url,lookupAcronym,acronym,source from event_dblp   
+union
+   select eventId,title,url,lookupAcronym,acronym,source from event_or
+union
+   select eventId,title,url,lookupAcronym,acronym,source from event_wikicfp
+union 
+   select eventId,title,url,lookupAcronym,acronym,source from event_wikidata;
+   '''
+        sqlDB=self.getSQLDB()
+        sqlDB.c.execute(viewDDL)
+        
+        
+    
+    def store(self,cacheFileName='Event_all'):
         '''
         store my contents to the given cacheFileName - 
         implemented as SQL storage

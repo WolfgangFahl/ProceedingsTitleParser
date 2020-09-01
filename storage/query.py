@@ -34,14 +34,14 @@ class Query(object):
         markup="<source lang='%s'>\n%s\n</source>\n" %(self.lang,self.query)
         return markup
         
-    def asWikiMarkup(self,sparql):
+    def asWikiMarkup(self,listOfDicts):
         '''
-        run the given SPAQRL query, and convert result to MediaWiki markup
-        
+        convert the given listOfDicts result to MediaWiki markup
+        Args:
+            listOfDicts(list): the list of Dicts to convert to MediaWiki markup
         Returns:
             string: the markup
         '''
-        listOfDicts=sparql.queryAsListOfDicts(self.query)
         if self.debug:
             print(listOfDicts)
         mwTable=MediaWikiTable()
@@ -54,15 +54,22 @@ class QueryManager(object):
     manages prepackaged Queries
     '''
 
-    def __init__(self,debug=False):
+    def __init__(self,lang='sql',debug=False):
         '''
         Constructor
+        Args:
+            lang(string): the language to use for the queries sql or sparql
+            debug(boolean): True if debug information should be shown
         '''
         self.queriesByName={}
+        self.lang=lang
         self.debug=debug
-        for name,queryText in QueryManager.getQueries().items():
-            query=Query(name,queryText,debug=self.debug)
-            self.queriesByName[name]=query
+        queries=QueryManager.getQueries()
+        for name,queryDict in queries.items():
+            if self.lang in queryDict:
+                queryText=queryDict[self.lang]
+                query=Query(name,queryText,lang=self.lang,debug=self.debug)
+                self.queriesByName[name]=query
     
     @staticmethod
     def getQueries():
