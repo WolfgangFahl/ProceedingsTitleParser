@@ -6,6 +6,8 @@ Created on 2020-08-30
 import unittest
 from ptp.lookup import Lookup
 from storage.sql import SQLDB
+import getpass
+
 
 class TestLookup(unittest.TestCase):
     '''
@@ -22,11 +24,12 @@ class TestLookup(unittest.TestCase):
         '''
         test the number of sources and storing to "Event_all"
         '''
-        lookup=Lookup("test")
-        self.assertEqual(7,len(lookup.ems))
-        errors=lookup.store('Event_all')
-        self.assertEqual(0,len(errors))
-        lookup.createView()
+        if getpass.getuser()!="travis":
+            lookup=Lookup("test")
+            self.assertEqual(7,len(lookup.ems))
+            errors=lookup.store('Event_all')
+            self.assertEqual(0,len(errors))
+            lookup.createView()
         pass
     
     def testCreateEventAll(self):
@@ -34,6 +37,7 @@ class TestLookup(unittest.TestCase):
         check that the eventall database is created correctly
         '''
         lookup=Lookup("CreateEventAll")
+        self.assertEqual(7,len(lookup.ems))
         sqlDB=lookup.createEventAll(maxAgeMin=1)
         tableList=sqlDB.getTableList()
         print(tableList)
