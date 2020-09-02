@@ -134,8 +134,8 @@ ignorelines { next }
   # trim
   gsub(/^[ \t]+/, "", line);
   gsub(/[ \t]+$/, "", line);
-  # remove newlines
-  gsub(/\\n/,"",line)
+  # fix "5 th" typo from http://ceur-ws.org/Vol-2341"
+  gsub("5 th","5th",line)
   if (index(line,"Submitted by") >0){
     printf ("%s",line)
     line=""

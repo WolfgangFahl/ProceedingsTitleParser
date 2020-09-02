@@ -6,9 +6,11 @@ Created on 2020-08-24
 # python standard library
 import sqlite3
 import datetime
+import io
 import time
 import sys
 import re
+from collections import Counter
 
 class SQLDB(object):
     '''
@@ -175,7 +177,38 @@ class SQLDB(object):
         return tableList
     
     @staticmethod
-    def tableListToPlantUml(tableList, packageName=None):
+    def generalizeColumn(tableList,colName):
+        ''' 
+        remove the column with the given name from all tables in the tablelist and
+        return it
+        '''
+        gCol=None
+        for table in tableList:
+            for col in table['columns']:
+                if col['name']==colName:
+                    gCol=col
+                    table['columns'].remove(col)
+        return gCol            
+             
+    @staticmethod
+    def getGeneral(tableList,name,debug=False):
+        general={'name':name,'columns':[]}
+        colCount=Counter()
+        for table in tableList:
+            for col in table['columns']:
+                colid="%s.%s" % (col['name'],col['type'])
+                colCount[colid]+=1
+        for columnId,count in colCount.items():
+            if count==len(tableList):
+                if debug:
+                    print (columnId)  
+                colName=columnId.split('.')[0]
+                generalCol=SQLDB.generalizeColumn(tableList, colName)
+                general['columns'].append(generalCol)    
+        return general
+        
+    @staticmethod
+    def tableListToPlantUml(tableList, packageName=None,generalizeTo=None):
         '''
         convert tableList to PlantUml donation
         Args:
@@ -183,9 +216,15 @@ class SQLDB(object):
         '''
         uml=""
         indent=""
+        inherit=""
         if packageName is not None:
             uml+="package %s {\n" % packageName
             indent="  "
+        if generalizeTo is not None:
+            generalTable=SQLDB.getGeneral(tableList,generalizeTo)
+            for table in tableList:
+                inherit+="%s%s <|-- %s\n" % (indent,generalizeTo,table['name'])
+            tableList.insert(0,generalTable)
         for table in tableList:
             colUml=""
             for col in table['columns']:
@@ -193,6 +232,7 @@ class SQLDB(object):
                 pk="<<PK>>" if col['pk']==1 else ""
                 colUml+="%s  %s%s : %s %s\n" % (indent,mandatory,col['name'],col['type'],pk)
             uml+="%sentity %s {\n%s%s}\n" % (indent,table['name'],colUml,indent)
+        uml+=inherit    
         if packageName is not None:
             uml+="}\n"
         return uml
