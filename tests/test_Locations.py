@@ -145,7 +145,7 @@ WHERE {
         '''
         test consolidating countries from different sources
         '''
-        cm=CountryManager()
+        cm=CountryManager("github")
         cm.fromErdem()
         cm.fromConfRef()
         dgraph=Dgraph(debug=self.debug)
