@@ -4,6 +4,7 @@ Created on 2020-07-04
 @author: wf
 '''
 import csv
+import html
 import io
 import json
 import re
@@ -228,11 +229,12 @@ class Event(object):
         self.fromDict(md)
         self.getLookupAcronym()
             
-    def fromDict(self,srcDict):
+    def fromDict(self,srcDict,withHtmlUnescape=False):
         ''' 
         fill my data from the given source Dict
         Args:
             srcDict(dict): the dict to fill my data from
+            withHtmlUnescape(boolean): True if HTML entities should be unescaped e.g. Montr&#233;al
         '''
         d=self.__dict__
         for key in srcDict:
@@ -240,6 +242,8 @@ class Event(object):
             if key=="id":
                 targetKey='eventId'
             value=srcDict[key]
+            if withHtmlUnescape and value is not None and type(value) is str:
+                value=html.unescape(value)
             d[targetKey]=value        
         self.getLookupAcronym()         
     

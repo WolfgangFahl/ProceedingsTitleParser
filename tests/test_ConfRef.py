@@ -16,7 +16,6 @@ class TestConfRef(unittest.TestCase):
         self.forceCaching=False
         pass
 
-
     def tearDown(self):
         pass
 
