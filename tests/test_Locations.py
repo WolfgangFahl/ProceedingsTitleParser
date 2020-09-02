@@ -113,22 +113,25 @@ WHERE {
         check local wikidata
         '''
         # check we have local wikidata copy:
-        if getpass.getuser()=="wf":
+        #if getpass.getuser()=="wf":
             # use 2018 wikidata copy
             #endpoint="http://blazegraph.bitplan.com/sparql"
             # use 2020 wikidata copy
-            endpoint="http://jena.bitplan.com/wikidata"
-            cm=CountryManager()
-            cm.fromWikiData(endpoint)      
-            self.assertTrue(len(cm.countryList)>=195) 
-            sparql=TestJena.getJena(debug=self.debug)
-            errors=cm.storeToRDF(sparql)  
-            self.assertFalse(sparql.printErrors(errors))
-            doimport=True
-            if doimport:
-                cm2=CountryManager()
-                cm2.fromRDF(sparql)
-            self.assertEqual(cm.countryList,cm2.countryList)
+        #    endpoint="http://jena.bitplan.com/wikidata"
+        endpoint="https://query.wikidata.org/sparql"
+        cm=CountryManager("wikidata")
+        cm.fromWikiData(endpoint)      
+        self.assertTrue(len(cm.countryList)>=195) 
+        cm.store(cm.countryList)
+        
+        #    sparql=TestJena.getJena(debug=self.debug)
+        #    errors=cm.storeToRDF(sparql)  
+        #    self.assertFalse(sparql.printErrors(errors))
+        #    doimport=True
+        #    if doimport:
+        #        cm2=CountryManager()
+        #        cm2.fromRDF(sparql)
+        #    self.assertEqual(cm.countryList,cm2.countryList)
             
     def testCountryManager(self):
         '''

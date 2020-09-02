@@ -34,7 +34,7 @@ class TestLookup(unittest.TestCase):
         check that the eventall database is created correctly
         '''
         lookup=Lookup("CreateEventAll")
-        sqlDB=lookup.createEventAll()
+        sqlDB=lookup.createEventAll(maxAgeMin=10)
         tableList=sqlDB.getTableList()
         print(tableList)
         self.assertTrue(len(tableList)>7)

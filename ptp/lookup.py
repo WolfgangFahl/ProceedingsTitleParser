@@ -15,6 +15,7 @@ import ptp.wikicfp
 from storage.sql import SQLDB
 from storage.entity import EntityManager
 from storage.config import StoreMode
+from datetime import datetime
 import os
 import yaml
 
@@ -110,7 +111,7 @@ class Lookup(object):
         result={'source': 'Crossref','eventId': doi,'title':title, 'proceedingsUrl':'https://doi.org/%s' % doi,'metadata': metadata}
         return result
     
-    def getDBFile(self,cacheFileName):
+    def getDBFile(self,cacheFileName='Event_all'):
         '''
         get the database file for the given cacheFileName
         '''
@@ -167,22 +168,43 @@ union
         sourceDB=SQLDB(dbFile)
         sourceDB.copyTo(sqlDB)
         
-    def createEventAll(self):
+    def createEventAll(self,maxAgeMin=24*60):
         '''
         create the event all database
+        
+        Args:
+            maxAgeH(int): maximum age of the database before being recreated
+            
         '''
-        self.store()
-        self.createView()
-        
-        cim=CityManager(name="github")
-        cim.fromLutangar()
-        dbFile=cim.store(cim.cityList)
-        self.copyFrom(dbFile)
-        
-        cm=CountryManager("github",debug=True)
-        cm.fromErdem()        
-        dbFile=cm.store(cm.countryList)
-        self.copyFrom(dbFile)
+        dbFile=self.getDBFile()
+        doCreate=True
+        if os.path.isfile(dbFile):     
+            st=os.stat(dbFile)
+            ctime=datetime.fromtimestamp(st.st_ctime)
+            now=datetime.now()
+            age=now-ctime;
+            ageMin=age.total_seconds()/60
+            doCreate=ageMin>=maxAgeMin
+            
+        if doCreate:
+            self.store()
+            self.createView()
+            
+            cim=CityManager(name="github")
+            cim.fromLutangar()
+            dbFile=cim.store(cim.cityList)
+            self.copyFrom(dbFile)
+            
+            cm=CountryManager("github",debug=True)
+            cm.fromErdem()        
+            dbFile=cm.store(cm.countryList)
+            self.copyFrom(dbFile)
+            
+            cm=CountryManager("wikidata")
+            endpoint="https://query.wikidata.org/sparql"
+            cm.fromWikiData(endpoint)      
+            dbFile=cm.store(cm.countryList)
+            self.copyFrom(dbFile)
         return self.getSQLDB()
     
     def store(self,cacheFileName='Event_all'):
