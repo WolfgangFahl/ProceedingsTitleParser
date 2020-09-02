@@ -168,7 +168,7 @@ union
         sourceDB=SQLDB(dbFile)
         sourceDB.copyTo(sqlDB)
         
-    def createEventAll(self,maxAgeMin=24*60):
+    def createEventAll(self,maxAgeMin=24*60,withWikiData=True):
         '''
         create the event all database
         
@@ -200,11 +200,12 @@ union
             dbFile=cm.store(cm.countryList)
             self.copyFrom(dbFile)
             
-            cm=CountryManager("wikidata")
-            endpoint="https://query.wikidata.org/sparql"
-            cm.fromWikiData(endpoint)      
-            dbFile=cm.store(cm.countryList)
-            self.copyFrom(dbFile)
+            if withWikiData:
+                cm=CountryManager("wikidata")
+                endpoint="https://query.wikidata.org/sparql"
+                cm.fromWikiData(endpoint)      
+                dbFile=cm.store(cm.countryList)
+                self.copyFrom(dbFile)
         return self.getSQLDB()
     
     def store(self,cacheFileName='Event_all'):

@@ -36,9 +36,10 @@ class TestLookup(unittest.TestCase):
         '''
         check that the eventall database is created correctly
         '''
+        withWikiData=getpass.getuser()!="travis"
         lookup=Lookup("CreateEventAll")
         self.assertEqual(7,len(lookup.ems))
-        sqlDB=lookup.createEventAll(maxAgeMin=1)
+        sqlDB=lookup.createEventAll(maxAgeMin=1,withWikiData=withWikiData)
         tableList=sqlDB.getTableList()
         print(tableList)
         self.assertTrue(len(tableList)>7)

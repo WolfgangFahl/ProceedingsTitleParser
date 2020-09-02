@@ -140,6 +140,12 @@ type Country {
             country['location']={'type': 'Point', 'coordinates': [lng,lat] } 
             
     def fromWikiData(self,endpoint):
+        '''
+        get the country List from WikiData
+        
+        Args:
+            endpoint(string): the url of the endpoint to be used
+        '''
         wd=SPARQL(endpoint)
         queryString="""
 # get a list countries with the corresponding ISO code
