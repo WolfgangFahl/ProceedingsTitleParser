@@ -129,6 +129,14 @@ WHERE {
                 cm2=CountryManager()
                 cm2.fromRDF(sparql)
             self.assertEqual(cm.countryList,cm2.countryList)
+            
+    def testCountryManager(self):
+        '''
+        test storying countries in SQL format
+        '''
+        cm=CountryManager("github",debug=True)
+        cm.fromErdem()        
+        cm.store(cm.countryList)
 
     def testCountries(self):
         '''

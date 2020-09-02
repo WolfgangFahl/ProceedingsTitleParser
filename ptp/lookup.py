@@ -4,7 +4,7 @@ Created on 06.07.2020
 @author: wf
 '''
 from ptp.titleparser import ProceedingsTitleParser,TitleParser
-from ptp.location import CityManager
+from ptp.location import CityManager, CountryManager
 import ptp.openresearch
 import ptp.ceurws
 import ptp.confref
@@ -158,19 +158,32 @@ union
         sqlDB=self.getSQLDB()
         sqlDB.c.execute(viewDDL)
         
+        
+    def copyFrom(self,dbFile):
+        '''
+        copy the contents of the given database file to my database
+        '''
+        sqlDB=self.getSQLDB()
+        sourceDB=SQLDB(dbFile)
+        sourceDB.copyTo(sqlDB)
+        
     def createEventAll(self):
         '''
         create the event all database
         '''
         self.store()
         self.createView()
-        sqlDB=self.getSQLDB()
+        
         cim=CityManager(name="github")
         cim.fromLutangar()
         dbFile=cim.store(cim.cityList)
-        cityDB=SQLDB(dbFile)
-        cityDB.copyTo(sqlDB)
-        return sqlDB
+        self.copyFrom(dbFile)
+        
+        cm=CountryManager("github",debug=True)
+        cm.fromErdem()        
+        dbFile=cm.store(cm.countryList)
+        self.copyFrom(dbFile)
+        return self.getSQLDB()
     
     def store(self,cacheFileName='Event_all'):
         '''

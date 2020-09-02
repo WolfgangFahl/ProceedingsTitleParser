@@ -83,7 +83,13 @@
         select count(*) as count,'total',''
         from event_wikidata 
         where enum is not null
-        order by 1 desc limit 20                          
+        order by 1 desc limit 20     
+'Countries with capitals':
+    sql: |
+        select ci.*,co.*
+        from city_github ci join country_github co 
+        on ci.name=co.capital and co.isocode=ci.country
+        order by co.isocode                             
 'Predicate usage': 
     sparql: |
         SELECT ?p (count(?p) as ?numberOfPredicates) 

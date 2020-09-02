@@ -76,14 +76,18 @@ class CityManager(EntityManager):
                     break    
         return cities               
 
-class CountryManager(object):
+class CountryManager(EntityManager):
     ''' manage countries '''
     
-    def __init__(self,mode='sql'):
+    def __init__(self,name,debug=False):
         '''
         Constructor
         '''
+        self.debug=debug
         path=os.path.dirname(__file__)
+        super().__init__(name,entityName="Country",entityPluralName="Countries",debug=debug)
+        self.config.tableName="Country_%s" % self.name
+        
         self.sampledir=path+"/../sampledata/"
         self.schema='''
 name: string @index(exact) .
@@ -125,11 +129,13 @@ type Country {
         countryJsonUrl="https://gist.githubusercontent.com/erdem/8c7d26765831d0f9a8c62f02782ae00d/raw/248037cd701af0a4957cce340dabb0fd04e38f4c/countries.json"
         with urllib.request.urlopen(countryJsonUrl) as url:
             self.countryList=json.loads(url.read().decode())
+        mode=self.config.mode
         for country in self.countryList:
             # rename dictionary keys
             #country['name']=country.pop('Name')
             country['isocode']=country.pop('country_code')
-            country['dgraph.type']='Country'
+            if mode is StoreMode.DGRAPH:
+                country['dgraph.type']='Country'
             lat,lng=country.pop('latlng')
             country['location']={'type': 'Point', 'coordinates': [lng,lat] } 
             
@@ -164,13 +170,6 @@ ORDER BY ?countryLabel"""
         for country in self.countryList:
             country['wikidataurl']=country.pop('country')
             country['name']=country.pop('countryLabel')  
-            
-    def store(self):
-        '''
-        store the countries to the given SQL DB
-        '''
-        if self.mode=='sql':
-            pass
                     
             
     def storeToRDF(self,sparql):

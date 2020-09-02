@@ -17,7 +17,7 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
     generic entity manager
     '''
 
-    def __init__(self,name,entityName,entityPluralName,config=None):
+    def __init__(self,name,entityName,entityPluralName,config=None,debug=False):
         '''
         Constructor
         
@@ -26,12 +26,15 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
             entityName(string): entityType to be managed e.g. Country
             entityPluralName(string): plural of the the entityType e.g. Countries
             config(StorageConfig): the configuration to be used if None a default configuration will be used
+            debug(boolean): override debug setting when default of config is used via config=None
         '''
         self.name=name
         self.entityName=entityName
         self.entityPluralName=entityPluralName
         if config is None:
             config=StorageConfig.getDefault()
+            if debug:
+                config.debug=debug
         self.config=config
         self.showProgress ("Creating %smanager(%s) for %s" % (self.entityName,config.mode,self.name))
         if config.mode is StoreMode.DGRAPH:
