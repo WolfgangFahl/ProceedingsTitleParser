@@ -4,6 +4,7 @@ Created on 2020-07-06
 @author: wf
 '''
 import os
+import re
 import ptp.lookup
 from ptp.webscrape import WebScrape
 from ptp.event import EventManager, Event
@@ -39,7 +40,14 @@ class CEURWS(object):
             if 'eventId' in title.info:    
                 event=Event()
                 event.fromTitle(title)
-                event.url="http://ceur-ws.org/%s" % (title.info['eventId'])
+                eventId=title.info['eventId']
+                # get the volume as an integer
+                try:
+                    event.volume=int(re.findall(r'\d+',eventId)[0])
+                except Exception as ex:
+                    print("Warning %s for eventId %s title:\n%s" % (ex,eventId,title))
+                    event.volume=None
+                event.url="http://ceur-ws.org/%s" % (eventId)
                 self.em.add(event)     
         self.em.store()
             

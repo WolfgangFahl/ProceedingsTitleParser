@@ -3,10 +3,53 @@
 # it gets the test data sets for
 #
 # 1. CEUR-WS
+# 2. confref
+# 3. crossref
+# 4. dblp
+# 5. wikicfp
 #
 # WF 2020-07-01
 
-sampledir="sampledata"
+#ansi colors
+#http://www.csc.uvic.ca/~sae/seng265/fall04/tips/s265s047-tips/bash-using-colors.html
+blue='\033[0;34m'
+red='\033[0;31m'
+green='\033[0;32m' # '\e[1;32m' is too bright for white bg.
+endColor='\033[0m'
+
+#
+# a colored message
+#   params:
+#     1: l_color - the color of the message
+#     2: l_msg - the message to display
+#
+color_msg() {
+  local l_color="$1"
+  local l_msg="$2"
+  echo -e "${l_color}$l_msg${endColor}"
+}
+
+# error
+#
+#   show an error message and exit
+#
+#   params:
+#     1: l_msg - the message to display
+error() {
+  local l_msg="$1"
+  # use ansi red for error
+  color_msg $red "Error: $l_msg" 1>&2
+  exit 1
+}
+
+#
+# show the usage
+#
+usage() {
+  echo "usage: $0 [-h|--help][--ceurws]"
+  echo "  -h|--help: show this usage"
+  echo "  --ceurws: force getting samples for CEURWS"
+}
 
 #
 # download
@@ -34,16 +77,17 @@ download() {
 # get the data from CEUR-WS
 #
 getCEURWS() {
-  echo "getting sample data for CEUR-WS"
+  color_msg $blue "getting sample data for CEUR-WS"
   samplehtml=$sampledir/ceurs-ws.html
   sampletxt=$sampledir/proceedings-ceur-ws.txt
   download http://ceur-ws.org/ $samplehtml
   if [ ! -f $sampletxt ]
   then
-    echo "filtering proceeding titles from $samplehtml into $sampletxt"
+    color_msg $blue "filtering proceeding titles from $samplehtml into $sampletxt"
     cat $samplehtml  | python3 -c 'import html, sys; [print(html.unescape(l), end="") for l in sys.stdin]' | gawk '
 BEGIN {
  ignorelines=1
+ line=""
 }
 /MAINTABLE/ { ignorelines=0; next }
 ignorelines { next }
@@ -80,17 +124,25 @@ ignorelines { next }
 /--/ { print ""; next }
 # FILTER raw html
 {
-  line=$0
+  line=line$0
   gsub("<BR>","",line)
   gsub("<br>","",line)
   gsub("<sup>2</sup>","2",line)
   gsub("<(td|TD).bgcolor=.#FFFFFF.>","",line)
   # nbsp
   gsub(" </TD>","",line)
-  printf ("%s",line)
+  # trim
+  gsub(/^[ \t]+/, "", line);
+  gsub(/[ \t]+$/, "", line);
+  # remove newlines
+  gsub(/\\n/,"",line)
+  if (index(line,"Submitted by") >0){
+    printf ("%s",line)
+    line=""
+  }
 }' | sed  '/^$/d'  > $sampletxt
  else
-    echo "$sampletxt already filtered from $samplehtml"
+    color_msg $green "$sampletxt already filtered from $samplehtml"
  fi
  wc -l $sampletxt
 }
@@ -206,12 +258,35 @@ getAll() {
   getText
 }
 
+# commandline option
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+#echo $DIR
+sampledir="$DIR/../sampledata"
+
 if [ ! -d $sampledir ]
 then
-  echo  "creating $sampledir directory"
+  color_msg $blue  "creating $sampledir directory"
   mkdir -p $sampledir
 else
-  echo "$sampledir directory already exists"
+  color_msg $green "$sampledir directory already exists"
 fi
+
+while [  "$1" != ""  ]
+do
+  option=$1
+  shift
+  case $option in
+    -h|--help)
+      usage
+      exit 0;;
+    --ceurws)
+      html=$sampledir/ceurs-ws.html
+      txt=$sampledir/proceedings-ceur-ws.txt
+      color_msg $blue "forcing getsamples for CEUR-WS by deleting $html and $txt"
+      rm $html $txt
+      getCEURWS
+      exit 0;;
+  esac
+done
 
 getAll
