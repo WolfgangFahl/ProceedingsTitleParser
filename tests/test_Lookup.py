@@ -31,6 +31,12 @@ class TestLookup(unittest.TestCase):
         lookup.createView()
         pass
     
+    def testCreateEventAll(self):
+        lookup=Lookup("CreateEventAll")
+        sqlDB=lookup.createEventAll()
+        tableList=sqlDB.getTableList()
+        print(tableList)
+    
     def testPlantUml(self):
         lookup=Lookup("plantuml")
         dbfile=lookup.getDBFile('Event_all')

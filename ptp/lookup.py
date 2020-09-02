@@ -4,6 +4,7 @@ Created on 06.07.2020
 @author: wf
 '''
 from ptp.titleparser import ProceedingsTitleParser,TitleParser
+from ptp.location import CityManager
 import ptp.openresearch
 import ptp.ceurws
 import ptp.confref
@@ -14,10 +15,7 @@ import ptp.wikicfp
 from storage.sql import SQLDB
 from storage.entity import EntityManager
 from storage.config import StoreMode
-import io
 import os
-import sqlite3
-import time
 import yaml
 
 class Lookup(object):
@@ -122,6 +120,15 @@ class Lookup(object):
         return dbfile
     
     def getSQLDB(self,cacheFileName='Event_all'):
+        '''
+        get the SQLDB
+        
+        Args:
+            cacheFileName(string): prefix of database file name
+            
+        Returns:
+            SQLDB: the SQLDB access
+        '''
         dbfile=self.getDBFile(cacheFileName)
         sqlDB=SQLDB(dbfile)   
         return sqlDB
@@ -151,7 +158,19 @@ union
         sqlDB=self.getSQLDB()
         sqlDB.c.execute(viewDDL)
         
-        
+    def createEventAll(self):
+        '''
+        create the event all database
+        '''
+        self.store()
+        self.createView()
+        sqlDB=self.getSQLDB()
+        cim=CityManager(name="github")
+        cim.fromLutangar()
+        dbFile=cim.store(cim.cityList)
+        cityDB=SQLDB(dbFile)
+        cityDB.copyTo(sqlDB)
+        return sqlDB
     
     def store(self,cacheFileName='Event_all'):
         '''
@@ -176,65 +195,9 @@ union
             else:
                 cacheFile=em.getCacheFile()
                 sqlDB=em.getSQLDB(cacheFile)
-                startTime=time.time()
-                dump="\n".join(sqlDB.c.iterdump())
-                #cursor.executescript(dump)
-                print("finished getting dump of %s in %5.1f s" % (em.name,time.time()-startTime))
-                dumpErrors=self.executeDump(backup.c,dump,em.name)
-                errors.extend(dumpErrors)
-                #sqlDB.backup(dbfile)
+                sqlDB.copyTo(backup)
         backup.close()
         return errors
-        
-    def executeDump(self,connection,dump,title,maxErrors=100,errorDisplayLimit=12):
-        '''
-        execute the given dump for the given connection
-        
-        Args:
-            connection(Connection): the sqlite3 connection to use
-            dump(string): the SQL commands for the dump
-            title(string): the title of the dump
-            maxErrors(int): maximum number of errors to be tolerated before stopping and doing a rollback
-        '''
-        if self.debug:
-            self.showDump(dump)
-        startTime=time.time()    
-        print("dump of %s has size %4.1f MB" % (title,len(dump)/1024/1024))
-        errors=[]
-        index=0
-        # fixes https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/37
-        for line in dump.split(";\n"):
-            try:
-                connection.execute(line)
-            except  sqlite3.OperationalError as soe:
-                msg="SQL error %s in line %d:\n\t%s" % (soe,index,line)
-                errors.append(msg)
-                if len(errors)<=errorDisplayLimit:
-                    print(msg)    
-                if len(errors)>=maxErrors:
-                    connection.execute("ROLLBACK;")
-                    break
-                
-            index=index+1
-        print("finished excuting dump %s with %d lines and %d errors in %5.1f s" % (title,index,len(errors),time.time()-startTime))    
-        return errors
-        
-    def showDump(self,dump,limit=10):
-        '''
-        show the given dump up to the given limit
-        
-        Args:
-            dump(string): the SQL dump to show
-            limit(int): the maximum number of lines to display
-        '''
-        s=io.StringIO(dump)
-        index=0
-        for line in s:
-            if index <= limit:
-                print(line)
-                index+=1    
-            else:
-                break    
 
     @staticmethod
     def getExamples():

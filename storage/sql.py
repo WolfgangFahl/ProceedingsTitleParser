@@ -217,7 +217,7 @@ class SQLDB(object):
             showProgress(int): show progress at each showProgress page (0=show no progress)
         '''
         if sys.version_info <= (3, 6):
-            raise Exception("backup via stdlibrary not available in python <=3.6 see https://stackoverflow.com/a/49884210/1497139 for an alternative")
+            raise Exception("backup via stdlibrary not available in python <=3.6 use copyToDB instead")
         startTime=time.time()
         bck=sqlite3.connect(backupDB)
         if showProgress>0:
@@ -234,6 +234,79 @@ class SQLDB(object):
             return None
         else:
             return bck
+        
+    def showDump(self,dump,limit=10):
+        '''
+        show the given dump up to the given limit
+        
+        Args:
+            dump(string): the SQL dump to show
+            limit(int): the maximum number of lines to display
+        '''
+        s=io.StringIO(dump)
+        index=0
+        for line in s:
+            if index <= limit:
+                print(line)
+                index+=1    
+            else:
+                break        
+        
+    def executeDump(self,connection,dump,title,maxErrors=100,errorDisplayLimit=12,profile=True):
+        '''
+        execute the given dump for the given connection
+        
+        Args:
+            connection(Connection): the sqlite3 connection to use
+            dump(string): the SQL commands for the dump
+            title(string): the title of the dump
+            maxErrors(int): maximum number of errors to be tolerated before stopping and doing a rollback
+            profile(boolean): True if profiling information should be shown
+        Returns:
+            a list of errors
+        '''
+        if self.debug:
+            self.showDump(dump)
+        startTime=time.time()    
+        if profile:
+            print("dump of %s has size %4.1f MB" % (title,len(dump)/1024/1024))
+        errors=[]
+        index=0
+        # fixes https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/37
+        for line in dump.split(";\n"):
+            try:
+                connection.execute(line)
+            except  sqlite3.OperationalError as soe:
+                msg="SQL error %s in line %d:\n\t%s" % (soe,index,line)
+                errors.append(msg)
+                if len(errors)<=errorDisplayLimit:
+                    print(msg)    
+                if len(errors)>=maxErrors:
+                    connection.execute("ROLLBACK;")
+                    break
+                
+            index=index+1
+        if profile:    
+            print("finished executing dump %s with %d lines and %d errors in %5.1f s" % (title,index,len(errors),time.time()-startTime))    
+        return errors
+    
+    def copyTo(self,copyDB,profile=True):
+        '''
+        copy my content to another database
+        
+        Args:
+            
+           copyDB(Connection): the target database
+           profile(boolean): if True show profile information
+        '''
+        startTime=time.time()
+        dump="\n".join(self.c.iterdump())
+        #cursor.executescript(dump)
+        if profile:
+            print("finished getting dump of %s in %5.1f s" % (self.dbname,time.time()-startTime))
+        dumpErrors=self.executeDump(copyDB.c,dump,self.dbname,profile=profile)
+        return dumpErrors
+       
         
     @staticmethod
     def restore(backupDB,restoreDB,profile=False,showProgress=200,debug=False):

@@ -232,3 +232,4 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
             self.showProgress ("store for %s done after %5.1f secs" % (self.name,time.time()-startTime))
         else:
             raise Exception("unsupported store mode %s" % self.mode)  
+        return cacheFile
