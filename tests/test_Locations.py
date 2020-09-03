@@ -112,13 +112,15 @@ WHERE {
         '''
         check local wikidata
         '''
+        endpoint="https://query.wikidata.org/sparql"
         # check we have local wikidata copy:
-        #if getpass.getuser()=="wf":
+        if getpass.getuser()=="travis":
+            return
+        if getpass.getuser()=="wf":
             # use 2018 wikidata copy
             #endpoint="http://blazegraph.bitplan.com/sparql"
             # use 2020 wikidata copy
-        #    endpoint="http://jena.bitplan.com/wikidata"
-        endpoint="https://query.wikidata.org/sparql"
+            endpoint="http://jena.bitplan.com/wikidata"
         cm=CountryManager("wikidata")
         cm.fromWikiData(endpoint)      
         self.assertTrue(len(cm.countryList)>=195) 
