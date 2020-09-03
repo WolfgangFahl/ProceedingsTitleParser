@@ -39,6 +39,7 @@ class TestOntology(unittest.TestCase):
             self.assertTrue(len(schemas)>8)    
             allProps=schemaManager.allProperties()
             schemaManager.store(allProps,sampleRecordCount=len(allProps))
+            self.assertTrue(schemaManager.isCached())
         pass
     
     def testJsonAble(self):

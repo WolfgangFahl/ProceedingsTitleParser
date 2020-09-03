@@ -5,6 +5,7 @@ Created on 2020-08-30
 '''
 import unittest
 from ptp.lookup import Lookup
+from ptp.ontology import Ontology
 from storage.sql import SQLDB
 import getpass
 
@@ -48,6 +49,9 @@ class TestLookup(unittest.TestCase):
         '''
         get plant UML functionality 
         '''
+        o=Ontology()
+        schemaManager=o.getRQSchema()  # set fromCache=false to force SMW query
+        
         lookup=Lookup("plantuml",getAll=False,butNot='or')
         dbfile=lookup.getDBFile('Event_all')
         sqlDb=SQLDB(dbfile)

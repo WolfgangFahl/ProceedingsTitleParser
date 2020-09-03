@@ -10,9 +10,8 @@ from storage.entity import EntityManager
 
 class Ontology(object):
     '''
-    classdocs
+    Ontology to be read from Semantic MediaWiki
     '''
-
 
     def __init__(self,debug=False):
         '''
@@ -63,15 +62,40 @@ class Ontology(object):
                 print(askRecord)
         return askResult
     
-    def getSchemaProperties(self,wikiId):
+    def getPropertyRecords(self,wikiId):
         '''
-        get the schema properties
+        get the schema properties from the given wikId
+        Args:
+            wikiId(string): the wiki to get the property records from
         '''
         ask=self.getAsk("Concept:SchemaProperty")
         propRecords=self.fromWiki(wikiId, ask)
+        return propRecords
+    
+    def getSchemaProperties(self,wikiId):
+        '''
+        get the schema properties from the given wikId
+        Args:
+            wikiId(string): the wiki to get the property records from
+        '''
+        propRecords=self.getPropertyRecords(wikiId)
         schemas=SchemaManager()
-        schemas.fromProps(propRecords)
+        schemas.fromProps(propRecords.values())
         return schemas
+    
+    def getRQSchema(self,fromCache=True):
+        ''' 
+        get the Requirements Wiki Schema
+        '''
+        schemaManager=SchemaManager()
+        if fromCache and schemaManager.isCached():
+            schemaManager.fromStore()
+        else:
+            propRecords=self.getPropertyRecords("rq")
+            schemaManager.fromProps(propRecords.values())
+            allProps=schemaManager.allProperties()
+            schemaManager.store(allProps,sampleRecordCount=len(allProps))
+        return schemaManager
    
 class SchemaManager(JSONAble,EntityManager):
     '''
@@ -92,13 +116,21 @@ class SchemaManager(JSONAble,EntityManager):
             for prop in schema.propsById.values():
                 allProps.append(prop.__dict__)
         return allProps
+    
+    def fromStore(self):
+        '''
+        restore me
+        '''
+        listOfProps=super().fromStore()
+        self.fromProps(listOfProps)
+        return listOfProps
      
     def fromProps(self,propRecords):
         '''
         get a dict of schemas for the given props
         '''
        
-        for propRecord in propRecords.values():
+        for propRecord in propRecords:
             prop=Property(propRecord)
             if prop.schema in self.schemasByName:
                 schema=self.schemasByName[prop.schema]
