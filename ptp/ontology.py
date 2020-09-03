@@ -6,6 +6,7 @@ Created on 2020-09-03
 from wikibot.smw import SMW
 from wikibot.wikibot import WikiBot
 from storage.jsonable import JSONAble
+from storage.entity import EntityManager
 
 class Ontology(object):
     '''
@@ -68,28 +69,49 @@ class Ontology(object):
         '''
         ask=self.getAsk("Concept:SchemaProperty")
         propRecords=self.fromWiki(wikiId, ask)
-        return Schema.fromProps(propRecords)
+        schemas=SchemaManager()
+        schemas.fromProps(propRecords)
+        return schemas
+   
+class SchemaManager(JSONAble,EntityManager):
+    '''
+    manager for Schemas
+    '''   
+    def __init__(self,debug=False):
+        self.debug=debug
+        self.schemasByName={}
+        EntityManager.__init__(self,"Schemas",entityName="Property",entityPluralName="Properties",debug=debug)
+        self.config.tableName="Property_rq" 
+        
+    def allProperties(self):
+        '''
+        get a list of Dict of all properties
+        '''
+        allProps=[]
+        for schema in self.schemasByName.values():
+            for prop in schema.propsById.values():
+                allProps.append(prop.__dict__)
+        return allProps
+     
+    def fromProps(self,propRecords):
+        '''
+        get a dict of schemas for the given props
+        '''
+       
+        for propRecord in propRecords.values():
+            prop=Property(propRecord)
+            if prop.schema in self.schemasByName:
+                schema=self.schemasByName[prop.schema]
+            else:
+                schema=Schema(prop.schema)
+                self.schemasByName[prop.schema]=schema
+            schema.add(prop)    
+        return self.schemasByName    
 
 class Schema(JSONAble):
     '''
     an Ontology schema
     '''
-    
-    @staticmethod
-    def fromProps(propRecords):
-        '''
-        get a dict of schemas for the given props
-        '''
-        schemasByName={}
-        for propRecord in propRecords.values():
-            prop=Property(propRecord)
-            if prop.schema in schemasByName:
-                schema=schemasByName[prop.schema]
-            else:
-                schema=Schema(prop.schema)
-                schemasByName[prop.schema]=schema
-            schema.add(prop)    
-        return schemasByName
     
     def __init__(self,name):
         '''
@@ -103,6 +125,11 @@ class Schema(JSONAble):
         add the given property
         '''
         self.propsById[prop.id]=prop
+        
+    def store(self):
+        '''
+        store me
+        '''
           
                 
 class Property(JSONAble):

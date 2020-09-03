@@ -9,7 +9,9 @@ import getpass
 from storage.jsonable import JSONAble
 
 class TestOntology(unittest.TestCase):
-
+    ''' 
+    test the Ontology access via Requirements Wiki
+    '''
 
     def setUp(self):
         self.debug=True
@@ -26,14 +28,17 @@ class TestOntology(unittest.TestCase):
         '''
         if getpass.getuser()!="travis":
             o=Ontology(debug=self.debug)
-            schemas=o.getSchemaProperties('rq')
+            schemaManager=o.getSchemaProperties('rq')
             if self.debug:
-                print("found %d schemas" % len(schemas.values()))
-                for schema in schemas.values():
+                schemas=schemaManager.schemasByName.values()
+                print("found %d schemas" % len(schemas))
+                for schema in schemas:
                     print("= %s =" % schema.name)
                     print("found %d properties for %s" % (len(schema.propsById),schema.name))
                     print("<source lang='json'>%s</source>" % schema.toJSON())
-            self.assertTrue(len(schemas.values())>8)    
+            self.assertTrue(len(schemas)>8)    
+            allProps=schemaManager.allProperties()
+            schemaManager.store(allProps,sampleRecordCount=len(allProps))
         pass
     
     def testJsonAble(self):
