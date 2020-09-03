@@ -49,8 +49,9 @@ class TestLookup(unittest.TestCase):
         '''
         get plant UML functionality 
         '''
-        o=Ontology()
-        schemaManager=o.getRQSchema()  # set fromCache=false to force SMW query
+        if getpass.getuser()!="travis":
+            o=Ontology()
+            schemaManager=o.getRQSchema()  # set fromCache=false to force SMW query
         
         lookup=Lookup("plantuml",getAll=False,butNot='or')
         dbfile=lookup.getDBFile('Event_all')
