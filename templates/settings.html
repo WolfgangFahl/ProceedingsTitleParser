@@ -20,7 +20,7 @@
 	                       <tr>
 							   	<th scope="row">{{ loop.index }}</th>
 							    <td><a href='{{em.url}}' title='{{em.title}}'>{{em.title}}</a></td>
-							    <td>{{em.mode}}</td>
+							    <td>{{em.storeMode().name}}</td>
 							    <td  style="text-align:right">{{ em.events|length }} </td>
         						<td  style="text-align:right">{{ em.eventsByAcronym|length }} </td>
         						{% set events.value = events.value + em.events|length   %}

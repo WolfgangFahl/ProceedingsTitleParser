@@ -46,6 +46,12 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
             self.sparql=SPARQL(config.endpoint,debug=config.debug,profile=config.profile)
         elif config.mode is StoreMode.SQL:
             self.executeMany=False # may be True when issues are fixed
+            
+    def storeMode(self):
+        '''
+        return my store mode
+        '''
+        return self.config.mode
 
     def showProgress(self,msg):
         ''' display a progress message 

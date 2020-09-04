@@ -5,7 +5,8 @@ Created on 2020-07-12
 '''
 import unittest
 from ptp.event import Event, EventManager
-
+from storage.config import StorageConfig
+from storage.entity import EntityManager
 
 class TestEvent(unittest.TestCase):
     ''' test handling Events and EventManagers '''
@@ -15,6 +16,14 @@ class TestEvent(unittest.TestCase):
 
     def tearDown(self):
         pass
+    
+    def testStoreMode(self):
+        '''
+        test store mode display
+        '''
+        config=StorageConfig.getDefault()
+        em=EntityManager("tst","Test","Tests",config=config)
+        print (em.storeMode().name)
 
     def testGetLookupAcronym(self):
         ''' test fixing acronyms that contain no year '''
