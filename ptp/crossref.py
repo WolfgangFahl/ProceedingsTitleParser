@@ -83,6 +83,7 @@ class Crossref(object):
                             
         doi=rawEvent["DOI"]
         eventInfo['id']=doi
+        eventInfo['doi']=doi
         if 'start' in eventInfo: 
             self.getDateParts(eventInfo,'start')
         if 'end'   in eventInfo: 

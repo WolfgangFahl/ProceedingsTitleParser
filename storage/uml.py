@@ -115,8 +115,13 @@ hide Circle
         for table in tableList:
             for col in table['columns']:
                 if col['name']==colName:
-                    gCol=col
-                    table['columns'].remove(col)
+                    gCol=col.copy()
+                    # no linking yet @FIXME - will need this later
+                    if 'link' in gCol:
+                        gCol.pop('link')
+                    # is generalization protected for this column?
+                    if not 'special' in col or not col['special']:
+                        table['columns'].remove(col)
         return gCol                
         
     def getGeneral(self,tableList,name):
@@ -176,7 +181,11 @@ hide Circle
             for col in table['columns']:
                 mandatory="*" if col['notnull']==1 else ""
                 pk="<<PK>>" if col['pk']==1 else ""
-                colUml+="%s  %s%s : %s %s\n" % (indent,mandatory,col['name'],col['type'],pk)
+                colName=col['name']
+                colType=col['type']
+                if 'link' in col:
+                    colName=col['link']
+                colUml+="%s %s%s : %s %s\n" % (indent,mandatory,colName,colType,pk)
             tableName=table['name']    
             if 'notes' in table:
                 uml+="Note top of %s\n%s\nEnd note\n" % (tableName,table['notes'])
@@ -212,9 +221,19 @@ hide Circle
                     url=url.replace(" ", "_") # mediawiki
                     instanceNote=""
                     if 'instances' in table:
-                        instanceNote="\n: %d instances " % (table['instances'])
+                        instanceNote="\n%d instances " % (table['instances'])
                     table['notes']="""[[%s %s]]%s""" % (url,schema.name,instanceNote)
-                pass
+                    for col in table['columns']:
+                        colName=col['name']
+                        if colName in schema.propsByName:
+                            prop=schema.propsByName[colName]
+                            if prop.iri is not None:
+                                tooltip=""
+                                if prop.definition is not None:
+                                    tooltip="{%s}" % prop.definition
+                                col['link']="[[%s%s %s]]" % (prop.iri,tooltip,colName)
+                                col['special']=True # keep column even if generalized
+                    pass
         plantuml=self.tableListToPlantUml(tableList, title=title,packageName=packageName, generalizeTo=generalizeTo, withSkin=withSkin) 
         return plantuml   
         

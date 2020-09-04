@@ -82,8 +82,9 @@ class TestLookup(unittest.TestCase):
         now=datetime.now()
         nowYMD=now.strftime("%Y-%m-%d")
         title="""ConfIDent  Entities
-        %s
+%s
 [[https://projects.tib.eu/en/confident/ © 2019-2020 ConfIDent project]]
+see also [[http://ptp.bitplan.com/settings Proceedings Title Parser]]
 """ %nowYMD
         plantUml=uml.mergeSchema(schemaManager,eventTableList,title=title,packageName='DataDonations',generalizeTo="Event")
         print(plantUml)

@@ -36,6 +36,7 @@ class Ontology(object):
 | ?SchemaProperty kind = kind
 | ?SchemaProperty mapsTo = mapsTo
 | ?SchemaProperty id = id
+| ?SchemaProperty iri = iri
 | ?SchemaProperty cardinality = cardinality
 | ?SchemaProperty schema = schema
 | ?Creation date = creation_date
@@ -152,17 +153,14 @@ class Schema(JSONAble):
         '''
         self.name=name
         self.propsById={}
+        self.propsByName={}
         
     def add(self,prop):
         '''
         add the given property
         '''
         self.propsById[prop.id]=prop
-        
-    def store(self):
-        '''
-        store me
-        '''
+        self.propsByName[prop.name]=prop
           
                 
 class Property(JSONAble):
@@ -175,6 +173,7 @@ class Property(JSONAble):
         construct me from the given schema property
         '''
         self.id=prop['id']
+        self.iri=prop['iri']
         self.name=prop['name']
         self.definition=prop['definition']
         self.comment=prop['comment']
