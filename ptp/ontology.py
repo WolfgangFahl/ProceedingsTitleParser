@@ -101,8 +101,9 @@ class SchemaManager(JSONAble,EntityManager):
     '''
     manager for Schemas
     '''   
-    def __init__(self,debug=False):
+    def __init__(self,baseUrl='https://rq.bitplan.com/index.php',debug=False):
         self.debug=debug
+        self.baseUrl=baseUrl
         self.schemasByName={}
         EntityManager.__init__(self,"Schemas",entityName="Property",entityPluralName="Properties",debug=debug)
         self.config.tableName="Property_rq" 

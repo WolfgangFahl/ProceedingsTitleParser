@@ -7,6 +7,7 @@ import unittest
 from ptp.lookup import Lookup
 from ptp.ontology import Ontology
 from storage.sql import SQLDB
+from storage.uml import UML
 import getpass
 
 
@@ -51,19 +52,32 @@ class TestLookup(unittest.TestCase):
         '''
         if getpass.getuser()!="travis":
             o=Ontology()
-            schemaManager=o.getRQSchema()  # set fromCache=false to force SMW query
+            schemaManager=o.getRQSchema(fromCache=False) # to force SMW query
         
         lookup=Lookup("plantuml",getAll=False,butNot='or')
         dbfile=lookup.getDBFile('Event_all')
         sqlDb=SQLDB(dbfile)
         tableList=sqlDb.getTableList()
+        eventTableList=[]
+        tableSchemas={
+            'Event_or': 'Open Research Entities',
+            'Event_CEURWS':'PTP',
+            'Event_crossref':'Crossref',
+            'Event_confref':'Confref',
+            'Event_wikicfp':'WikiCFP',
+            'Event_wikidata':'PTP',
+            'Event_dblp':'DBLP'}
         for table in tableList:
-            if not table['name'].startswith("Event_"):
-                tableList.remove(table)
-        plantUml=SQLDB.tableListToPlantUml(tableList, 'DataDonations',generalizeTo="Event")
+            tableName=table['name']
+            if tableName.startswith("Event_"):
+                table['schema']=tableSchemas[tableName]
+                eventTableList.append(table)
+        self.assertEqual(7,len(eventTableList))        
+        uml=UML(debug=True)
+        plantUml=uml.mergeSchema(schemaManager,eventTableList,'DataDonations',generalizeTo="Event")
         print(plantUml)
         self.assertTrue("Event <|-- Event_confref" in plantUml)
-        self.assertTrue("entity Event {" in plantUml)
+        self.assertTrue("class Event " in plantUml)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
