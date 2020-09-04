@@ -113,7 +113,7 @@ hide Circle
         '''
         gCol=None
         for table in tableList:
-            for col in table['columns']:
+            for col in table['columns']: 
                 if col['name']==colName:
                     gCol=col.copy()
                     # no linking yet @FIXME - will need this later
@@ -178,7 +178,8 @@ hide Circle
             tableList.insert(0,generalTable)
         for table in tableList:
             colUml=""
-            for col in table['columns']:
+            sortedColumns=sorted(table['columns'],key=lambda col:col['name'])
+            for col in sortedColumns:
                 mandatory="*" if col['notnull']==1 else ""
                 pk="<<PK>>" if col['pk']==1 else ""
                 colName=col['name']

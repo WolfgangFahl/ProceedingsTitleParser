@@ -78,7 +78,7 @@ class TestLookup(unittest.TestCase):
                 countResult=sqlDB.query(countQuery)
                 table['instances']=countResult[0]['count']
         self.assertEqual(7,len(eventTableList))        
-        uml=UML(debug=True)
+        uml=UML()
         now=datetime.now()
         nowYMD=now.strftime("%Y-%m-%d")
         title="""ConfIDent  Entities
