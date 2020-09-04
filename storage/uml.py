@@ -4,7 +4,6 @@ Created on 2020-09-04
 @author: wf
 '''
 from collections import Counter
-
 class UML(object):
     '''
     UML diagrams via plantuml
@@ -145,12 +144,13 @@ hide Circle
                 general['columns'].append(generalCol)    
         return general
             
-    def tableListToPlantUml(self,tableList, packageName=None,generalizeTo=None,withSkin=True):
+    def tableListToPlantUml(self,tableList,title=None,packageName=None,generalizeTo=None,withSkin=True):
         '''
         convert tableList to PlantUml notation
         
         Args:
             tableList(list): the tableList list of Dicts from getTableList() to convert
+            title(string): optional title to be added
             packageName(string): optional packageName to be added
             generalizeTo(string): optional name of a general table to be derived
             withSkin(boolean): if True add default BITPlan skin parameters 
@@ -161,6 +161,8 @@ hide Circle
         uml=""
         indent=""
         inherit=""
+        if title is not None:
+            uml+="title\n%s\nend title\n" % title
         if packageName is not None:
             uml+="package %s {\n" % packageName
             indent="  "
@@ -177,7 +179,7 @@ hide Circle
                 colUml+="%s  %s%s : %s %s\n" % (indent,mandatory,col['name'],col['type'],pk)
             tableName=table['name']    
             if 'notes' in table:
-                uml+="Note top of %s: %s.\n" % (tableName,table['notes'])
+                uml+="Note top of %s\n%s\nEnd note\n" % (tableName,table['notes'])
             uml+="%sclass %s << Entity >> {\n%s%s}\n" % (indent,tableName,colUml,indent)
         uml+=inherit    
         if packageName is not None:
@@ -186,13 +188,14 @@ hide Circle
             uml+=UML.skinparams    
         return uml
     
-    def mergeSchema(self,schemaManager,tableList, packageName=None,generalizeTo=None,withSkin=True):
+    def mergeSchema(self,schemaManager,tableList, title=None,packageName=None,generalizeTo=None,withSkin=True):
         '''
         merge Schema and tableList to PlantUml notation
         
         Args:
             schemaManager(SchemaManager): a schema manager to be used
             tableList(list): the tableList list of Dicts from getTableList() to convert
+            title(string): optional title to be added
             packageName(string): optional packageName to be added
             generalizeTo(string): optional name of a general table to be derived
             withSkin(boolean): if True add default BITPlan skin parameters 
@@ -201,13 +204,17 @@ hide Circle
             string: the Plantuml notation for the entities in columns of the given tablelist
 
         '''
-        for table in tableList:
-            if 'schema' in table:
-                schema=schemaManager.schemasByName[table['schema']]
-                url="%s/%s" % (schemaManager.baseUrl,schema.name)
-                url=url.replace(" ", "_") # mediawiki
-                table['notes']="""[[%s %s]]""" % (url,schema.name)
-            pass
-        plantuml=self.tableListToPlantUml(tableList, packageName, generalizeTo, withSkin) 
+        if schemaManager is not None:
+            for table in tableList:
+                if 'schema' in table:
+                    schema=schemaManager.schemasByName[table['schema']]
+                    url="%s/%s" % (schemaManager.baseUrl,schema.name)
+                    url=url.replace(" ", "_") # mediawiki
+                    instanceNote=""
+                    if 'instances' in table:
+                        instanceNote="\n%s: %d instances " % (table['instances'])
+                    table['notes']="""[[%s %s]]%s""" % (url,schema.name,instanceNote)
+                pass
+        plantuml=self.tableListToPlantUml(tableList, title=title,packageName=packageName, generalizeTo=generalizeTo, withSkin=withSkin) 
         return plantuml   
         

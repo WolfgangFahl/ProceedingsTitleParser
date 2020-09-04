@@ -9,6 +9,7 @@ from ptp.ontology import Ontology
 from storage.sql import SQLDB
 from storage.uml import UML
 import getpass
+from datetime import datetime
 
 
 class TestLookup(unittest.TestCase):
@@ -50,14 +51,15 @@ class TestLookup(unittest.TestCase):
         '''
         get plant UML functionality 
         '''
+        schemaManager=None
         if getpass.getuser()!="travis":
             o=Ontology()
             schemaManager=o.getRQSchema(fromCache=False) # to force SMW query
         
         lookup=Lookup("plantuml",getAll=False,butNot='or')
         dbfile=lookup.getDBFile('Event_all')
-        sqlDb=SQLDB(dbfile)
-        tableList=sqlDb.getTableList()
+        sqlDB=SQLDB(dbfile)
+        tableList=sqlDB.getTableList()
         eventTableList=[]
         tableSchemas={
             'Event_or': 'Open Research Entities',
@@ -72,9 +74,18 @@ class TestLookup(unittest.TestCase):
             if tableName.startswith("Event_"):
                 table['schema']=tableSchemas[tableName]
                 eventTableList.append(table)
+                countQuery="SELECT count(*) as count from %s" % tableName
+                countResult=sqlDB.query(countQuery)
+                table['instances']=countResult[0]['count']
         self.assertEqual(7,len(eventTableList))        
         uml=UML(debug=True)
-        plantUml=uml.mergeSchema(schemaManager,eventTableList,'DataDonations',generalizeTo="Event")
+        now=datetime.now()
+        nowYMD=now.strftime("%Y-%m-%d")
+        title="""ConfIDent  Entities
+        %s
+[[https://projects.tib.eu/en/confident/ © 2019-2020 ConfIDent project]]
+""" %nowYMD
+        plantUml=uml.mergeSchema(schemaManager,eventTableList,title=title,packageName='DataDonations',generalizeTo="Event")
         print(plantUml)
         self.assertTrue("Event <|-- Event_confref" in plantUml)
         self.assertTrue("class Event " in plantUml)
