@@ -212,7 +212,7 @@ hide Circle
                     url=url.replace(" ", "_") # mediawiki
                     instanceNote=""
                     if 'instances' in table:
-                        instanceNote="\n%s: %d instances " % (table['instances'])
+                        instanceNote="\n: %d instances " % (table['instances'])
                     table['notes']="""[[%s %s]]%s""" % (url,schema.name,instanceNote)
                 pass
         plantuml=self.tableListToPlantUml(tableList, title=title,packageName=packageName, generalizeTo=generalizeTo, withSkin=withSkin) 
