@@ -9,6 +9,8 @@ networkx
 pyparsing
 # https://pypi.org/project/matplotlib/
 matplotlib
+# https://pypi.org/project/pandas/
+pandas
 # https://pypi.org/project/PyYAML/
 PyYAML
 # https://pypi.org/project/num2words/

@@ -111,7 +111,8 @@ class Lookup(object):
         result={'source': 'Crossref','eventId': doi,'title':title, 'proceedingsUrl':'https://doi.org/%s' % doi,'metadata': metadata}
         return result
     
-    def getDBFile(self,cacheFileName='Event_all'):
+    @staticmethod
+    def getDBFile(cacheFileName='Event_all'):
         '''
         get the database file for the given cacheFileName
         '''
@@ -130,7 +131,7 @@ class Lookup(object):
         Returns:
             SQLDB: the SQLDB access
         '''
-        dbfile=self.getDBFile(cacheFileName)
+        dbfile=Lookup.getDBFile(cacheFileName)
         sqlDB=SQLDB(dbfile)   
         return sqlDB
     
@@ -176,7 +177,7 @@ union
             maxAgeH(int): maximum age of the database before being recreated
             
         '''
-        dbFile=self.getDBFile()
+        dbFile=Lookup.getDBFile()
         doCreate=True
         if os.path.isfile(dbFile):     
             st=os.stat(dbFile)
@@ -216,7 +217,7 @@ union
         Args:
             cacheFileName(string): the path to the database
         '''
-        dbfile=self.getDBFile(cacheFileName)
+        dbfile=Lookup.getDBFile(cacheFileName)
         # remove existing database dump if it exists
         if os.path.exists(dbfile):
             os.remove(dbfile)
