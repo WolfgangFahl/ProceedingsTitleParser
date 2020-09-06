@@ -9,6 +9,9 @@ import unittest
 from ptp.plot import Plot
 
 class TestPlot(unittest.TestCase):
+    '''
+    test the Plot helper class
+    '''
 
 
     def setUp(self):

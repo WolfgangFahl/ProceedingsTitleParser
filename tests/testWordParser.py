@@ -8,6 +8,7 @@ from ptp.wordparser import CorpusWordParser
 from ptp.lookup import Lookup
 from storage.sql import SQLDB
 import os
+from ptp.plot import Plot
 import pandas as pd
 from pandas import DataFrame
 
@@ -31,19 +32,21 @@ class TestWordParser(unittest.TestCase):
         dbFile=Lookup.getDBFile()
         if os.path.isfile(dbFile):
             sqlDB=SQLDB(dbFile)
-            sqlQuery="""select source,title
-from event 
-where title like '%Proceedings of%'
-and source in ('wikidata')
-            """
-            listOfDicts=sqlDB.query(sqlQuery)
-            cwp=CorpusWordParser()
-            lens=cwp.parse(listOfDicts)
-            df=DataFrame(lens)
-            print (df.quantile(1))
-            quantileValues=df.quantile(.90)
-            print(quantileValues);
-            
+            for source in ['wikidata','crossref','dblp','CEUR-WS']:
+                sqlQuery="""select source,title
+    from event 
+    where title like '%%Proceedings of%%'
+    and source in ('%s')
+                """ % source
+                listOfDicts=sqlDB.query(sqlQuery)
+                cwp=CorpusWordParser()
+                lens=cwp.parse(listOfDicts)
+                df=DataFrame(lens)
+                print (df.quantile(1))
+                quantileValues=df.quantile(.90)
+                print(quantileValues);
+                plot=Plot(lens,"%s wordcount histogram" %source,xlabel="wordcount",ylabel="frequency")
+                plot.hist(mode='save') 
 
 
 if __name__ == "__main__":
