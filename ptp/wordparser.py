@@ -3,7 +3,7 @@ Created on 2020-04-09
 
 @author: wf
 '''
-
+import re
 class CorpusWordParser():
     def __init__(self):
         pass
@@ -13,26 +13,48 @@ class CorpusWordParser():
     '''
     def parse(self,records):
         print("parsing %d titles" % len(records))
-        lens=[]
+        corpusWordusages=[]
         for record in records:
-            title=record['title']
-            wp=WordParser()
-            l=wp.parse(title)
-            lens.append(l)
-        print("found %d length values" % len(lens))  
-        return lens  
-
+            wp=WordParser(record['source'],record['eventId'])
+            wordusages=wp.parse(record['title'])
+            corpusWordusages.extend(wordusages)
+        print("found %d word usages" % len(corpusWordusages))  
+        return corpusWordusages 
+  
+class WordUsage(object):
+    '''
+    a single word usage entry
+    '''
+    
+    def __init__(self,index,word,source,eventId):
+        self.pos=index+1
+        self.word=word
+        self.source=source
+        self.eventId=eventId
+         
 class WordParser(object):
     '''
-    Word base parser
+    Word based parser
     '''
 
-
-    def __init__(self):
+    def __init__(self,source,eventId):
         '''
         Constructor
+        Args:
+            source(string): the source e.g. wikicfp
+            eventId(string): the source specific id of the event
         '''
+        self.source=source
+        self.eventId=eventId
         
     def parse(self,title):
-        words=title.split(' ')
-        return (len(words))
+        '''
+        parse the given title and return the wordusages of it
+        '''
+        
+        words=re.split('\W+',title)
+        wordusages=[]
+        for index,word in enumerate(words):
+            wordusage=WordUsage(index,word,self.source,self.eventId)
+            wordusages.append(wordusage)
+        return wordusages

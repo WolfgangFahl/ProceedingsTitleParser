@@ -45,7 +45,7 @@ class SQLDB(object):
         ''' close my connection '''
         self.c.close()    
         
-    def createTable(self,listOfRecords,entityName,primaryKey,withDrop=False,sampleRecordCount=1):
+    def createTable(self,listOfRecords,entityName,primaryKey=None,withDrop=False,sampleRecordCount=1):
         '''
         derive  Data Definition Language CREATE TABLE command from list of Records by examining first recorda
         as defining sample record and execute DDL command

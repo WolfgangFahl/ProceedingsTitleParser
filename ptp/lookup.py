@@ -201,6 +201,10 @@ union
             dbFile=cm.store(cm.countryList)
             self.copyFrom(dbFile)
             
+            wordUsageDBFile=Lookup.getDBFile("wordusage")
+            if os.path.isfile(wordUsageDBFile):
+                self.copyFrom(wordUsageDBFile)
+            
             if withWikiData:
                 cm=CountryManager("wikidata")
                 endpoint="https://query.wikidata.org/sparql"
