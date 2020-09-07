@@ -7,12 +7,11 @@ import unittest
 import time
 from storage.dgraph import Dgraph
 from storage.sparql import SPARQL
-from ptp.location import CountryManager, CityManager
+from ptp.location import CountryManager, ProvinceManager, CityManager
 from ptp.listintersect import ListOfDict
 import datetime
 from collections import Counter
 import getpass
-from tests.test_Jena import TestJena
 
 class TestLocations(unittest.TestCase):
     '''
@@ -106,21 +105,38 @@ WHERE {
         countriesResult=dbpedia.query(countriesQuery)
         print(countriesResult)
         print(len(countriesResult))
-        
-        
-    def testWikiDataCountries(self):
-        '''
-        check local wikidata
-        '''
+    
+    def getEndPoint(self):   
         endpoint="https://query.wikidata.org/sparql"
         # check we have local wikidata copy:
         if getpass.getuser()=="travis":
-            return
-        if getpass.getuser()=="wf":
+            endpoint=None
+        elif getpass.getuser()=="wf":
             # use 2018 wikidata copy
             #endpoint="http://blazegraph.bitplan.com/sparql"
             # use 2020 wikidata copy
             endpoint="http://jena.bitplan.com/wikidata"
+        return endpoint
+        
+    def testWikiDataProvinces(self):
+        '''
+        test getting provinces from wikidata
+        '''
+        endpoint=self.getEndPoint()
+        if endpoint is None: return
+        pm=ProvinceManager("wikidata")
+        pm.fromWikiData(endpoint)      
+        print("found %d provinces",len(pm.provinceList))
+        self.assertTrue(len(pm.provinceList)>=195) 
+        pm.store(pm.provinceList)
+            
+    def testWikiDataCountries(self):
+        '''
+        check local wikidata
+        '''
+        endpoint=self.getEndPoint()
+        if endpoint is None: return
+
         cm=CountryManager("wikidata")
         cm.fromWikiData(endpoint)      
         self.assertTrue(len(cm.countryList)>=195) 

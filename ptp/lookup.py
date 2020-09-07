@@ -4,7 +4,7 @@ Created on 06.07.2020
 @author: wf
 '''
 from ptp.titleparser import ProceedingsTitleParser,TitleParser
-from ptp.location import CityManager, CountryManager
+from ptp.location import CityManager, ProvinceManager, CountryManager
 import ptp.openresearch
 import ptp.ceurws
 import ptp.confref
@@ -206,10 +206,15 @@ union
                 self.copyFrom(wordUsageDBFile)
             
             if withWikiData:
-                cm=CountryManager("wikidata")
                 endpoint="https://query.wikidata.org/sparql"
+                cm=CountryManager("wikidata")
                 cm.fromWikiData(endpoint)      
                 dbFile=cm.store(cm.countryList)
+                self.copyFrom(dbFile)
+                
+                pm=ProvinceManager("wikidata")
+                pm.fromWikiData(endpoint)
+                dbFile=pm.store(pm.provinceList)
                 self.copyFrom(dbFile)
         return self.getSQLDB()
     

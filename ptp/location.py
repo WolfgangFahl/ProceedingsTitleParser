@@ -74,7 +74,61 @@ class CityManager(EntityManager):
             offset=offset+batch
             if found<batch or len(cities)>=limit:
                     break    
-        return cities               
+        return cities          
+    
+class ProvinceManager(EntityManager):
+    ''' 
+    manage province information
+    '''
+    def __init__(self,name,debug=False):
+        '''
+        Constructor
+        '''
+        self.debug=debug
+        super().__init__(name,entityName="Province",entityPluralName="Provinces",debug=debug)
+        self.config.tableName="Province_%s" % self.name
+    
+    def fromWikiData(self,endpoint):
+        '''
+        get the province List from WikiData
+        
+        Args:
+            endpoint(string): the url of the endpoint to be used
+        '''
+        wd=SPARQL(endpoint)
+        queryString="""
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+SELECT ?region ?isocc ?isocode4 ?regionLabel ?pop ?location
+WHERE 
+{
+  # administrative unit of first order
+  ?region wdt:P31/wdt:P279* wd:Q10864048. 
+  OPTIONAL {
+     ?region rdfs:label ?regionLabel filter (lang(?regionLabel) = "en").
+  }
+  # filter historic regions
+  # FILTER NOT EXISTS {?region wdt:P576 ?end}
+  # get the population
+  # https://www.wikidata.org/wiki/Property:P1082
+  OPTIONAL { ?region wdt:P1082 ?pop. }
+  # # https://www.wikidata.org/wiki/Property:P297
+  OPTIONAL { ?region wdt:P297 ?isocc. }
+  # isocode state/province
+  ?region wdt:P300 ?isocode4. 
+  # https://www.wikidata.org/wiki/Property:P625
+  OPTIONAL { ?region wdt:P625 ?location. }
+}
+ORDER BY (?isocode4)
+"""
+        results=wd.query(queryString)
+        self.provinceList=wd.asListOfDicts(results)
+        for province in self.provinceList:
+            province['wikidataurl']=province.pop('region')
+            province['name']=province.pop('regionLabel')  
+            super().setNone(province,['pop','location'])
 
 class CountryManager(EntityManager):
     ''' manage countries '''
@@ -153,7 +207,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-SELECT ?country ?countryLabel (MAX(?pop) as ?population) ?coord ?isocode
+SELECT ?country ?countryLabel ?shortName (MAX(?pop) as ?population) ?coord ?isocode
 WHERE 
 {
   # instance of country
@@ -161,15 +215,21 @@ WHERE
   OPTIONAL {
      ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
    }
-  # get the population
-  # https://www.wikidata.org/wiki/Property:P1082
-  OPTIONAL { ?country wdt:P1082 ?pop. }
+  OPTIONAL {
+    # https://www.wikidata.org/wiki/Property:P1813
+    ?country wdt:P1813 ?shortName filter (lang(?shortName) = "en").
+  }   
+  OPTIONAL { 
+    # get the population
+     # https://www.wikidata.org/wiki/Property:P1082
+     ?country wdt:P1082 ?pop. 
+  }
   # get the iso countryCode
   { ?country wdt:P297 ?isocode }.
   # get the coordinate
   OPTIONAL { ?country wdt:P625 ?coord }.
 } 
-GROUP BY ?country ?countryLabel ?population ?coord ?isocode 
+GROUP BY ?country ?countryLabel ?shortName ?population ?coord ?isocode 
 ORDER BY ?countryLabel"""
         results=wd.query(queryString)
         self.countryList=wd.asListOfDicts(results)
