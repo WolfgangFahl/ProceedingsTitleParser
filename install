@@ -10,7 +10,7 @@ autoinstall() {
   local l_cmd="$1"
   local l_package="$2"
   echo "checking whether $l_cmd is installed ..."
-  which $l_cmd 
+  which $l_cmd
   if [ $? -ne 0 ]
   then
     echo  "installing $l_cmd from package $l_package ..."
@@ -63,3 +63,6 @@ then
 fi
 # make sure there is cache directory
 mkdir -p cache
+# download spacy NLP
+# https://github.com/explosion/spacy-models/releases//tag/en_core_web_sm-2.3.1
+python -m spacy download en_core_web_sm

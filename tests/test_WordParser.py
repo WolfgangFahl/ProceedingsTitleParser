@@ -11,6 +11,7 @@ import os
 from ptp.plot import Plot
 import pandas as pd
 from pandas import DataFrame
+from ptp.listintersect import ListOfDict
 
 class TestWordParser(unittest.TestCase):
 
@@ -36,24 +37,35 @@ class TestWordParser(unittest.TestCase):
                 print("%2d:%s" % (index,wu.__dict__))
         self.assertEqual(14,len(wus))  
     
-
+    @staticmethod
+    def getProceedingsTitles(sqlDB,source):
+        sqlQuery="""select source,eventId,title
+    from event 
+    where title like '%%Proceedings of%%'
+    and source in ('%s')
+                """ % source
+        listOfDicts=sqlDB.query(sqlQuery)
+        return listOfDicts        
+        
+    @staticmethod
+    def getSQLDB():
+        dbFile=Lookup.getDBFile()
+        sqlDB=None
+        if os.path.isfile(dbFile):
+            sqlDB=SQLDB(dbFile)
+        return sqlDB
+    
     def testWordParser(self):
         '''
         try finding quantiles
         
         see https://stackoverflow.com/questions/2374640/how-do-i-calculate-percentiles-with-python-numpy
         '''
-        dbFile=Lookup.getDBFile()
-        if os.path.isfile(dbFile):
-            sqlDB=SQLDB(dbFile)
+        sqlDB=TestWordParser.getSQLDB()
+        if sqlDB is not None:
             totalWordUsages=[]
             for source in ['wikidata','crossref','dblp','CEUR-WS']:
-                sqlQuery="""select source,eventId,title
-    from event 
-    where title like '%%Proceedings of%%'
-    and source in ('%s')
-                """ % source
-                listOfDicts=sqlDB.query(sqlQuery)
+                listOfDicts=TestWordParser.getProceedingsTitles(sqlDB,source)
                 cwp=CorpusWordParser()
                 wordusages=cwp.parse(listOfDicts)
                 lens={}

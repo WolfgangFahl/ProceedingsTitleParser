@@ -60,12 +60,6 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 print (ex)
             return None
         
-    def testOrdinal(self):
-        '''
-        test examples for ordinals
-        '''
-        titlelines=[]    
-        
     def testExamples(self):
         ''' test specific examples for parsing success '''
         titlelines=[
