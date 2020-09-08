@@ -66,3 +66,5 @@ mkdir -p cache
 # download spacy NLP
 # https://github.com/explosion/spacy-models/releases//tag/en_core_web_sm-2.3.1
 python -m spacy download en_core_web_sm
+# used fixed geography-nltk script
+scripts/geograpy-nltk

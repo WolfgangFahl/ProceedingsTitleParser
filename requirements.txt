@@ -50,3 +50,10 @@ pydgraph
 SPARQLWrapper
 # https://pypi.org/project/spacy/
 spacy
+# country,city Natural Language Parsing
+# https://pypi.org/project/geotext/
+geotext
+# https://pypi.org/project/flashgeotext/
+flashgeotext
+#https://pypi.org/project/geograpy3/
+geograpy3

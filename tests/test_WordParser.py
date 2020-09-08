@@ -11,7 +11,6 @@ import os
 from ptp.plot import Plot
 import pandas as pd
 from pandas import DataFrame
-from ptp.listintersect import ListOfDict
 
 class TestWordParser(unittest.TestCase):
 

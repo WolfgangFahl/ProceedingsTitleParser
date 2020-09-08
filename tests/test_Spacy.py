@@ -38,8 +38,9 @@ class TestSpacy(unittest.TestCase):
             for source in ['wikidata','crossref','dblp','CEUR-WS']:
                 listOfDicts=TestWordParser.getProceedingsTitles(sqlDB,source)
                 for record in listOfDicts:
-                    doc = nlp(record['title'])
-                    print ("found %d entities in %s" % (len(doc.ents),record['eventId']))
+                    title=record['title']
+                    doc = nlp(title)
+                    print ("found %d entities in %s:%s" % (len(doc.ents),record['eventId'],title))
                     for ent in doc.ents:
                         print("  %s(%s)" % (ent,ent.label_))
                     index+=1

@@ -216,9 +216,11 @@ WHERE
      ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
    }
   OPTIONAL {
-    # https://www.wikidata.org/wiki/Property:P1813
-    ?country wdt:P1813 ?shortName filter (lang(?shortName) = "en").
-  }   
+     ?country p:P1813 ?shortNameStmt. # get the short name statement
+     ?shortNameStmt ps:P1813 ?shortName # the the short name value from the statement
+     filter (lang(?shortName) = "en") # filter for English short names only
+     filter not exists {?shortNameStmt pq:P31 wd:Q28840786} # ignore flags (aka emojis)
+  }
   OPTIONAL { 
     # get the population
      # https://www.wikidata.org/wiki/Property:P1082
