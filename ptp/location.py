@@ -10,20 +10,22 @@ import time
 import ptp.openresearch 
 from storage.sparql import SPARQL
 from storage.entity import EntityManager
-from storage.config import StoreMode
+from storage.config import StoreMode, StorageConfig
 
 class CityManager(EntityManager):
     ''' manage cities '''
     
-    def __init__(self,name):
+    def __init__(self,name,config=None):
         '''
         constructor 
         
         Args:
             name(string): the name of this city Manager
         '''
-        super().__init__(name,entityName="City",entityPluralName="Cities")
-        self.config.tableName="City_%s" % self.name
+        if config is None:
+            config=StorageConfig.getSQL()
+        config.tableName="City_%s" % name
+        super().__init__(name,entityName="City",entityPluralName="Cities",config=config)
         pass
     
     def getListOfDicts(self):
@@ -80,14 +82,16 @@ class ProvinceManager(EntityManager):
     ''' 
     manage province information
     '''
-    def __init__(self,name,debug=False):
+    def __init__(self,name,config=None,debug=False):
         '''
         Constructor
         '''
-        self.debug=debug
-        super().__init__(name,entityName="Province",entityPluralName="Provinces",debug=debug)
-        self.config.tableName="Province_%s" % self.name
-    
+        if config is None:
+            config=StorageConfig.getSQL()
+        config.debug=debug
+        config.tableName="Province_%s" % name
+        super().__init__(name,entityName="Province",entityPluralName="Provinces",config=config)
+        
     def fromWikiData(self,endpoint):
         '''
         get the province List from WikiData
@@ -133,14 +137,17 @@ ORDER BY (?isocode4)
 class CountryManager(EntityManager):
     ''' manage countries '''
     
-    def __init__(self,name,debug=False):
+    def __init__(self,name,config=None,debug=False):
         '''
         Constructor
         '''
-        self.debug=debug
+        if config is None:
+            config=StorageConfig.getSQL()
+        config.debug=debug
+        config.tableName="Country_%s" % name
         path=os.path.dirname(__file__)
-        super().__init__(name,entityName="Country",entityPluralName="Countries",debug=debug)
-        self.config.tableName="Country_%s" % self.name
+        super().__init__(name,entityName="Country",entityPluralName="Countries",config=config)
+        
         
         self.sampledir=path+"/../sampledata/"
         self.schema='''

@@ -5,7 +5,7 @@ Shallow Semantic Parser to extract metadata from scientific proceedings titles
 [![Travis (.org)](https://travis-ci.org/WolfgangFahl/ProceedingsTitleParser.svg?branch=master)](https://travis-ci.org/WolfgangFahl/ProceedingsTitleParser)
 [![GitHub issues](https://img.shields.io/github/issues/WolfgangFahl/ProceedingsTitleParser.svg)](https://github.com/WolfgangFahl/ProceedingsTitleParser/issues)
 [![GitHub issues](https://img.shields.io/github/issues-closed/WolfgangFahl/ProceedingsTitleParser.svg)](https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/?q=is%3Aissue+is%3Aclosed)
-[![GitHub](https://img.shields.io/github/license/BITPlan/com.bitplan.fritzbox.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![GitHub](https://img.shields.io/github/license/WolfgangFahl/ProceedingsTitleParser.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## Demo
 * [Proceedings Title Parser Service](https://ptp.bitplan.com) 
