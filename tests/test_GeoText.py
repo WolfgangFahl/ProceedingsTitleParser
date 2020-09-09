@@ -4,8 +4,9 @@ Created on 2020-09-08
 @author: wf
 '''
 import unittest
-from tests.test_WordParser import TestWordParser
+from ptp.lookup import Lookup
 from geotext import GeoText
+
 import geograpy
 
 class TestGeoText(unittest.TestCase):
@@ -31,7 +32,8 @@ group by locality
 order by 1 desc
 LIMIT 100
 """
-        sqlDB=TestWordParser.getSQLDB()
+        lookup=Lookup()
+        sqlDB=lookup.getSQLDB()
         if sqlDB is not None:
             listOfDicts=sqlDB.query(sqlQuery)
             for record in listOfDicts:

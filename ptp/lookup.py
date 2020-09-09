@@ -44,6 +44,8 @@ class Lookup(object):
         config.cacheFile=Lookup.getDBFile()
         if not os.path.isfile(config.cacheFile):
             config.cacheFile=None
+        else:
+            self.check(SQLDB(config.cacheFile))    
         # get the open research EventManager
         self.ems=[]
         if butNot is None:
@@ -122,6 +124,41 @@ class Lookup(object):
         title=metadata['title'][0]
         result={'source': 'Crossref','eventId': doi,'title':title, 'proceedingsUrl':'https://doi.org/%s' % doi,'metadata': metadata}
         return result
+    
+    def check(self,sqlDB,debug=False):
+        '''
+        check the sqlDB to be o.k.
+        '''
+        tableList=sqlDB.getTableList()
+        if debug:
+            print(tableList)
+        # create hashmap for tables
+        tableDict={}
+        for table in tableList:
+            tableName=table['name']
+            tableDict[tableName]=True
+            
+        tableSchemas=self.getEventSchemas()
+        tableSchemas['City_github']='City List from github'
+        errors=[]
+        for tableName in tableSchemas:
+            if not tableName in tableDict:
+                errors.append("table %s is missing" % tableName)
+        return errors
+    
+    def getEventSchemas(self):
+        '''
+        get the table schemas
+        '''
+        eventSchemas={
+            'Event_or': 'Open Research Entities',
+            'Event_CEURWS':'PTP',
+            'Event_crossref':'Crossref',
+            'Event_confref':'Confref',
+            'Event_wikicfp':'WikiCFP',
+            'Event_wikidata':'PTP',
+            'Event_dblp':'DBLP'}
+        return eventSchemas
     
     @staticmethod
     def getDBFile(cacheFileName='Event_all'):
@@ -251,7 +288,7 @@ union
             if not em.config.mode is StoreMode.SQL:
                 raise Exception("lookup store only support SQL storemode but found %s for %s" % (em.config.mode,em.name))
             else:
-                cacheFile=em.getCacheFile()
+                cacheFile=em.getCacheFile(config=em.config,mode=StoreMode.SQL)
                 sqlDB=em.getSQLDB(cacheFile)
                 sqlDB.copyTo(backup)
         backup.close()

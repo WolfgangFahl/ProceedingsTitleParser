@@ -88,7 +88,7 @@ class EventManager(EntityManager):
         '''  remove my cache file '''
         mode=self.config.mode
         if mode is StoreMode.JSON:
-            cacheFile=self.getCacheFile()
+            cacheFile=self.getCacheFile(mode=mode)
             if os.path.isfile(cacheFile):
                 os.remove(cacheFile)
         elif mode is StoreMode.DGRAPH:

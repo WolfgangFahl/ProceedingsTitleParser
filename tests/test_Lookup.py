@@ -37,15 +37,18 @@ class TestLookup(unittest.TestCase):
     
     def testCreateEventAll(self):
         '''
-        check that the eventall database is created correctly
+        check that the event all database is created correctly
         '''
         withWikiData=getpass.getuser()!="travis"
         lookup=Lookup("CreateEventAll")
         self.assertEqual(7,len(lookup.ems))
-        sqlDB=lookup.createEventAll(maxAgeMin=1,withWikiData=withWikiData)
-        tableList=sqlDB.getTableList()
-        print(tableList)
-        self.assertTrue(len(tableList)>7)
+        errors=lookup.check(lookup.getSQLDB(),debug=True)
+        if len(errors)>0:
+            print (errors)
+            sqlDB=lookup.createEventAll(maxAgeMin=0,withWikiData=withWikiData)
+            errors=lookup.check(sqlDB,debug=True)
+        if len(errors)>0:
+            self.assertEqual(0,len(errors))
     
     def testPlantUml(self):
         '''
@@ -61,18 +64,11 @@ class TestLookup(unittest.TestCase):
         sqlDB=SQLDB(dbfile)
         tableList=sqlDB.getTableList()
         eventTableList=[]
-        tableSchemas={
-            'Event_or': 'Open Research Entities',
-            'Event_CEURWS':'PTP',
-            'Event_crossref':'Crossref',
-            'Event_confref':'Confref',
-            'Event_wikicfp':'WikiCFP',
-            'Event_wikidata':'PTP',
-            'Event_dblp':'DBLP'}
+        eventSchemas=lookup.getEventSchemas()
         for table in tableList:
             tableName=table['name']
             if tableName.startswith("Event_"):
-                table['schema']=tableSchemas[tableName]
+                table['schema']=eventSchemas[tableName]
                 eventTableList.append(table)
                 countQuery="SELECT count(*) as count from %s" % tableName
                 countResult=sqlDB.query(countQuery)

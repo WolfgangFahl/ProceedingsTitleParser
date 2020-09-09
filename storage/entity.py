@@ -38,7 +38,7 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
             if debug:
                 config.debug=debug
         self.config=config
-        cacheFile=self.getCacheFile()
+        cacheFile=self.getCacheFile(config=config,mode=config.mode)
         self.showProgress ("Creating %smanager(%s) for %s using cache %s" % (self.entityName,config.mode,self.name,cacheFile))
         if config.mode is StoreMode.DGRAPH:
             self.dgraph=Dgraph(debug=config.debug,host=config.host,profile=config.profile)
@@ -71,15 +71,16 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         cachedir=path+"/../cache"
         return cachedir
      
-    def getCacheFile(self):
+    def getCacheFile(self,config=None,mode=StoreMode.SQL):
         '''
         get the cache file for this event manager
+        Args:
+            config(StorageConfig): if None get the cache for my mode
+            mode(StoreMode): the storeMode to use
         '''
         cachedir=EntityManager.getCachePath()
-        config=self.config
-        if config.cacheFile is not None:
+        if config is not None and config.cacheFile is not None:
             return config.cacheFile
-        mode=self.config.mode
         ''' get the path to the file for my cached data '''  
         if mode is StoreMode.JSON:  
             cachepath="%s/%s-%s.%s" % (cachedir,self.name,"events",'json')
@@ -131,7 +132,7 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         config=self.config
         mode=self.config.mode
         if mode is StoreMode.JSON:
-            result=os.path.isfile(self.getCacheFile())
+            result=os.path.isfile(self.getCacheFile(config=self.config,mode=StoreMode.JSON))
         elif mode is StoreMode.SPARQL:
             # @FIXME - make abstract
             query=config.prefix+"""
@@ -148,7 +149,7 @@ GROUP by ?source
                 if source==self.name and recordCount>100:
                     result=True
         elif mode is StoreMode.SQL:
-            cacheFile=self.getCacheFile()
+            cacheFile=self.getCacheFile(config=self.config,mode=StoreMode.SQL)
             if os.path.isfile(cacheFile):
                 sqlQuery="SELECT COUNT(*) AS count FROM %s" % config.tableName
                 try:
@@ -173,7 +174,7 @@ GROUP by ?source
         '''
         startTime=time.time()
         if cacheFile is None:
-            cacheFile=self.getCacheFile()
+            cacheFile=self.getCacheFile(config=self.config,mode=self.config.mode)
         self.showProgress("reading %s for %s from cache %s" % (self.entityPluralName,self.name,cacheFile))
         JSONem=None
         mode=self.config.mode
@@ -228,7 +229,7 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
         mode=config.mode
         if mode is StoreMode.JSON:    
             if cacheFile is None:
-                cacheFile=self.getCacheFile()
+                cacheFile=self.getCacheFile(config=self.config,mode=StoreMode.JSON)
             self.showProgress ("storing %d events for %s to cache %s" % (len(self.events),self.name,cacheFile))
             self.writeJson(cacheFile)
         elif mode is StoreMode.DGRAPH:
@@ -248,7 +249,7 @@ SELECT ?eventId ?acronym ?series ?title ?year ?country ?city ?startDate ?endDate
         elif mode is StoreMode.SQL:
             startTime=time.time()
             if cacheFile is None:
-                cacheFile=self.getCacheFile()
+                cacheFile=self.getCacheFile(config=self.config,mode=self.config.mode)
             sqldb=self.getSQLDB(cacheFile)
             self.showProgress ("storing %d %s for %s to %s:%s" % (len(listOfDicts),self.entityPluralName,self.name,config.mode,cacheFile)) 
             entityInfo=sqldb.createTable(listOfDicts, config.tableName, "eventId",withDrop=True,sampleRecordCount=sampleRecordCount)   

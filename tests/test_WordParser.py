@@ -45,14 +45,6 @@ class TestWordParser(unittest.TestCase):
                 """ % source
         listOfDicts=sqlDB.query(sqlQuery)
         return listOfDicts        
-        
-    @staticmethod
-    def getSQLDB():
-        dbFile=Lookup.getDBFile()
-        sqlDB=None
-        if os.path.isfile(dbFile):
-            sqlDB=SQLDB(dbFile)
-        return sqlDB
     
     def testWordParser(self):
         '''
@@ -60,7 +52,8 @@ class TestWordParser(unittest.TestCase):
         
         see https://stackoverflow.com/questions/2374640/how-do-i-calculate-percentiles-with-python-numpy
         '''
-        sqlDB=TestWordParser.getSQLDB()
+        lookup=Lookup("test Word parser")
+        sqlDB=lookup.getSQLDB()
         if sqlDB is not None:
             totalWordUsages=[]
             for source in ['wikidata','crossref','dblp','CEUR-WS']:
