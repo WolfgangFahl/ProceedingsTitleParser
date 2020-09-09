@@ -56,9 +56,8 @@ class WikiCFP(object):
         get an EventManager
         
         Args:
-            debug(boolean): True if debugging should be on
-            profile(boolean): True if profile/timing information should be shown
-            mode(string): the storage mode to use e.g. "json"
+            config(StorageConfig): the storage configuration to use
+            mode(string): the storage mode to use e.g. "json" - will select a config based on mode if config is None
         '''
         if config is None:
             if mode=='sql':
@@ -93,7 +92,7 @@ class WikiCFP(object):
         #self.crawl(startId=startId,stopId=stopId)
         startTime=time.time()
         for jsonFilePath in self.jsonFiles():
-            batchEm=self.getEventManager(self.debug, self.profile, 'json')
+            batchEm=self.getEventManager(mode='json')
             batchEm.fromStore(cacheFile=jsonFilePath)
             if self.debug:
                 print("%4d: %s" % (len(batchEm.events),jsonFilePath))
@@ -141,7 +140,7 @@ class WikiCFP(object):
         else: step = -1
         print('crawling (%2d) WikiCFP from %d to %d' % (threadIndex,startId,stopId))
         jsonFilepath=self.getJsonFileName(startId,stopId)
-        batchEm=self.getEventManager(self.debug,self.profile, 'json')
+        batchEm=self.getEventManager(mode='json')
  
         # get all ids
         for eventId in range(int(startId), int(stopId+1), step):
