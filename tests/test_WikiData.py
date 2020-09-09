@@ -20,7 +20,7 @@ class TestWikiData(unittest.TestCase):
 
     def testWikiData(self):
         ''' test getting the wikidata information '''
-        wd=WikiData(debug=False,profile=True)
+        wd=WikiData()
         if self.forceCaching:
             cacheFile=wd.em.getCacheFile()
             if os.path.isfile(cacheFile):

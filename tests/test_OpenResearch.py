@@ -9,6 +9,7 @@ from ptp.openresearch import OpenResearch
 from ptp.plot import Plot
 import pyparsing as pp
 from tests.test_PyParsing import TestPyParsing
+from storage.config import StorageConfig
 
 class TestOpenResearch(unittest.TestCase):
     ''' test accessing open research data '''
@@ -30,7 +31,8 @@ class TestOpenResearch(unittest.TestCase):
         
     def testOpenResearchCaching(self):
         ''' test caching of open research results '''
-        opr=OpenResearch(debug=self.debug)
+        config=StorageConfig.getDefault(self.debug)
+        opr=OpenResearch(config=config)
         # only cache if not cached yet
         if not opr.em.isCached():
             opr.cacheEvents(opr.em,limit=20000,batch=2000)

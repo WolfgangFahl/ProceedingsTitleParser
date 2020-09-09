@@ -14,7 +14,7 @@ class TestCEURWS(unittest.TestCase):
 
     def setUp(self):
         self.debug=False
-        self.forceCaching=True
+        self.forceCaching=False
         pass
 
     def tearDown(self):
@@ -22,7 +22,7 @@ class TestCEURWS(unittest.TestCase):
 
     def testCEURWS(self):
         ''' test CEUR-WS cache handling'''
-        cw=CEURWS(debug=self.debug)
+        cw=CEURWS()
         if self.forceCaching:
             cacheFile=cw.em.getCacheFile()
             if os.path.isfile(cacheFile):

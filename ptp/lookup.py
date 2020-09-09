@@ -14,10 +14,11 @@ import ptp.crossref
 import ptp.wikicfp
 from storage.sql import SQLDB
 from storage.entity import EntityManager
-from storage.config import StoreMode
+from storage.config import StoreMode, StorageConfig
 from datetime import datetime
 import os
 import yaml
+import getpass
 
 class Lookup(object):
     '''
@@ -38,6 +39,11 @@ class Lookup(object):
         self.debug=debug
         self.ptp=ProceedingsTitleParser.getInstance()
         self.dictionary=ProceedingsTitleParser.getDictionary()
+        config=StorageConfig.getSQL()
+        # if event_all.db is available use it ...
+        config.cacheFile=Lookup.getDBFile()
+        if not os.path.isfile(config.cacheFile):
+            config.cacheFile=None
         # get the open research EventManager
         self.ems=[]
         if butNot is None:
@@ -46,30 +52,36 @@ class Lookup(object):
             self.butNot=butNot
         lookupIds=['or']
         if getAll:
+            if config.cacheFile is None:
+                maxAgeMin=1
+                withWikiData=getpass.getuser()!="travis"
+                self.createEventAll(maxAgeMin, withWikiData)
             lookupIds=['or','ceur-ws','crossref','confref','wikicfp','wikidata','dblp']
         for lookupId  in lookupIds:
             lem=None
             if not lookupId in self.butNot:
                 if lookupId=='or': 
                     # https://www.openresearch.org/wiki/Main_Page
-                    lem=ptp.openresearch.OpenResearch(debug=self.debug)
+                    lem=ptp.openresearch.OpenResearch(config=config)
                 elif lookupId=='ceur-ws':
                     # CEUR-WS http://ceur-ws.org/
-                    lem=ptp.ceurws.CEURWS(debug=self.debug)
+                    lem=ptp.ceurws.CEURWS(config=config)
                 elif lookupId=='confref':
                     # confref http://portal.confref.org/
-                    lem=ptp.confref.ConfRef(debug=self.debug)
+                    lem=ptp.confref.ConfRef(config=config)
                 elif lookupId=='crossref':
-                    lem=ptp.crossref.Crossref(debug=self.debug)   
-                elif lookupId=='wikicfp':
-                    # http://www.wikicfp.com/cfp/
-                    lem=ptp.wikicfp.WikiCFP(debug=self.debug)       
-                elif lookupId=='wikidata':
-                    # https://www.wikidata.org/wiki/Wikidata:Main_Page
-                    lem=ptp.wikidata.WikiData(debug=self.debug)      
+                    # https://www.crossref.org/
+                    lem=ptp.crossref.Crossref(config=config)   
                 elif lookupId=='dblp':
                     # https://dblp.org/
-                    lem=ptp.dblp.Dblp(debug=self.debug)                
+                    lem=ptp.dblp.Dblp(config=config)  
+                elif lookupId=='wikicfp':
+                    # http://www.wikicfp.com/cfp/
+                    lem=ptp.wikicfp.WikiCFP(config=config)       
+                elif lookupId=='wikidata':
+                    # https://www.wikidata.org/wiki/Wikidata:Main_Page
+                    lem=ptp.wikidata.WikiData(config=config)      
+                              
             if lem is not None:
                 lem.initEventManager()
                 self.ems.append(lem.em);

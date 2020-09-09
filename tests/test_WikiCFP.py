@@ -34,7 +34,7 @@ class TestWikiCFP(unittest.TestCase):
         '''
         test event handling from WikiCFP
         '''
-        wikiCFP=WikiCFP(debug=False,profile=True)
+        wikiCFP=WikiCFP()
         if not wikiCFP.em.isCached():
             wikiCFP.cacheEvents()
         else:

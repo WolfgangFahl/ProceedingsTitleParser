@@ -14,15 +14,18 @@ class CEURWS(object):
     http://ceur-ws.org/ event managing
     '''
 
-    def __init__(self,debug=False):
+    def __init__(self,config=None):
         '''
         Constructor
+        
+        Args:
+            config(StorageConfig): the storage configuration to use
         '''
-        self.debug=debug
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
-        self.em=EventManager("CEURWS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings')
-        # self.em.config.debug=debug
+        self.em=EventManager("CEURWS",url='http://ceur-ws.org/',title='CEUR Workshop Proceedings',config=config)
+        self.debug=self.em.config.debug
+        self.profile=self.em.config.profile
         
     def cacheEvents(self):
         ''' cache the events of CEUR-WS derived from the sample proceeding titles'''

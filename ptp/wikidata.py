@@ -11,13 +11,16 @@ class WikiData(object):
     WikiData proceedings titles event source
     '''
 
-    def __init__(self, debug=False,profile=True):
+    def __init__(self, config=None):
         '''
         Constructor
+        
+        Args:
+            config(StorageConfig): the storage configuration to use
         '''
-        self.debug=debug
-        self.profile=profile
-        self.em=EventManager('wikidata',url='https://www.wikidata.org/wiki/Wikidata:Main_Page',title='Wikidata')
+        self.em=EventManager('wikidata',url='https://www.wikidata.org/wiki/Wikidata:Main_Page',title='Wikidata',config=config)
+        self.debug=self.em.config.debug
+        self.profile=self.em.config.profile
         path=os.path.dirname(__file__)
         self.sampledir=path+"/../sampledata/"
         self.sampleFilePath=self.sampledir+"proceedings-wikidata.txt"

@@ -12,7 +12,7 @@ import os
 import time
 
 from storage.entity import EntityManager
-from storage.config import StoreMode
+from storage.config import StoreMode, StorageConfig
 import pyparsing as pp
 
 class EventManager(EntityManager):
@@ -28,13 +28,16 @@ class EventManager(EntityManager):
             url(string): the url of the event source  e.g. "http://portal.confref.org/"
             title(string): title of the event source e.g. "confref.org"
         '''
+        if config is None:
+            config=StorageConfig.getDefault()
+        config.tableName="Event_%s" % name    
         super().__init__(name,entityName="Event",entityPluralName="Events",config=config)
         self.url=url
         self.title=title
         self.events={}
         self.eventsByAcronym={}
         self.eventsByCheckedAcronym={}
-        self.config.tableName="Event_%s" % self.name
+        
   
     def add(self,event):
         ''' add the given event '''

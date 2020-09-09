@@ -33,25 +33,25 @@ class WikiCFP(object):
     support events from http://www.wikicfp.com/cfp/
     '''
 
-    def __init__(self,debug=False,profile=True,limit=200000,batchSize=1000):
+    def __init__(self,config=None,debug=False,limit=200000,batchSize=1000):
         '''
         Constructor
         
         Args:
-            debug(boolean): True if debug should be switched on
-            profile(boolean): True if profiling/timing information should be gathered
+            config(StorageConfig): the storage configuration to use
+            debug(boolean): if True debug for crawling is on
             limit(int): maximum number of entries to be crawled
             batchSize(int): default size of batches
         '''
         self.debug=debug
-        self.profile=profile
         self.limit=limit
         self.batchSize=batchSize
-        self.em=self.getEventManager(debug, profile)
+        self.em=self.getEventManager(config)
+        self.profile=self.em.config.profile
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
         
-    def getEventManager(self,debug=False,profile=False,mode='sql'):
+    def getEventManager(self,config=None,mode='sql'):
         '''
         get an EventManager
         
@@ -60,11 +60,11 @@ class WikiCFP(object):
             profile(boolean): True if profile/timing information should be shown
             mode(string): the storage mode to use e.g. "json"
         '''
-        if mode=='sql':
-            config=StorageConfig.getSQL(debug)
-        elif mode=='json':
-            config=StorageConfig.getJSON(debug)    
-        config.profile=profile
+        if config is None:
+            if mode=='sql':
+                config=StorageConfig.getSQL()
+            elif mode=='json':
+                config=StorageConfig.getJSON()
         em=EventManager('wikicfp',url='http://www.wikicfp.com',title='WikiCFP',config=config) 
         return em
     

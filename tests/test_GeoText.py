@@ -24,10 +24,12 @@ class TestGeoText(unittest.TestCase):
         test the GeoText library
         '''
         
-        sqlQuery="""SELECT locality 
-FROM event_wikicfp
-WHERE locality IS NOT NULL
-LIMIT 1000
+        sqlQuery="""select count(*) as count,
+locality from event_wikicfp
+where locality is not null
+group by locality
+order by 1 desc
+LIMIT 100
 """
         sqlDB=TestWordParser.getSQLDB()
         if sqlDB is not None:

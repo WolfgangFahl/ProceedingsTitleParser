@@ -36,7 +36,8 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
             if debug:
                 config.debug=debug
         self.config=config
-        self.showProgress ("Creating %smanager(%s) for %s" % (self.entityName,config.mode,self.name))
+        cacheFile=self.getCacheFile()
+        self.showProgress ("Creating %smanager(%s) for %s using cache %s" % (self.entityName,config.mode,self.name,cacheFile))
         if config.mode is StoreMode.DGRAPH:
             self.dgraph=Dgraph(debug=config.debug,host=config.host,profile=config.profile)
         elif config.mode is StoreMode.SPARQL:
@@ -74,6 +75,8 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         '''
         cachedir=EntityManager.getCachePath()
         config=self.config
+        if config.cacheFile is not None:
+            return config.cacheFile
         mode=self.config.mode
         ''' get the path to the file for my cached data '''  
         if mode is StoreMode.JSON:  

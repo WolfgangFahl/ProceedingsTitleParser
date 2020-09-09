@@ -17,18 +17,23 @@ class Crossref(object):
     Access to Crossref's search api see https://github.com/CrossRef/rest-api-doc
     '''
 
-    def __init__(self, limit=1000000,batchSize=1000,debug=False,profile=True):
+    def __init__(self, config=None,limit=1000000,batchSize=1000):
         '''
         Constructor
+         
+        Args:
+            config(StorageConfig): the storage configuration to use
+            limit(int): maximum number of records to read
+            batchSize(int): number of records to read/write per batch
         '''
         self.limit=limit
         self.batchSize=batchSize
-        self.cr=habanero.Crossref()
-        self.debug=debug
-        self.profile=profile
+        self.cr=habanero.Crossref()   
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
-        self.em=EventManager('crossref',url='https://www.crossref.org/',title='crossref.org')
+        self.em=EventManager('crossref',url='https://www.crossref.org/',title='crossref.org',config=config)
+        self.debug=self.em.config.debug
+        self.profile=self.em.config.profile
         
     def cacheEvents(self):
         '''

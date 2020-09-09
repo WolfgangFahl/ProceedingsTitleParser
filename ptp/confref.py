@@ -12,11 +12,11 @@ class ConfRef(object):
     classdocs
     '''
 
-    def __init__(self,debug=False):
+    def __init__(self,config=None):
         '''
         Constructor
         '''
-        self.em=EventManager('confref',url='http://portal.confref.org/',title='confref.org')
+        self.em=EventManager('confref',url='http://portal.confref.org/',title='confref.org',config=config)
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
         self.jsonFilePath=self.jsondir+"confref-conferences.json"

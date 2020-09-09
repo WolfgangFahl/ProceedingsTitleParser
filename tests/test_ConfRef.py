@@ -43,7 +43,7 @@ class TestConfRef(unittest.TestCase):
         #mode="dgraph"
         limit=100000
         batchSize=2000
-        confRef=ConfRef(debug=self.debug)
+        confRef=ConfRef()
         if self.forceCaching:   
             confRef.em.removeCacheFile()
         #EventManager.debug=True

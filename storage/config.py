@@ -19,19 +19,20 @@ class StorageConfig(object):
     a storage configuration
     '''
 
-    def __init__(self, mode=StoreMode.SQL,withShowProgress=True,profile=True,debug=False,errorDebug=True):
+    def __init__(self, mode=StoreMode.SQL,cacheFile=None,withShowProgress=True,profile=True,debug=False,errorDebug=True):
         '''
         Constructor
         
         Args:
             mode(StoreMode): the storage mode e.g. sql
+            cacheFile(string): the common cacheFile to use (if any)
             withShowProgress(boolean): True if progress should be shown
             profile(boolean): True if timing / profiling information should be shown
             debug(boolean): True if debugging information should be shown
             errorDebug(boolean): True if debug info should be provided on errors (should not be used for production since it might reveal data)
         '''
-        
         self.mode=mode
+        self.cacheFile=cacheFile
         self.profile=profile
         self.withShowProgress=withShowProgress
         self.debug=debug

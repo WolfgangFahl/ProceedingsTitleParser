@@ -14,14 +14,17 @@ class OpenResearch(object):
     OpenResearch Semantic Media API
     '''
 
-    def __init__(self,debug=False,profile=True):
+    def __init__(self,config=None):
         '''
         Constructor
+        
+        Args:
+            config(StorageConfig): the storage configuration to use
         '''
         self.smw=OpenResearch.getSMW()
-        self.debug=debug
-        self.profile=profile
-        self.em=EventManager('or',url='https://www.openresearch.org/wiki/Main_Page',title='OPENRESEARCH')
+        self.em=EventManager('or',url='https://www.openresearch.org/wiki/Main_Page',title='OPENRESEARCH',config=config)
+        self.debug=self.em.config.debug
+        self.profile=self.em.config.profile
         
     def getAsk(self,condition,limit=50,offset=0):    
         ask="""{{#ask: [[%s]]

@@ -13,12 +13,15 @@ class Dblp(object):
     see e.g. https://github.com/WolfgangFahl/ProceedingsTitleParser/issues/25
     '''
 
-    def __init__(self,debug=False):
+    def __init__(self,config=None):
         '''
         Constructor
+        Args:
+            config(StorageConfig): the storage configuration to use
         '''
-        self.debug=debug
-        self.em=EventManager('dblp',url='https://dblp.org/',title='dblp computer science bibliography')
+        self.em=EventManager('dblp',url='https://dblp.org/',title='dblp computer science bibliography',config=config)
+        self.debug=self.em.config.debug
+        self.profile=self.em.config.profile
         path=os.path.dirname(__file__)
         self.jsondir=path+"/../sampledata/"
         self.jsonFilePath=self.jsondir+"dblp.json"

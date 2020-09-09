@@ -31,7 +31,7 @@ class TestCrossref(unittest.TestCase):
         '''
         test loading crossref data
         '''
-        crossRef=Crossref(debug=False,profile=True)
+        crossRef=Crossref()
         if not crossRef.em.isCached():
             crossRef.cacheEvents()
         else:
