@@ -140,6 +140,7 @@ class Lookup(object):
             
         tableSchemas=self.getEventSchemas()
         tableSchemas['City_github']='City List from github'
+        tableSchemas['Country_github']='Country list from github'
         errors=[]
         for tableName in tableSchemas:
             if not tableName in tableDict:
@@ -255,15 +256,14 @@ union
                 self.copyFrom(wordUsageDBFile)
             
             if withWikiData:
-                endpoint="https://query.wikidata.org/sparql"
                 cm=CountryManager("wikidata")
-                cm.fromWikiData(endpoint)      
-                dbFile=cm.store(cm.countryList)
+                cm.endpoint="https://query.wikidata.org/sparql"
+                dbFile=cm.fromCache()       
                 self.copyFrom(dbFile)
                 
                 pm=ProvinceManager("wikidata")
-                pm.fromWikiData(endpoint)
-                dbFile=pm.store(pm.provinceList)
+                pm.endpoint=cm.endpoint
+                dbFile=pm.fromCache()
                 self.copyFrom(dbFile)
         return self.getSQLDB()
     

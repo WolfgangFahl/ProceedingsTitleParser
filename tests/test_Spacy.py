@@ -7,6 +7,7 @@ import unittest
 import spacy
 import os
 from tests.test_WordParser import TestWordParser
+from ptp.lookup import Lookup
 
 class TestSpacy(unittest.TestCase):
     '''
@@ -33,7 +34,8 @@ class TestSpacy(unittest.TestCase):
         nlp = spacy.load('en_core_web_sm')
         index=0
         limit=100
-        sqlDB=TestWordParser.getSQLDB()
+        lookup=Lookup("test Spacy")
+        sqlDB=lookup.getSQLDB()
         if sqlDB is not None:
             for source in ['wikidata','crossref','dblp','CEUR-WS']:
                 listOfDicts=TestWordParser.getProceedingsTitles(sqlDB,source)
@@ -46,7 +48,6 @@ class TestSpacy(unittest.TestCase):
                     index+=1
                     if index>limit: break
                 if index>limit: break
-                       
         
 
 if __name__ == "__main__":

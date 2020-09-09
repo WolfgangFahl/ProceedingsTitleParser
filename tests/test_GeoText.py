@@ -32,7 +32,7 @@ group by locality
 order by 1 desc
 LIMIT 100
 """
-        lookup=Lookup()
+        lookup=Lookup("test Geo Text")
         sqlDB=lookup.getSQLDB()
         if sqlDB is not None:
             listOfDicts=sqlDB.query(sqlQuery)

@@ -92,6 +92,15 @@ class ProvinceManager(EntityManager):
         config.tableName="Province_%s" % name
         super().__init__(name,entityName="Province",entityPluralName="Provinces",config=config)
         
+    def fromCache(self):
+        if not self.isCached():
+            self.fromWikiData(self.endpoint)
+            dbFile=self.store(self.provinceList)
+        else:
+            self.fromStore()
+            dbFile=self.getCacheFile(config=self.config,mode=StoreMode.SQL)   
+        return dbFile      
+              
     def fromWikiData(self,endpoint):
         '''
         get the province List from WikiData
@@ -148,7 +157,6 @@ class CountryManager(EntityManager):
         path=os.path.dirname(__file__)
         super().__init__(name,entityName="Country",entityPluralName="Countries",config=config)
         
-        
         self.sampledir=path+"/../sampledata/"
         self.schema='''
 name: string @index(exact) .
@@ -172,6 +180,15 @@ type Country {
   }
 }'''
     
+    def fromCache(self):
+        if not self.isCached():
+            self.fromWikiData(self.endpoint)
+            dbFile=self.store(self.countryList)
+        else:
+            self.fromStore()   
+            dbFile=self.getCacheFile(config=self.config,mode=StoreMode.SQL)   
+        return dbFile
+     
     def fromConfRef(self):
         '''
         get countries from ConfRef 
