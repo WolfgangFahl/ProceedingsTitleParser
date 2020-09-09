@@ -71,7 +71,7 @@ class WikiCFP(object):
         '''
         cache my events to my eventmanager
         '''
-        jsonEm=self.getEventManager(self.debug,self.profile, 'json')
+        jsonEm=self.getEventManager(mode='json')
         if jsonEm.isCached():
             jsonEm.fromStore()
         else:    
