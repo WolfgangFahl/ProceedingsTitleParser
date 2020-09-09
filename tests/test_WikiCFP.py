@@ -79,7 +79,7 @@ class TestWikiCFP(unittest.TestCase):
         size=os.stat(jsonFilePath).st_size
         print ("JSON file has size %d" % size)
         self.assertTrue(size>5000)
-        batchEm=wikiCFP.getEventManager(self.debug, self.profile, 'json')
+        batchEm=wikiCFP.getEventManager(mode='json')
         batchEm.fromStore(cacheFile=jsonFilePath)
         self.assertEqual(len(batchEm.events.values()),10)
         inspect=True

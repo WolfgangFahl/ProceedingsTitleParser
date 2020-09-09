@@ -45,6 +45,7 @@ class StorageConfig(object):
     @staticmethod
     def getSQL(debug=False):
         config=StorageConfig(mode=StoreMode.SQL,debug=debug)
+        config.tableName=None
         return config
     
     @staticmethod

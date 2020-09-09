@@ -43,7 +43,7 @@ class TestOpenResearch(unittest.TestCase):
             opr.em.fromStore()    
         self.assertTrue(opr.em.isCached())
       
-        opr2=OpenResearch(debug=self.debug)
+        opr2=OpenResearch()
         opr2.em.fromStore()
         self.assertEqual(len(opr2.em.events),len(opr.em.events))
         events=opr2.em.lookup("ZEUS 2018")

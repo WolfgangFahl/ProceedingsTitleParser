@@ -33,6 +33,8 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         self.entityPluralName=entityPluralName
         if config is None:
             config=StorageConfig.getDefault()
+            if config.tableName is None:
+                config.tableName=entityName
             if debug:
                 config.debug=debug
         self.config=config
