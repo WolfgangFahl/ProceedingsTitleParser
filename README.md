@@ -18,3 +18,4 @@ Shallow Semantic Parser to extract metadata from scientific proceedings titles
 
 ### Authors
 * [Wolfgang Fahl](http://www.bitplan.com/Wolfgang_Fahl)
+
