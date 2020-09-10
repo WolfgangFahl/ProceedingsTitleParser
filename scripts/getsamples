@@ -247,6 +247,17 @@ getConfRef() {
 }
 
 #
+# get the cached wiki data queries for country and province
+#
+getWikiDataRegion() {
+	for r in Country Province
+	do
+	  src=http://wiki.bitplan.com/images/$r_wikidata.db
+	  download $src $target
+	done
+}
+
+#
 # get samples from all relevant sources
 #
 getAll() {
@@ -256,20 +267,25 @@ getAll() {
   getDblp
   getWikiCFP
   getText
+  getWikiDataRegion
 }
 
 # commandline option
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 #echo $DIR
 sampledir="$DIR/../sampledata"
+cachedir="$DIR/../cache"
 
-if [ ! -d $sampledir ]
-then
-  color_msg $blue  "creating $sampledir directory"
-  mkdir -p $sampledir
-else
-  color_msg $green "$sampledir directory already exists"
-fi
+for d in $sampledir $cacheDir
+do
+	if [ ! -d $d ]
+	then
+	  color_msg $blue  "creating $d directory"
+	  mkdir -p $d
+	else
+	  color_msg $green "$d directory already exists"
+	fi
+done
 
 while [  "$1" != ""  ]
 do

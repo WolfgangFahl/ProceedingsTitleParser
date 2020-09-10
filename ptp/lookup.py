@@ -18,14 +18,13 @@ from storage.config import StoreMode, StorageConfig
 from datetime import datetime
 import os
 import yaml
-import getpass
 
 class Lookup(object):
     '''
     Wrapper for TitleParser
     '''
 
-    def __init__(self,name,getAll=True,butNot=None,debug=False):
+    def __init__(self,name,getAll=True,butNot=None,debug=False,maxAgeMin=0,forceCaching=False):
         '''
         Constructor
         
@@ -44,8 +43,15 @@ class Lookup(object):
         config.cacheFile=Lookup.getDBFile()
         if not os.path.isfile(config.cacheFile):
             config.cacheFile=None
+            createAll=True
         else:
-            self.check(SQLDB(config.cacheFile))    
+            errors=self.check(SQLDB(config.cacheFile))    
+            # make sure the event_all db is complete
+            createAll=len(errors)>0 and forceCaching
+        if createAll:
+            withWikiData=True
+            self.createEventAll(maxAgeMin, withWikiData)
+                
         # get the open research EventManager
         self.ems=[]
         if butNot is None:
@@ -54,10 +60,6 @@ class Lookup(object):
             self.butNot=butNot
         lookupIds=['or']
         if getAll:
-            if config.cacheFile is None:
-                maxAgeMin=1
-                withWikiData=getpass.getuser()!="travis"
-                self.createEventAll(maxAgeMin, withWikiData)
             lookupIds=['or','ceur-ws','crossref','confref','wikicfp','wikidata','dblp']
         for lookupId  in lookupIds:
             lem=None
@@ -141,6 +143,8 @@ class Lookup(object):
         tableSchemas=self.getEventSchemas()
         tableSchemas['City_github']='City List from github'
         tableSchemas['Country_github']='Country list from github'
+        tableSchemas['Country_wikidata']='Country list from wikidata'
+        tableSchemas['Province_wikidata']='Province list from wikidata'    
         errors=[]
         for tableName in tableSchemas:
             if not tableName in tableDict:

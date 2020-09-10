@@ -39,7 +39,7 @@ class TestLookup(unittest.TestCase):
         '''
         check that the event all database is created correctly
         '''
-        withWikiData=getpass.getuser()!="travis"
+        withWikiData=True
         lookup=Lookup("CreateEventAll")
         self.assertEqual(7,len(lookup.ems))
         errors=lookup.check(lookup.getSQLDB(),debug=True)
