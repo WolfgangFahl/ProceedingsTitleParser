@@ -6,8 +6,8 @@ Created on 2020-08-30
 import unittest
 from ptp.lookup import Lookup
 from ptp.ontology import Ontology
-from storage.sql import SQLDB
-from storage.uml import UML
+from lodstorage.sql import SQLDB
+from lodstorage.uml import UML
 import getpass
 from datetime import datetime
 

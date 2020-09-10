@@ -12,7 +12,7 @@ import ptp.wikidata
 import ptp.dblp
 import ptp.crossref
 import ptp.wikicfp
-from storage.sql import SQLDB
+from lodstorage.sql import SQLDB
 from storage.entity import EntityManager
 from storage.config import StoreMode, StorageConfig
 from datetime import datetime

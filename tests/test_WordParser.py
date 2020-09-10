@@ -6,7 +6,7 @@ Created on 2020-09-04
 import unittest
 from ptp.wordparser import CorpusWordParser, WordParser, WordUsage
 from ptp.lookup import Lookup
-from storage.sql import SQLDB
+from lodstorage.sql import SQLDB
 import os
 from ptp.plot import Plot
 import pandas as pd
