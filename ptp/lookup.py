@@ -48,7 +48,7 @@ class Lookup(object):
         self.tp=TitleParser(lookup=self,name=self.name,ptp=self.ptp,dictionary=self.dictionary,ems=self.ems)
         
     @staticmethod
-    def ensureAllIsAvailable():
+    def ensureAllIsAvailable(msg=None):
         ''' 
         make sure the event_all database is available and return a suitable lookup
         '''    
@@ -56,6 +56,9 @@ class Lookup(object):
         if len(lookup.config.errors)>0:
             lookup.createEventAll(0, withWikiData=True)
             lookup=Lookup("CreateEventAll",singleDB=True,debug=True)
+        else:
+            if msg is not None:
+                print(msg)    
         return lookup    
         
     def setSingleDBConfig(self,config):    
