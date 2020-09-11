@@ -25,6 +25,7 @@ class CityManager(EntityManager):
         if config is None:
             config=StorageConfig.getSQL()
         config.tableName="City_%s" % name
+        self.cityList=None
         super().__init__(name,entityName="City",entityPluralName="Cities",config=config)
         pass
     
@@ -32,6 +33,8 @@ class CityManager(EntityManager):
         '''
         get the list of Dicts for this city manager
         '''
+        if self.cityList is None:
+            self.cityList=self.fromWikidata(self.endpoint)
         return self.cityList
     
     def fromLutangar(self):
@@ -76,7 +79,49 @@ class CityManager(EntityManager):
             offset=offset+batch
             if found<batch or len(cities)>=limit:
                     break    
-        return cities          
+        return cities      
+    
+    def fromWikiData(self,endpoint):
+        '''
+        get the city List from WikiData
+        
+        Args:
+            endpoint(string): the url of the endpoint to be used
+        '''
+        wd=SPARQL(endpoint)
+        queryString="""# get a list of cities
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+SELECT ?city ?cityLabel ?country ?countryLabel ?countryIsoCode (MAX(?pop) as ?population) ?coord 
+WHERE 
+{
+  # instance of city/town
+  ?city wdt:P31 wd:Q486972.
+  ?city rdfs:label ?cityLabel filter (lang(?cityLabel) = "en").
+  ?city wdt:P17 ?country.
+  ?country wdt:P297 ?countryIsocode .
+  ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
+  OPTIONAL { 
+    # get the population
+    # https://www.wikidata.org/wiki/Property:P1082
+    ?city wdt:P1082 ?pop. 
+  }
+  # get the coordinates
+  OPTIONAL { ?city wdt:P625 ?coord }.
+} 
+GROUP BY ?city ?cityLabel ?country ?countryLabel ?countryIsoCode ?population ?gdpPerCapita ?coord 
+ORDER BY ?cityLabel"""
+        results=wd.query(queryString)
+        self.cityList=wd.asListOfDicts(results)
+        for city in self.provinceList:
+            city['wikidataurl']=city.pop('city')
+            city['name']=city.pop('cityLabel')  
+            super().setNone(city,['coord','population','countryIsoCode'])
     
 class ProvinceManager(EntityManager):
     ''' 
@@ -90,16 +135,13 @@ class ProvinceManager(EntityManager):
             config=StorageConfig.getSQL()
         config.debug=debug
         config.tableName="Province_%s" % name
+        self.provinceList=None
         super().__init__(name,entityName="Province",entityPluralName="Provinces",config=config)
         
-    def fromCache(self):
-        if not self.isCached():
+    def getListOfDicts(self):
+        if self.provinceList is None:
             self.fromWikiData(self.endpoint)
-            dbFile=self.store(self.provinceList)
-        else:
-            self.fromStore()
-            dbFile=self.getCacheFile(config=self.config,mode=StoreMode.SQL)   
-        return dbFile      
+        return self.provinceList
               
     def fromWikiData(self,endpoint):
         '''
@@ -154,6 +196,7 @@ class CountryManager(EntityManager):
             config=StorageConfig.getSQL()
         config.debug=debug
         config.tableName="Country_%s" % name
+        self.countryList=None
         path=os.path.dirname(__file__)
         super().__init__(name,entityName="Country",entityPluralName="Countries",config=config)
         
@@ -179,15 +222,13 @@ type Country {
     location
   }
 }'''
-    
-    def fromCache(self):
-        if not self.isCached():
-            self.fromWikiData(self.endpoint)
-            dbFile=self.store(self.countryList)
-        else:
-            self.fromStore()   
-            dbFile=self.getCacheFile(config=self.config,mode=StoreMode.SQL)   
-        return dbFile
+    def getListOfDicts(self):
+        '''
+        get the list of Dicts for this city manager
+        '''
+        if self.countryList is None:
+            self.countryList=self.fromWikidata(self.endpoint)
+        return self.countryList
      
     def fromConfRef(self):
         '''

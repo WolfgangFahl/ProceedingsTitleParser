@@ -37,6 +37,7 @@ LIMIT 100
         lookup=Lookup.ensureAllIsAvailable("testGeoText")
         sqlDB=lookup.getSQLDB()
         if sqlDB is not None:
+            print("testGeoText from database %s " % sqlDB.dbname)
             listOfDicts=sqlDB.query(sqlQuery)
             for record in listOfDicts:
                 locality=record['locality']

@@ -117,6 +117,19 @@ WHERE {
             # use 2020 wikidata copy
             endpoint="http://jena.zeus.bitplan.com/wikidata"
         return endpoint
+    
+    def testWikiDataCities(self):
+        '''
+        test getting cities(human settlements to be precise)
+        from Wikidata
+        '''
+        endpoint=self.getEndPoint()
+        if endpoint is None: return
+        cm=CityManager("wikidata")
+        cm.fromWikiData(endpoint)    
+        print("found %d provinces" % len(cm.cityList))
+        self.assertTrue(len(cm.cityList)>=195) 
+        cm.store(cm.cityList)
         
     def testWikiDataProvinces(self):
         '''

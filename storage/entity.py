@@ -162,7 +162,19 @@ GROUP by ?source
                     pass      
         else:
             raise Exception("unsupported mode %s" % self.mode)            
-        return result        
+        return result     
+    
+    def fromCache(self):
+        '''
+        get my entries from the cache
+        '''
+        if not self.isCached():
+            listOfDicts=self.getListOfDicts()
+            dbFile=self.store(listOfDicts)
+        else:
+            self.fromStore()
+            dbFile=self.getCacheFile(config=self.config,mode=StoreMode.SQL)   
+        return dbFile         
         
     def fromStore(self,cacheFile=None):
         '''
