@@ -42,10 +42,21 @@ class Lookup(object):
         self.debug=debug
         self.ptp=ProceedingsTitleParser.getInstance()
         self.dictionary=ProceedingsTitleParser.getDictionary()
-        config=StorageConfig.getSQL()
+        self.config=StorageConfig.getSQL()
         self.getLookupIds(butNot,getAll)        
-        self.initEntityManagers(config,singleDB)
+        self.initEntityManagers(self.config,singleDB)
         self.tp=TitleParser(lookup=self,name=self.name,ptp=self.ptp,dictionary=self.dictionary,ems=self.ems)
+        
+    @staticmethod
+    def ensureAllIsAvailable():
+        ''' 
+        make sure the event_all database is available and return a suitable lookup
+        '''    
+        lookup=Lookup("CreateEventAll",singleDB=True,debug=True)
+        if len(lookup.config.errors)>0:
+            lookup.createEventAll(0, withWikiData=True)
+            lookup=Lookup("CreateEventAll",singleDB=True,debug=True)
+        return lookup    
         
     def setSingleDBConfig(self,config):    
         '''
@@ -66,6 +77,12 @@ class Lookup(object):
                 config.singleDB=True
         
     def getLookupIds(self,butNot,getAll):    
+        '''
+        get the lookup ids
+        Args:
+            butNot(list): exclude the given list of ids
+            getAll(boolean): true if all ids should be returned
+        '''
         if butNot is None:
             self.butNot=[]
         else:
@@ -77,6 +94,7 @@ class Lookup(object):
     def initEntityManagers(self,config,singleDB):
         '''
         Args:
+           config(StorageConfig): the configuration to use
            singleDB(boolean): True - if one database should be use for all entity managers
         '''        
         if singleDB:
@@ -245,6 +263,8 @@ union
     def copyFrom(self,dbFile):
         '''
         copy the contents of the given database file to my database
+        Args:
+            dbFile(string): the database to copy the content from
         '''
         sqlDB=self.getSQLDB()
         sourceDB=SQLDB(dbFile)
@@ -256,6 +276,7 @@ union
         
         Args:
             maxAgeH(int): maximum age of the database before being recreated
+            withWikiData(boolean): True if the wikidata tables should be initialized
             
         '''
         dbFile=Lookup.getDBFile()
@@ -377,7 +398,6 @@ USAGE
         parser.add_argument('-c', '--check',action='store_true',default=False,help='check Event_all.db in cache')
         parser.add_argument('-w', '--wikidata',action='store_true',default=True,help='add wikidata entries')
         
-    
         # Process arguments
         args = parser.parse_args()   
         lookup=Lookup("CreateEventAll",singleDB=args.check,debug=args.debug)

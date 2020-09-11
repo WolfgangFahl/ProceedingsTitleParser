@@ -25,7 +25,7 @@ class TestStats(unittest.TestCase):
         '''
         qm=QueryManager(lang='sql',debug=False)
         self.assertEqual(16,len(qm.queriesByName))
-        lookup=Lookup("stats")
+        lookup=Lookup.ensureAllIsAvailable()
         sqlDB=lookup.getSQLDB()
         for name,query in qm.queriesByName.items():
             listOfDicts=sqlDB.query(query.query)

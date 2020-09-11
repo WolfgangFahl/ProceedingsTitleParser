@@ -34,7 +34,7 @@ class TestSpacy(unittest.TestCase):
         nlp = spacy.load('en_core_web_sm')
         index=0
         limit=100
-        lookup=Lookup("test Spacy")
+        lookup=Lookup.ensureAllIsAvailable()
         sqlDB=lookup.getSQLDB()
         if sqlDB is not None:
             for source in ['wikidata','crossref','dblp','CEUR-WS']:

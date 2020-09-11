@@ -10,7 +10,9 @@ from geotext import GeoText
 import geograpy
 
 class TestGeoText(unittest.TestCase):
-
+    '''
+    test the geo text  and similar libraries
+    '''
 
     def setUp(self):
         pass
@@ -32,7 +34,7 @@ group by locality
 order by 1 desc
 LIMIT 100
 """
-        lookup=Lookup("test Geo Text")
+        lookup=Lookup.ensureAllIsAvailable()
         sqlDB=lookup.getSQLDB()
         if sqlDB is not None:
             listOfDicts=sqlDB.query(sqlQuery)
@@ -46,7 +48,6 @@ LIMIT 100
                 print(" %s" % gp.countries)
                 print(" %s" % gp.regions)
                 print(" %s" % gp.cities)
-                
         pass
 
 
