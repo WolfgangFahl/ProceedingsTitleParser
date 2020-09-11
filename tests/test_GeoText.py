@@ -28,7 +28,7 @@ class TestGeoText(unittest.TestCase):
         '''
         
         sqlQuery="""select count(*) as count,
-locality from event_wikicfp
+locality from Event_wikicfp
 where locality is not null
 group by locality
 order by 1 desc
