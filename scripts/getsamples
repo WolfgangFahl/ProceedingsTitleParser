@@ -160,7 +160,7 @@ getDblp() {
 #
 getWikiCFP() {
   source=wikicfp.tgz
-  download http://wiki.bitplan.com/images/$source $sampledir/$source
+  download http://wiki.bitplan.com/images/confident/$source $sampledir/$source
   pwd=$(pwd)
   cd $sampledir
   # unpack
@@ -252,7 +252,9 @@ getConfRef() {
 getWikiDataRegion() {
 	for r in Country Province City
 	do
-	  src=http://wiki.bitplan.com/images/$r_wikidata.db
+    db=${r}_wikidata.db
+	  src=http://wiki.bitplan.com/images/confident/$db
+    target=$cachedir/$db
 	  download $src $target
 	done
 }
@@ -301,6 +303,9 @@ do
       color_msg $blue "forcing getsamples for CEUR-WS by deleting $html and $txt"
       rm $html $txt
       getCEURWS
+      exit 0;;
+    -w|--wikidata)
+      getWikiDataRegion
       exit 0;;
   esac
 done
