@@ -114,7 +114,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-SELECT ?region ?isocc ?isocode4 ?regionLabel ?pop ?location
+SELECT ?region ?isocc ?isocode4 ?regionLabel ?population ?location
 WHERE 
 {
   # administrative unit of first order
@@ -126,7 +126,7 @@ WHERE
   # FILTER NOT EXISTS {?region wdt:P576 ?end}
   # get the population
   # https://www.wikidata.org/wiki/Property:P1082
-  OPTIONAL { ?region wdt:P1082 ?pop. }
+  OPTIONAL { ?region wdt:P1082 ?population. }
   # # https://www.wikidata.org/wiki/Property:P297
   OPTIONAL { ?region wdt:P297 ?isocc. }
   # isocode state/province

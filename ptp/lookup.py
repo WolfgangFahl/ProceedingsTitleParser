@@ -58,7 +58,7 @@ class Lookup(object):
             lookup=Lookup("CreateEventAll",singleDB=True,debug=True)
         else:
             if msg is not None:
-                print(msg)    
+                print("ensureAllIsAvailable no errors for %s" % msg)    
         return lookup    
         
     def setSingleDBConfig(self,config):    
@@ -396,6 +396,7 @@ USAGE
         # Setup argument parser
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
         parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info")
+        parser.add_argument('-e', '--endpoint', default='', help="SPARQL endpoint to use for wikidata queries")     
         parser.add_argument('-v', '--version', action='version', version=program_version_message)
         parser.add_argument('-a', '--all',action='store_true',default=False,help='create Event_all.db in cache')
         parser.add_argument('-c', '--check',action='store_true',default=False,help='check Event_all.db in cache')
