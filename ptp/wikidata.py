@@ -27,8 +27,6 @@ class WikiData(object):
         
     def cacheEvents(self,limit=1000000,batchSize=500):
         ''' initialize me from my sample file '''
-        #self.lookup=ptp.lookup.Lookup("wikidata",getAll=False)
-        #tp=self.lookup.tp
         tp=TitleParser.getDefault(self.em.name)
         tp.fromFile(self.sampleFilePath, "wikidata")
         tc,errs,result=tp.parseAll()

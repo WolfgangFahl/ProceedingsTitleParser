@@ -305,9 +305,10 @@ def main(argv=None): # IGNORE:C0111
     program_build_date = str(__updated__)
     program_version_message = '%%(prog)s %s (%s)' % (program_version, program_build_date)
     program_shortdesc = __import__('__main__').__doc__.split("\n")[1]
+    user_name="Wolfgang Fahl"
     program_license = '''%s
 
-  Created by user_name on %s.
+  Created by %s on %s.
   Copyright 2020 TIB Hannover, Wolfgang Fahl. All rights reserved.
 
   Licensed under the Apache License 2.0
@@ -317,7 +318,7 @@ def main(argv=None): # IGNORE:C0111
   or conditions of any kind, either express or implied.
 
 USAGE
-''' % (program_shortdesc, str(__date__))
+''' % (program_shortdesc,user_name, str(__date__))
 
     try:
         # Setup argument parser

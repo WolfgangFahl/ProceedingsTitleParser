@@ -1,5 +1,5 @@
 '''
-Created on 06.07.2020
+Created on 2020-07-06
 
 @author: wf
 '''
@@ -16,7 +16,11 @@ from lodstorage.sql import SQLDB
 from storage.entity import EntityManager
 from storage.config import StoreMode, StorageConfig
 from datetime import datetime
+from argparse import ArgumentParser
+from argparse import RawDescriptionHelpFormatter
+import copy
 import os
+import sys
 import yaml
 
 class Lookup(object):
@@ -24,7 +28,7 @@ class Lookup(object):
     Wrapper for TitleParser
     '''
 
-    def __init__(self,name,getAll=True,butNot=None,debug=False,maxAgeMin=0,forceCaching=False):
+    def __init__(self,name,getAll=True,butNot=None,debug=False,singleDB=False):
         '''
         Constructor
         
@@ -39,58 +43,76 @@ class Lookup(object):
         self.ptp=ProceedingsTitleParser.getInstance()
         self.dictionary=ProceedingsTitleParser.getDictionary()
         config=StorageConfig.getSQL()
+        self.getLookupIds(butNot,getAll)        
+        self.initEntityManagers(config,singleDB)
+        self.tp=TitleParser(lookup=self,name=self.name,ptp=self.ptp,dictionary=self.dictionary,ems=self.ems)
+        
+    def setSingleDBConfig(self,config):    
+        '''
+        set the cacheFile to the singleDB "Event_all.db"
+        ''' 
         # if event_all.db is available use it ...
         config.cacheFile=Lookup.getDBFile()
+        config.errors=[]
+        # if not 
         if not os.path.isfile(config.cacheFile):
             config.cacheFile=None
-            createAll=True
         else:
-            errors=self.check(SQLDB(config.cacheFile))    
+            config.errors=self.check(SQLDB(config.cacheFile))    
             # make sure the event_all db is complete
-            createAll=len(errors)>0 and forceCaching
-        if createAll:
-            withWikiData=True
-            self.createEventAll(maxAgeMin, withWikiData)
-                
-        # get the open research EventManager
-        self.ems=[]
+            if len(config.errors)>0:
+                config.cacheFile=None
+            else:
+                config.singleDB=True
+        
+    def getLookupIds(self,butNot,getAll):    
         if butNot is None:
             self.butNot=[]
         else:
             self.butNot=butNot
-        lookupIds=['or']
+        self.lookupIds=['or']
         if getAll:
-            lookupIds=['or','ceur-ws','crossref','confref','wikicfp','wikidata','dblp']
-        for lookupId  in lookupIds:
+            self.lookupIds=['or','ceur-ws','crossref','confref','wikicfp','wikidata','dblp']
+        
+    def initEntityManagers(self,config,singleDB):
+        '''
+        Args:
+           singleDB(boolean): True - if one database should be use for all entity managers
+        '''        
+        if singleDB:
+            self.setSingleDBConfig(config)    
+            if len(config.errors)>0:
+                print("Warning: %s \nCan't use single database for all events" % config.errors)
+        # get the open research EventManager
+        self.ems=[]
+        for lookupId  in self.lookupIds:
             lem=None
             if not lookupId in self.butNot:
                 if lookupId=='or': 
                     # https://www.openresearch.org/wiki/Main_Page
-                    lem=ptp.openresearch.OpenResearch(config=config)
+                    lem=ptp.openresearch.OpenResearch(config=copy.copy(config))
                 elif lookupId=='ceur-ws':
                     # CEUR-WS http://ceur-ws.org/
-                    lem=ptp.ceurws.CEURWS(config=config)
+                    lem=ptp.ceurws.CEURWS(config=copy.copy(config))
                 elif lookupId=='confref':
                     # confref http://portal.confref.org/
-                    lem=ptp.confref.ConfRef(config=config)
+                    lem=ptp.confref.ConfRef(config=copy.copy(config))
                 elif lookupId=='crossref':
                     # https://www.crossref.org/
-                    lem=ptp.crossref.Crossref(config=config)   
+                    lem=ptp.crossref.Crossref(config=copy.copy(config))   
                 elif lookupId=='dblp':
                     # https://dblp.org/
-                    lem=ptp.dblp.Dblp(config=config)  
+                    lem=ptp.dblp.Dblp(config=copy.copy(config))  
                 elif lookupId=='wikicfp':
                     # http://www.wikicfp.com/cfp/
-                    lem=ptp.wikicfp.WikiCFP(config=config)       
+                    lem=ptp.wikicfp.WikiCFP(config=copy.copy(config))       
                 elif lookupId=='wikidata':
                     # https://www.wikidata.org/wiki/Wikidata:Main_Page
-                    lem=ptp.wikidata.WikiData(config=config)      
+                    lem=ptp.wikidata.WikiData(config=copy.copy(config))      
                               
             if lem is not None:
                 lem.initEventManager()
-                self.ems.append(lem.em);
-            
-        self.tp=TitleParser(lookup=self,name=name,ptp=self.ptp,dictionary=self.dictionary,ems=self.ems)
+                self.ems.append(lem.em);            
 
     def extractFromUrl(self,url):
         ''' 
@@ -134,11 +156,11 @@ class Lookup(object):
         tableList=sqlDB.getTableList()
         if debug:
             print(tableList)
-        # create hashmap for tables
-        tableDict={}
+        # create hashmap of columns for tables
+        tableCols={}
         for table in tableList:
             tableName=table['name']
-            tableDict[tableName]=True
+            tableCols[tableName]=table['columns']
             
         tableSchemas=self.getEventSchemas()
         tableSchemas['City_github']='City List from github'
@@ -147,8 +169,13 @@ class Lookup(object):
         tableSchemas['Province_wikidata']='Province list from wikidata'    
         errors=[]
         for tableName in tableSchemas:
-            if not tableName in tableDict:
+            if not tableName in tableCols:
                 errors.append("table %s is missing" % tableName)
+            elif self.debug:
+                print("%s ✅" %tableName)
+                for col in tableCols[tableName]:
+                    print("  %2d: %s(%s)" % (col['cid'],col['name'],col['type']))
+                    
         return errors
     
     def getEventSchemas(self):
@@ -239,7 +266,7 @@ union
             now=datetime.now()
             age=now-ctime;
             ageMin=age.total_seconds()/60
-            doCreate=ageMin>=maxAgeMin
+            doCreate=ageMin>=maxAgeMin              
             
         if doCreate:
             self.store()
@@ -305,3 +332,70 @@ union
         with open(examplesPath, 'r') as stream:
             examples = yaml.safe_load(stream)
         return examples
+
+__version__ = 0.1
+__date__ = '2020-06-22'
+__updated__ = '2020-08-20'    
+
+DEBUG = 1
+
+    
+def main(argv=None): # IGNORE:C0111
+    '''main program.'''
+
+    if argv is None:
+        argv = sys.argv
+    else:
+        sys.argv.extend(argv)    
+        
+    program_name = os.path.basename(sys.argv[0])
+    program_version = "v%s" % __version__
+    program_build_date = str(__updated__)
+    program_version_message = '%%(prog)s %s (%s)' % (program_version, program_build_date)
+    program_shortdesc = __import__('__main__').__doc__.split("\n")[1]
+    user_name="Wolfgang Fahl"
+    program_license = '''%s
+
+  Created by %s on %s.
+  Copyright 2020 Wolfgang Fahl. All rights reserved.
+
+  Licensed under the Apache License 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Distributed on an "AS IS" basis without warranties
+  or conditions of any kind, either express or implied.
+
+USAGE
+''' % (program_shortdesc, user_name,str(__date__))
+
+    try:
+        # Setup argument parser
+        parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
+        parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info")
+        parser.add_argument('-v', '--version', action='version', version=program_version_message)
+        parser.add_argument('-a', '--all',action='store_true',default=False,help='create Event_all.db in cache')
+        parser.add_argument('-c', '--check',action='store_true',default=False,help='check Event_all.db in cache')
+        parser.add_argument('-w', '--wikidata',action='store_true',default=True,help='add wikidata entries')
+        
+    
+        # Process arguments
+        args = parser.parse_args()   
+        lookup=Lookup("CreateEventAll",singleDB=args.check,debug=args.debug)
+        if args.all:   
+            lookup.createEventAll(0, withWikiData=args.wikidata)
+        
+    except KeyboardInterrupt:
+        ### handle keyboard interrupt ###
+        return 1
+    except Exception as e:
+        if DEBUG:
+            raise(e)
+        indent = len(program_name) * " "
+        sys.stderr.write(program_name + ": " + repr(e) + "\n")
+        sys.stderr.write(indent + "  for help use --help")
+        return 2         
+
+if __name__ == "__main__":
+    if DEBUG:
+        sys.argv.append("-d")
+    sys.exit(main())

@@ -18,9 +18,9 @@ from ptp.lookup import Lookup
 
 scriptdir=os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,static_url_path='',static_folder=scriptdir+'/../web', template_folder=scriptdir+'/../templates')
-lookup=Lookup("webserver")
 # create a most current eventall database
-lookup.createEventAll()
+lookup=Lookup("webserver",singleDB=True)
+
 
 @app.route('/')
 def home():
