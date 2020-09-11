@@ -250,7 +250,7 @@ getConfRef() {
 # get the cached wiki data queries for country and province
 #
 getWikiDataRegion() {
-	for r in Country Province
+	for r in Country Province City
 	do
 	  src=http://wiki.bitplan.com/images/$r_wikidata.db
 	  download $src $target

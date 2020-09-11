@@ -124,36 +124,32 @@ WHERE {
         from Wikidata
         '''
         endpoint=self.getEndPoint()
-        if endpoint is None: return
+        # force caching - 5 min query!
+        endpoint=None
         cm=CityManager("wikidata")
-        cm.fromWikiData(endpoint)    
-        print("found %d provinces" % len(cm.cityList))
-        self.assertTrue(len(cm.cityList)>=195) 
-        cm.store(cm.cityList)
+        cm.endpoint=endpoint
+        cm.fromCache()
+        print("found %d cities" % len(cm.cityList))
+        self.assertTrue(len(cm.cityList)>=200000) 
         
     def testWikiDataProvinces(self):
         '''
         test getting provinces from wikidata
         '''
-        endpoint=self.getEndPoint()
-        if endpoint is None: return
         pm=ProvinceManager("wikidata")
-        pm.fromWikiData(endpoint)      
+        pm.endpoint=self.getEndPoint()
+        pm.fromCache()     
         print("found %d provinces" % len(pm.provinceList))
         self.assertTrue(len(pm.provinceList)>=195) 
-        pm.store(pm.provinceList)
             
     def testWikiDataCountries(self):
         '''
         check local wikidata
         '''
-        endpoint=self.getEndPoint()
-        if endpoint is None: return
-
         cm=CountryManager("wikidata")
-        cm.fromWikiData(endpoint)      
+        cm.endpoint=self.getEndPoint()
+        cm.fromCache()     
         self.assertTrue(len(cm.countryList)>=195) 
-        cm.store(cm.countryList,sampleRecordCount=len(cm.countryList))
         
         #    sparql=TestJena.getJena(debug=self.debug)
         #    errors=cm.storeToRDF(sparql)  
@@ -176,6 +172,8 @@ WHERE {
         '''
         test consolidating countries from different sources
         '''
+        if not getpass.getuser()=='travis':
+            return
         cm=CountryManager("github")
         cm.fromErdem()
         cm.fromConfRef()

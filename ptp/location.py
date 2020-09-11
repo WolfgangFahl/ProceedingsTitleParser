@@ -37,6 +37,10 @@ class CityManager(EntityManager):
             self.cityList=self.fromWikidata(self.endpoint)
         return self.cityList
     
+    def fromCache(self):
+        self.cityList=super().fromCache()
+        return self.cityList
+    
     def fromLutangar(self):
         ''' 
         get city list provided by Johan Dufour https://github.com/lutangar
@@ -118,7 +122,7 @@ GROUP BY ?city ?cityLabel ?country ?countryLabel ?countryIsoCode ?population ?gd
 ORDER BY ?cityLabel"""
         results=wd.query(queryString)
         self.cityList=wd.asListOfDicts(results)
-        for city in self.provinceList:
+        for city in self.cityList:
             city['wikidataurl']=city.pop('city')
             city['name']=city.pop('cityLabel')  
             super().setNone(city,['coord','population','countryIsoCode'])
@@ -141,6 +145,10 @@ class ProvinceManager(EntityManager):
     def getListOfDicts(self):
         if self.provinceList is None:
             self.fromWikiData(self.endpoint)
+        return self.provinceList
+    
+    def fromCache(self):
+        self.provinceList=super().fromCache()
         return self.provinceList
               
     def fromWikiData(self,endpoint):
@@ -228,6 +236,10 @@ type Country {
         '''
         if self.countryList is None:
             self.countryList=self.fromWikidata(self.endpoint)
+        return self.countryList
+    
+    def fromCache(self):
+        self.countryList=super().fromCache()
         return self.countryList
      
     def fromConfRef(self):

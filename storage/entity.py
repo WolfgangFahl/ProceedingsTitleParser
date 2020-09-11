@@ -170,11 +170,10 @@ GROUP by ?source
         '''
         if not self.isCached():
             listOfDicts=self.getListOfDicts()
-            dbFile=self.store(listOfDicts)
+            self.store(listOfDicts)
         else:
-            self.fromStore()
-            dbFile=self.getCacheFile(config=self.config,mode=StoreMode.SQL)   
-        return dbFile         
+            listOfDicts=self.fromStore()
+        return listOfDicts      
         
     def fromStore(self,cacheFile=None):
         '''
