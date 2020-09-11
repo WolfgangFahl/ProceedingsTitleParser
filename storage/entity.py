@@ -167,10 +167,13 @@ GROUP by ?source
     def fromCache(self):
         '''
         get my entries from the cache
+        
+        Returns:
+            the list of Dict and the cacheFile
         '''
         if not self.isCached():
             listOfDicts=self.getListOfDicts()
-            self.store(listOfDicts)
+            self.cacheFile=self.store(listOfDicts)
         else:
             listOfDicts=self.fromStore()
         return listOfDicts      
@@ -186,6 +189,7 @@ GROUP by ?source
         startTime=time.time()
         if cacheFile is None:
             cacheFile=self.getCacheFile(config=self.config,mode=self.config.mode)
+        self.cacheFile=cacheFile
         self.showProgress("reading %s for %s from cache %s" % (self.entityPluralName,self.name,cacheFile))
         JSONem=None
         mode=self.config.mode

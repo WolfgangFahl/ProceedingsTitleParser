@@ -188,6 +188,7 @@ class Lookup(object):
         tableSchemas['Country_github']='Country list from github'
         tableSchemas['Country_wikidata']='Country list from wikidata'
         tableSchemas['Province_wikidata']='Province list from wikidata'    
+        tableSchemas['City_wikidata']='City list from wikidata'
         errors=[]
         for tableName in tableSchemas:
             if not tableName in tableCols:
@@ -311,16 +312,12 @@ union
                 self.copyFrom(wordUsageDBFile)
             
             if withWikiData:
-                cm=CountryManager("wikidata")
-                cm.endpoint="https://query.wikidata.org/sparql"
-                dbFile=cm.fromCache()       
-                self.copyFrom(dbFile)
-                
-                pm=ProvinceManager("wikidata")
-                pm.endpoint=cm.endpoint
-                dbFile=pm.fromCache()
-                self.copyFrom(dbFile)
-        return self.getSQLDB()
+                wikiEntityManagers=[CountryManager("wikidata"),ProvinceManager("wikidata"),CityManager("wikidata")]
+                for wem in wikiEntityManagers:
+                    wem.endpoint="https://query.wikidata.org/sparql"
+                    wem.fromCache()
+                    self.copyFrom(wem.cacheFile)
+            return self.getSQLDB()
     
     def store(self,cacheFileName='Event_all'):
         '''
