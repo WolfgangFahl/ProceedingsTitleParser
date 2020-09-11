@@ -115,7 +115,7 @@ WHERE {
             # use 2018 wikidata copy
             #endpoint="http://blazegraph.bitplan.com/sparql"
             # use 2020 wikidata copy
-            endpoint="http://jena.bitplan.com/wikidata"
+            endpoint="http://jena.zeus.bitplan.com/wikidata"
         return endpoint
         
     def testWikiDataProvinces(self):
@@ -126,7 +126,7 @@ WHERE {
         if endpoint is None: return
         pm=ProvinceManager("wikidata")
         pm.fromWikiData(endpoint)      
-        print("found %d provinces",len(pm.provinceList))
+        print("found %d provinces" % len(pm.provinceList))
         self.assertTrue(len(pm.provinceList)>=195) 
         pm.store(pm.provinceList)
             
@@ -140,7 +140,7 @@ WHERE {
         cm=CountryManager("wikidata")
         cm.fromWikiData(endpoint)      
         self.assertTrue(len(cm.countryList)>=195) 
-        cm.store(cm.countryList)
+        cm.store(cm.countryList,sampleRecordCount=len(cm.countryList))
         
         #    sparql=TestJena.getJena(debug=self.debug)
         #    errors=cm.storeToRDF(sparql)  

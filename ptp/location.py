@@ -141,7 +141,7 @@ ORDER BY (?isocode4)
         for province in self.provinceList:
             province['wikidataurl']=province.pop('region')
             province['name']=province.pop('regionLabel')  
-            super().setNone(province,['pop','location'])
+            super().setNone(province,['population','location'])
 
 class CountryManager(EntityManager):
     ''' manage countries '''
@@ -231,7 +231,10 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-SELECT ?country ?countryLabel ?shortName (MAX(?pop) as ?population) ?coord ?isocode
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+SELECT ?country ?countryLabel ?shortName (MAX(?pop) as ?population) ?gdpPerCapita ?coord ?isocode
 WHERE 
 {
   # instance of country
@@ -240,28 +243,33 @@ WHERE
      ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
    }
   OPTIONAL {
-     ?country p:P1813 ?shortNameStmt. # get the short name statement
-     ?shortNameStmt ps:P1813 ?shortName # the the short name value from the statement
-     filter (lang(?shortName) = "en") # filter for English short names only
-     filter not exists {?shortNameStmt pq:P31 wd:Q28840786} # ignore flags (aka emojis)
+      ?country p:P1813 ?shortNameStmt. # get the short name statement
+      ?shortNameStmt ps:P1813 ?shortName # the the short name value from the statement
+      filter (lang(?shortName) = "en") # filter for English short names only
+      filter not exists {?shortNameStmt pq:P31 wd:Q28840786} # ignore flags (aka emojis)
   }
   OPTIONAL { 
     # get the population
      # https://www.wikidata.org/wiki/Property:P1082
      ?country wdt:P1082 ?pop. 
   }
+ OPTIONAL {
+     # get the gross domestic product per capita
+     ?country wdt:P2132 ?gdpPerCapita.
+  }
   # get the iso countryCode
   { ?country wdt:P297 ?isocode }.
   # get the coordinate
   OPTIONAL { ?country wdt:P625 ?coord }.
 } 
-GROUP BY ?country ?countryLabel ?shortName ?population ?coord ?isocode 
+GROUP BY ?country ?countryLabel ?shortName ?population ?gdpPerCapita ?coord ?isocode 
 ORDER BY ?countryLabel"""
         results=wd.query(queryString)
         self.countryList=wd.asListOfDicts(results)
         for country in self.countryList:
             country['wikidataurl']=country.pop('country')
             country['name']=country.pop('countryLabel')  
+            super().setNone(country,['shortName','gdpPerCapita'])
                     
             
     def storeToRDF(self,sparql):
