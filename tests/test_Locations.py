@@ -24,7 +24,7 @@ class TestLocations(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def testCityStorage(self):
         '''
         try storing city data in cache
@@ -32,8 +32,8 @@ class TestLocations(unittest.TestCase):
         cim=CityManager(name="github")
         cim.fromLutangar()
         cim.store(cim.cityList)
-        
-    
+
+
     def testCities(self):
         '''
         test consolidating cities from different sources
@@ -55,12 +55,12 @@ class TestLocations(unittest.TestCase):
         startTime=time.time()
         validCities=ListOfDict().intersect(cim.cityList, orCityList, 'name')
         print ("validating %d cities from openresearch took %5.1f secs" % (len(validCities),time.time()-startTime))
-     
+
     def getDBPedia(self,mode='query',debug=False):
         endpoint="http://dbpedia.org/sparql"
         dbpedia=SPARQL(endpoint,mode=mode,debug=debug)
         return dbpedia
-        
+
     def testDBPediaCities(self):
         '''
         https://github.com/LITMUS-Benchmark-Suite/dbpedia-graph-convertor/blob/master/get_data.py
@@ -83,10 +83,10 @@ class TestLocations(unittest.TestCase):
             LIMIT %d
             """ % limit
         cityList=dbpedia.queryAsListOfDicts(citiesWithPopulationQuery)
-        cim=CityManager("dbpedia")      
+        cim=CityManager("dbpedia")
         cim.setNone4List(cityList, ["population","website"])
         cim.store(cityList)
-  
+
     def testDBPediaCountries(self):
         '''
         http://dbpedia.org/ontology/Country
@@ -98,15 +98,15 @@ class TestLocations(unittest.TestCase):
 SELECT ?country_name ?population ?isocode
 WHERE {
   ?country_name a dbo:Country .
-  ?country_name dbp:iso3166code ?isocode. 
+  ?country_name dbp:iso3166code ?isocode.
   OPTIONAL { ?country_name dbo:populationTotal ?population . }
 }
         """
         countriesResult=dbpedia.query(countriesQuery)
         print(countriesResult)
         print(len(countriesResult))
-    
-    def getEndPoint(self):   
+
+    def getEndPoint(self):
         endpoint="https://query.wikidata.org/sparql"
         # check we have local wikidata copy:
         if getpass.getuser()=="travis":
@@ -117,7 +117,7 @@ WHERE {
             # use 2020 wikidata copy
             endpoint="http://jena.zeus.bitplan.com/wikidata"
         return endpoint
-    
+
     def testWikiDataCities(self):
         '''
         test getting cities(human settlements to be precise)
@@ -130,42 +130,42 @@ WHERE {
         cm.endpoint=endpoint
         cm.fromCache()
         print("found %d cities" % len(cm.cityList))
-        self.assertTrue(len(cm.cityList)>=200000) 
-        
+        self.assertTrue(len(cm.cityList)>=200000)
+
     def testWikiDataProvinces(self):
         '''
         test getting provinces from wikidata
         '''
         pm=ProvinceManager("wikidata")
         pm.endpoint=self.getEndPoint()
-        pm.fromCache()     
+        pm.fromCache()
         print("found %d provinces" % len(pm.provinceList))
-        self.assertTrue(len(pm.provinceList)>=195) 
-            
+        self.assertTrue(len(pm.provinceList)>=195)
+
     def testWikiDataCountries(self):
         '''
         check local wikidata
         '''
         cm=CountryManager("wikidata")
         cm.endpoint=self.getEndPoint()
-        cm.fromCache()     
-        self.assertTrue(len(cm.countryList)>=195) 
-        
+        cm.fromCache()
+        self.assertTrue(len(cm.countryList)>=195)
+
         #    sparql=TestJena.getJena(debug=self.debug)
-        #    errors=cm.storeToRDF(sparql)  
+        #    errors=cm.storeToRDF(sparql)
         #    self.assertFalse(sparql.printErrors(errors))
         #    doimport=True
         #    if doimport:
         #        cm2=CountryManager()
         #        cm2.fromRDF(sparql)
         #    self.assertEqual(cm.countryList,cm2.countryList)
-            
+
     def testCountryManager(self):
         '''
         test storying countries in SQL format
         '''
         cm=CountryManager("github",debug=True)
-        cm.fromErdem()        
+        cm.fromErdem()
         cm.store(cm.countryList)
 
     def testCountries(self):
@@ -183,19 +183,19 @@ WHERE {
         # create schema for countries
         dgraph.addSchema(cm.schema)
         startTime=time.time()
-        dgraph.addData(obj=cm.countryList)    
+        dgraph.addData(obj=cm.countryList)
         elapsed=time.time() - startTime
-        print("adding %d countries took %5.1f s" % (len(cm.countryList),elapsed)) 
+        print("adding %d countries took %5.1f s" % (len(cm.countryList),elapsed))
         queryResult=dgraph.query(cm.graphQuery)
         self.assertTrue('countries' in queryResult)
         countries=queryResult['countries']
         self.assertEqual(len(countries),len(cm.countryList))
         validCountries=ListOfDict.intersect(countries, cm.confRefCountries, 'name')
-        print("found %d valid countries " % (len(validCountries)))    
-        self.assertEquals(138,len(validCountries))
+        print("found %d valid countries " % (len(validCountries)))
+        self.assertEqual(138,len(validCountries))
         dgraph.close()
         pass
-    
+
     def testIntersection(self):
         '''
         test creating the intersection of a list of dictionaries
@@ -209,7 +209,7 @@ WHERE {
         list2 = [{'count': 359, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
              {'count': 351, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
              {'count': 381, 'evt_datetime': datetime.datetime(2015, 10, 22, 8, 45), 'att_value': 'red'}]
-        
+
         listi=ListOfDict.intersect(list1, list2,'count')
         print(listi)
         self.assertEquals(2,len(listi))
