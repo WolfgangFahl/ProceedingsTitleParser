@@ -38,7 +38,7 @@ class CityManager(EntityManager):
         return self.cityList
     
     def fromCache(self):
-        super().fromCache()
+        self.cityList=super().fromCache()
         return self.cityList
     
     def fromLutangar(self):
@@ -155,7 +155,7 @@ class ProvinceManager(EntityManager):
         return self.provinceList
     
     def fromCache(self):
-        super().fromCache()
+        self.provinceList=super().fromCache()
         return self.provinceList
               
     def fromWikiData(self,endpoint):
@@ -249,7 +249,7 @@ type Country {
         return self.countryList
     
     def fromCache(self):
-        super().fromCache()
+        self.countryList=super().fromCache()
         return self.countryList
      
     def fromConfRef(self):
