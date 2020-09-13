@@ -169,12 +169,13 @@ GROUP by ?source
         get my entries from the cache
         
         Returns:
-            the list of Dict and the cacheFile
+            the list of Dicts and as a side effect setting self.cacheFile
         '''
         if not self.isCached():
             listOfDicts=self.getListOfDicts()
             self.cacheFile=self.store(listOfDicts)
         else:
+            # fromStore also sets self.cacheFile
             listOfDicts=self.fromStore()
         return listOfDicts      
         

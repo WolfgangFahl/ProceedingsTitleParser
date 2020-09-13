@@ -274,14 +274,14 @@ union
         sourceDB=SQLDB(dbFile)
         sourceDB.copyTo(sqlDB)
         
-    def createEventAll(self,maxAgeMin=24*60,withWikiData=True):
+    def createEventAll(self,maxAgeMin=24*60,withWikiData=True,wikiDataEndpoint=ptp.wikidata.WikiData.defaultEndpoint):
         '''
         create the event all database
         
         Args:
             maxAgeH(int): maximum age of the database before being recreated
             withWikiData(boolean): True if the wikidata tables should be initialized
-            
+            wikiDataEndpoint(string): the url to the SPARQL endpoint to use for wikidata queries
         '''
         dbFile=Lookup.getDBFile()
         doCreate=True
@@ -314,7 +314,7 @@ union
             if withWikiData:
                 wikiEntityManagers=[CountryManager("wikidata"),ProvinceManager("wikidata"),CityManager("wikidata")]
                 for wem in wikiEntityManagers:
-                    wem.endpoint="https://query.wikidata.org/sparql"
+                    wem.endpoint=wikiDataEndpoint
                     wem.fromCache()
                     self.copyFrom(wem.cacheFile)
             return self.getSQLDB()
@@ -393,7 +393,7 @@ USAGE
         # Setup argument parser
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
         parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info")
-        parser.add_argument('-e', '--endpoint', default='', help="SPARQL endpoint to use for wikidata queries")     
+        parser.add_argument('-e', '--endpoint', default=ptp.wikidata.WikiData.defaultEndpoint, help="SPARQL endpoint to use for wikidata queries")     
         parser.add_argument('-v', '--version', action='version', version=program_version_message)
         parser.add_argument('-a', '--all',action='store_true',default=False,help='create Event_all.db in cache')
         parser.add_argument('-c', '--check',action='store_true',default=False,help='check Event_all.db in cache')
@@ -403,7 +403,7 @@ USAGE
         args = parser.parse_args()   
         lookup=Lookup("CreateEventAll",singleDB=args.check,debug=args.debug)
         if args.all:   
-            lookup.createEventAll(0, withWikiData=args.wikidata)
+            lookup.createEventAll(0, withWikiData=args.wikidata,wikiDataEndpoint=args.endpoint)
         
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###

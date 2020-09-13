@@ -10,6 +10,8 @@ class WikiData(object):
     '''
     WikiData proceedings titles event source
     '''
+    defaultEndpoint="https://query.wikidata.org/sparql"
+    
 
     def __init__(self, config=None):
         '''

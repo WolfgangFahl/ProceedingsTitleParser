@@ -7,7 +7,7 @@ import json
 
 class JSONAble(object):
     '''
-    mixin to allow classes to be JSON serializble see
+    mixin to allow classes to be JSON serializable see
     https://stackoverflow.com/questions/3768895/how-to-make-a-class-json-serializable
     '''
 

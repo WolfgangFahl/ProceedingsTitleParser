@@ -34,11 +34,11 @@ class CityManager(EntityManager):
         get the list of Dicts for this city manager
         '''
         if self.cityList is None:
-            self.cityList=self.fromWikidata(self.endpoint)
+            self.fromWikiData(self.endpoint)
         return self.cityList
     
     def fromCache(self):
-        self.cityList=super().fromCache()
+        super().fromCache()
         return self.cityList
     
     def fromLutangar(self):
@@ -91,6 +91,9 @@ class CityManager(EntityManager):
         
         Args:
             endpoint(string): the url of the endpoint to be used
+            
+        Returns:
+            list: and sets it as self.cityList as a side effect
         '''
         wd=SPARQL(endpoint)
         queryString="""# get a list of cities
@@ -126,6 +129,7 @@ ORDER BY ?cityLabel"""
             city['wikidataurl']=city.pop('city')
             city['name']=city.pop('cityLabel')  
             super().setNone(city,['coord','population','countryIsoCode'])
+        return self.cityList
     
 class ProvinceManager(EntityManager):
     ''' 
@@ -143,12 +147,15 @@ class ProvinceManager(EntityManager):
         super().__init__(name,entityName="Province",entityPluralName="Provinces",config=config)
         
     def getListOfDicts(self):
+        '''
+        get my list of dicts
+        '''
         if self.provinceList is None:
             self.fromWikiData(self.endpoint)
         return self.provinceList
     
     def fromCache(self):
-        self.provinceList=super().fromCache()
+        super().fromCache()
         return self.provinceList
               
     def fromWikiData(self,endpoint):
@@ -157,6 +164,8 @@ class ProvinceManager(EntityManager):
         
         Args:
             endpoint(string): the url of the endpoint to be used
+        Returns:
+            list: and sets it as self.provinceList as a side effect    
         '''
         wd=SPARQL(endpoint)
         queryString="""
@@ -192,6 +201,7 @@ ORDER BY (?isocode4)
             province['wikidataurl']=province.pop('region')
             province['name']=province.pop('regionLabel')  
             super().setNone(province,['population','location'])
+        return self.provinceList
 
 class CountryManager(EntityManager):
     ''' manage countries '''
@@ -235,11 +245,11 @@ type Country {
         get the list of Dicts for this city manager
         '''
         if self.countryList is None:
-            self.countryList=self.fromWikidata(self.endpoint)
+            self.fromWikiData(self.endpoint)
         return self.countryList
     
     def fromCache(self):
-        self.countryList=super().fromCache()
+        super().fromCache()
         return self.countryList
      
     def fromConfRef(self):
@@ -276,6 +286,8 @@ type Country {
         
         Args:
             endpoint(string): the url of the endpoint to be used
+         Returns:
+            list: and sets it as self.countryList as a side effect    
         '''
         wd=SPARQL(endpoint)
         queryString="""
@@ -323,7 +335,7 @@ ORDER BY ?countryLabel"""
             country['wikidataurl']=country.pop('country')
             country['name']=country.pop('countryLabel')  
             super().setNone(country,['shortName','gdpPerCapita'])
-                    
+        return self.countryList                    
             
     def storeToRDF(self,sparql):
         '''
