@@ -72,7 +72,7 @@ class Lookup(object):
         if not os.path.isfile(config.cacheFile):
             config.cacheFile=None
         else:
-            config.errors=self.check(SQLDB(config.cacheFile))    
+            config.errors=self.check(SQLDB(config.cacheFile),debug=self.debug)    
             # make sure the event_all db is complete
             if len(config.errors)>0:
                 config.cacheFile=None
@@ -173,6 +173,8 @@ class Lookup(object):
     def check(self,sqlDB,debug=False):
         '''
         check the sqlDB to be o.k.
+        Args:
+            debug(boolean): if True show debug information
         '''
         tableList=sqlDB.getTableList()
         if debug:
