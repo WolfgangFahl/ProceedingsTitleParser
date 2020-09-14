@@ -64,12 +64,14 @@ class Lookup(object):
     def setSingleDBConfig(self,config):    
         '''
         set the cacheFile to the singleDB "Event_all.db"
+        Args:
+            config(Storareconfig): the storage configuration to use
         ''' 
         # if event_all.db is available use it ...
         config.cacheFile=Lookup.getDBFile()
-        config.errors=[]
-        # if not 
+        # if cacheFile is not available
         if not os.path.isfile(config.cacheFile):
+            config.errors=['cachefile %s is missing' % config.cacheFile]
             config.cacheFile=None
         else:
             config.errors=self.check(SQLDB(config.cacheFile),debug=self.debug)    
