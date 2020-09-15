@@ -150,12 +150,15 @@ class EventManager(EntityManager):
             eventList.append(d)
         return eventList
                     
-    def store(self,cacheFile=None,batchSize=2000,limit=None,sampleRecordCount=10000):
+    def store(self,cacheFile=None,batchSize=2000,limit=None,sampleRecordCount=100):
         '''
         store my events
         
         Args:
             cacheFile(string): the cacheFile to use 
+            batchSize(int): size of batch
+            limit(int): maximum number of records
+            sampleRecordcount(int): how many records to sample for type detection
         '''
         super().store(self.getListOfDicts(),cacheFile=cacheFile,batchSize=batchSize,limit=limit,sampleRecordCount=sampleRecordCount)  
   
