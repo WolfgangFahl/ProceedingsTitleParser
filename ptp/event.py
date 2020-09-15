@@ -150,7 +150,7 @@ class EventManager(EntityManager):
             eventList.append(d)
         return eventList
                     
-    def store(self,cacheFile=None,batchSize=2000,limit=None,sampleRecordCount=10000):
+    def store(self,cacheFile=None,batchSize=2000,limit=None,sampleRecordCount=100):
         '''
         store my events
         

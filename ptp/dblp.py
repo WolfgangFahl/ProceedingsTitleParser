@@ -51,7 +51,7 @@ class Dblp(object):
             #else:
             #    rawevent['publtype']=None    
                 event=Event()
-                for checkKey in ['booktitle','ee','editor','isbn','lookupAcronym','publisher','series','title','volume','url']:
+                for checkKey in ['booktitle','ee','editor','isbn','lookupAcronym','note','publisher','series','title','volume','url']:
                     if not checkKey in rawevent:
                         rawevent[checkKey]=None
                     else:
