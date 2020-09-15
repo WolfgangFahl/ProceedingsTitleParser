@@ -150,14 +150,14 @@ class EventManager(EntityManager):
             eventList.append(d)
         return eventList
                     
-    def store(self,cacheFile=None,batchSize=2000,limit=None):
+    def store(self,cacheFile=None,batchSize=2000,limit=None,sampleRecordCount=10000):
         '''
         store my events
         
         Args:
             cacheFile(string): the cacheFile to use 
         '''
-        super().store(self.getListOfDicts(),cacheFile=cacheFile,batchSize=batchSize,limit=limit,sampleRecordCount=100)  
+        super().store(self.getListOfDicts(),cacheFile=cacheFile,batchSize=batchSize,limit=limit,sampleRecordCount=sampleRecordCount)  
   
     @staticmethod
     def asWikiSon(eventDicts):  

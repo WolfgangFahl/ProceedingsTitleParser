@@ -9,7 +9,8 @@ import json
 
 class ConfRef(object):
     '''
-    classdocs
+    manages event data from 
+    http://portal.confref.org/
     '''
 
     def __init__(self,config=None):

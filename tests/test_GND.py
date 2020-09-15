@@ -4,11 +4,10 @@ Created on 2020-09-14
 @author: wf
 '''
 import unittest
+from ptp.gnd import GND
 from storage.sparql import SPARQL
-from lodstorage.sql import SQLDB
-from storage.entity import EntityManager
+from storage.query import Query
 import getpass
-import os
 
 class TestGND(unittest.TestCase):
     '''
@@ -18,6 +17,7 @@ class TestGND(unittest.TestCase):
 
     def setUp(self):
         self.debug=True
+        self.endpoint="http://jena.zeus.bitplan.com/gnd/"
         pass
 
 
@@ -29,56 +29,55 @@ class TestGND(unittest.TestCase):
         '''
         test GND data access
         '''
+        # get samples now has an Event_gnd.db download to prefill cache
+        #if getpass.getuser()!="wf":
+        #    return
+        gnd=GND(endpoint=self.endpoint)
+        gnd.initEventManager()
+        cachedEvents=len(gnd.em.events)
+        print("There are %d GND events available" % cachedEvents)
+        # the GND subset of events with homepages has some 14281 events
+        self.assertTrue(cachedEvents>14000)
+        pass
+
+    def testStats(self):
         if getpass.getuser()!="wf":
             return
-        em=EntityManager("Event_GND","Event","Events")
-        em.config.tableName="Event_GND"
-        dbFile=em.getCacheFile(em.config)
-        if os.path.isfile(dbFile):
-            print("%s already exists" %dbFile,flush=True)
-        else:
-            print("creating %s via SPARQL query" % dbFile,flush=True)
-       
-            endpoint="http://jena.zeus.bitplan.com/gnd/"
-            # get SPARQL access to GND data
-            gndEp=SPARQL(endpoint)
-            queryString="""# get events with most often used columns from GND
-# plus acronym, topic, homepage (seldom but useful)
+        queries=[Query('entities and usage frequency', '''
+# get histogramm data of entities by
+# usage frequency
+# WF 2020-06-27
+PREFIX gnd: <https://d-nb.info/standards/elementset/gnd#>
+
+SELECT ?c  (COUNT(?c) AS ?count)
+WHERE {
+  ?subject a  ?c
+}
+GROUP BY ?c
+HAVING (?count >100)
+ORDER BY DESC(?count)
+        '''),Query('relevance of fields','''# get histogramm data of properties by
+# usage frequency
 # WF 2020-07-12
-PREFIX gndi:  <https://d-nb.info/gnd>
-PREFIX gnd:  <https://d-nb.info/standards/elementset/gnd#>
-PREFIX gndo: <https://d-nb.info/standards/vocab/gnd/>
+PREFIX gnd: <https://d-nb.info/standards/elementset/gnd#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX dc: <http://purl.org/dc/terms/>
 PREFIX wdrs: <http://www.w3.org/2007/05/powder-s#>
 
-SELECT  ?event ?eventId ?acronym  ?variant ?name ?date ?areaCode ?place ?topic ?homepage 
-WHERE {
-  ?event gnd:gndIdentifier ?eventId.
-  OPTIONAL { ?event gnd:abbreviatedNameForTheConferenceOrEvent ?acronym. }
-  OPTIONAL { ?event gnd:variantNameForTheConferenceOrEvent ?variant.}
-  OPTIONAL { ?event gnd:preferredNameForTheConferenceOrEvent ?name.}
-  OPTIONAL { ?event gnd:dateOfConferenceOrEvent ?date. }
-  OPTIONAL { ?event gnd:geographicAreaCode ?areaCode. }
-  OPTIONAL { ?event gnd:placeOfConferenceOrEvent ?place. }
-  OPTIONAL { ?event gnd:topic ?topic. }
-  OPTIONAL { ?event gnd:homepage ?homepage. }
-}
-#LIMIT 10000"""
-            results=gndEp.query(queryString)
-            eventList=gndEp.asListOfDicts(results)
-            sqlDB=SQLDB(dbname=dbFile,debug=self.debug,errorDebug=True)
-            entityName="Event_GND"
-            primaryKey=None # not unique: "eventId"
-            executeMany=False
-            entityInfo=sqlDB.createTable(eventList[:10],entityName,primaryKey)
-            print("found %d GND events" % (len(eventList)))
-            em.setNone4List(eventList, ['acronym','variant','name','date','areaCode','place','topic','homepage'])
-            sqlDB.store(eventList, entityInfo, executeMany=executeMany)
-        #em.store(eventList,sampleRecordCount=1000)  
-        pass
-
+SELECT ?property (COUNT(?property) AS ?propTotal)
+WHERE { ?s ?property ?o . }
+GROUP BY ?property
+HAVING (?propTotal >1000)
+ORDER BY DESC(?propTotal)''')
+        ]
+        sparql=SPARQL(self.endpoint)
+        for query in queries:
+            listOfDicts=sparql.queryAsListOfDicts(query.query)
+            markup=query.asWikiMarkup(listOfDicts)
+            markup=markup.replace("https://d-nb.info/standards/elementset/gnd","gnd")
+            print ("=== %s ===" % query.name)
+            print(markup)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

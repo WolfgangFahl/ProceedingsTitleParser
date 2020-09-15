@@ -259,6 +259,13 @@ getWikiDataRegion() {
 	done
 }
 
+# get the GND SQL database
+getGND() {
+  src=http://wiki.bitplan.com/images/confident/Event_gnd.db
+  target=$cachedir/$db
+  download $src $target
+}
+
 #
 # get samples from all relevant sources
 #
@@ -269,6 +276,7 @@ getAll() {
   getDblp
   getWikiCFP
   getText
+  getGND
   getWikiDataRegion
 }
 
@@ -306,6 +314,9 @@ do
       exit 0;;
     -w|--wikidata)
       getWikiDataRegion
+      exit 0;;
+    -g|--gnd)
+      getGND
       exit 0;;
   esac
 done

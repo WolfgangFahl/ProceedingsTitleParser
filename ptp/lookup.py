@@ -8,9 +8,10 @@ from ptp.location import CityManager, ProvinceManager, CountryManager
 import ptp.openresearch
 import ptp.ceurws
 import ptp.confref
+import ptp.crossref
 import ptp.wikidata
 import ptp.dblp
-import ptp.crossref
+import ptp.gnd
 import ptp.wikicfp
 from lodstorage.sql import SQLDB
 from storage.entity import EntityManager
@@ -94,7 +95,7 @@ class Lookup(object):
             self.butNot=butNot
         self.lookupIds=['or']
         if getAll:
-            self.lookupIds=['or','ceur-ws','crossref','confref','wikicfp','wikidata','dblp']
+            self.lookupIds=['or','ceur-ws','crossref','confref','dblp','gnd','wikicfp','wikidata']
         
     def initEntityManagers(self,config,singleDB):
         '''
@@ -126,6 +127,9 @@ class Lookup(object):
                 elif lookupId=='dblp':
                     # https://dblp.org/
                     lem=ptp.dblp.Dblp(config=copy.copy(config))  
+                elif lookupId=='gnd': 
+                    # https://d-nb.info/standards/elementset/gnd
+                    lem=ptp.gnd.GND(config=copy.copy(config))
                 elif lookupId=='wikicfp':
                     # http://www.wikicfp.com/cfp/
                     lem=ptp.wikicfp.WikiCFP(config=copy.copy(config))       
@@ -213,6 +217,7 @@ class Lookup(object):
             'Event_CEURWS':'PTP',
             'Event_crossref':'Crossref',
             'Event_confref':'Confref',
+            'Event_gnd': 'GND',
             'Event_wikicfp':'WikiCFP',
             'Event_wikidata':'PTP',
             'Event_dblp':'DBLP'}
@@ -257,6 +262,8 @@ union
    select eventId,title,url,lookupAcronym,acronym,source from event_confref
 union 
    select eventId,title,url,lookupAcronym,acronym,source from event_dblp   
+union 
+   select eventId,title,url,lookupAcronym,acronym,source from event_gnd     
 union
    select eventId,title,url,lookupAcronym,acronym,source from event_or
 union
