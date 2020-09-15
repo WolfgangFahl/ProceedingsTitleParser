@@ -247,23 +247,28 @@ getConfRef() {
 }
 
 #
+# get a cached SQLLite3 database from the default source
+#
+getCachedDatabase() {
+  local l_db="$1"
+	src=http://wiki.bitplan.com/images/confident/$l_db
+  target=$cachedir/$l_db
+	download $src $target
+}
+#
 # get the cached wiki data queries for country and province
 #
 getWikiDataRegion() {
 	for r in Country Province City
 	do
     db=${r}_wikidata.db
-	  src=http://wiki.bitplan.com/images/confident/$db
-    target=$cachedir/$db
-	  download $src $target
+		getCachedDatabase $db
 	done
 }
 
 # get the GND SQL database
 getGND() {
-  src=http://wiki.bitplan.com/images/confident/Event_gnd.db
-  target=$cachedir/$db
-  download $src $target
+  getCachedDatabase Event_gnd.db
 }
 
 #
