@@ -41,7 +41,7 @@ class TestLookup(unittest.TestCase):
         '''
         withWikiData=True
         lookup=Lookup("CreateEventAll")
-        self.assertEqual(7,len(lookup.ems))
+        self.assertEqual(8,len(lookup.ems))
         errors=lookup.check(lookup.getSQLDB(),debug=True)
         if len(errors)>0:
             print (errors)
