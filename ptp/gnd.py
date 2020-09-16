@@ -46,13 +46,13 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX dc: <http://purl.org/dc/terms/>
 PREFIX wdrs: <http://www.w3.org/2007/05/powder-s#>
 
-SELECT  ?event ?eventId ?acronym  ?variant ?name ?date ?areaCode ?place ?topic ?homepage 
+SELECT  ?event ?eventId ?acronym  ?variant ?title ?date ?areaCode ?place ?topic ?homepage 
 WHERE {
   ?event a gnd:ConferenceOrEvent.
   ?event gnd:gndIdentifier ?eventId.
   OPTIONAL { ?event gnd:abbreviatedNameForTheConferenceOrEvent ?acronym. }
   OPTIONAL { ?event gnd:variantNameForTheConferenceOrEvent ?variant.}
-  OPTIONAL { ?event gnd:preferredNameForTheConferenceOrEvent ?name.}
+  OPTIONAL { ?event gnd:preferredNameForTheConferenceOrEvent ?title.}
   OPTIONAL { ?event gnd:dateOfConferenceOrEvent ?date. }
   OPTIONAL { ?event gnd:geographicAreaCode ?areaCode. }
   OPTIONAL { ?event gnd:placeOfConferenceOrEvent ?place. }
@@ -64,8 +64,6 @@ WHERE {
         eventList=gndEp.asListOfDicts(results)
         print ("retrieved %d events in %6.1f s" % (len(eventList),time.time()-starttime))
         for rawevent in eventList:
-            if 'title' in rawevent:
-                rawevent['title']=rawevent.pop('name')
             rawevent['url']=rawevent.pop('event')
             fields=['eventId','variant','name','areaCode','url','source','date','place','acronym','lookupAcronym','topic','homepage']
             self.em.setNone(rawevent,fields)
