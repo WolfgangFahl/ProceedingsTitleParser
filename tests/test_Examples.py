@@ -23,7 +23,7 @@ class TestExamples(unittest.TestCase):
         '''
         examples=Lookup.getExamples()
         print (examples)
-        self.assertEqual(15,len(examples.keys()))
+        self.assertEqual(16,len(examples.keys()))
         pass
 
 if __name__ == "__main__":
