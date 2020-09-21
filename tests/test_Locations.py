@@ -6,7 +6,7 @@ Created on 2020-08-11
 import unittest
 import time
 from storage.dgraph import Dgraph
-from storage.sparql import SPARQL
+from lodstorage.sparql import SPARQL
 from ptp.location import CountryManager, ProvinceManager, CityManager
 from ptp.listintersect import ListOfDict
 import datetime
@@ -125,7 +125,7 @@ WHERE {
         '''
         endpoint=self.getEndPoint()
         # force caching - 5 min query!
-        endpoint=None
+        #endpoint=None
         cm=CityManager("wikidata")
         cm.endpoint=endpoint
         cm.fromCache()

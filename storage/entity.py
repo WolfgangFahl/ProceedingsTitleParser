@@ -7,7 +7,7 @@ from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
 from storage.config import StorageConfig, StoreMode
 from storage.dgraph import Dgraph
-from storage.sparql import SPARQL
+from lodstorage.sparql import SPARQL
 from lodstorage.sql import SQLDB
 import os
 import time

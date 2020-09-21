@@ -8,7 +8,7 @@ import json
 import os
 import time
 import ptp.openresearch 
-from storage.sparql import SPARQL
+from lodstorage.sparql import SPARQL
 from storage.entity import EntityManager
 from storage.config import StoreMode, StorageConfig
 
@@ -104,31 +104,29 @@ PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-SELECT ?city ?cityLabel ?country ?countryLabel ?countryIsoCode (MAX(?pop) as ?population) ?coord 
-WHERE 
-{
-  # instance of city/town
-  ?city wdt:P31 wd:Q486972.
+PREFIX s: <http://schema.org/>
+SELECT DISTINCT ?country ?countryLabel ?countryPopulation ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE { 
+  ?city wdt:P31/wdt:P279* wd:Q515 . 
   ?city rdfs:label ?cityLabel filter (lang(?cityLabel) = "en").
-  ?city wdt:P17 ?country.
-  ?country wdt:P297 ?countryIsocode .
-  ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
-  OPTIONAL { 
-    # get the population
-    # https://www.wikidata.org/wiki/Property:P1082
-    ?city wdt:P1082 ?pop. 
-  }
   # get the coordinates
-  OPTIONAL { ?city wdt:P625 ?coord }.
-} 
-GROUP BY ?city ?cityLabel ?country ?countryLabel ?countryIsoCode ?population ?gdpPerCapita ?coord 
-ORDER BY ?cityLabel"""
+  ?city wdt:P625 ?coord.
+  # country of the city
+  ?city wdt:P17 ?country . 
+  ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").     
+  ?country wdt:P1082 ?countryPopulation. 
+   
+  ?city p:P1082 ?populationStatement . 
+  ?populationStatement ps:P1082 ?cityPopulation.
+  ?populationStatement pq:P585 ?date
+  FILTER NOT EXISTS { ?city p:P1082/pq:P585 ?date_ . FILTER (?date_ > ?date) } 
+  BIND ( concat(str(round(10000*?cityPopulation/?countryPopulation)/100), '%') AS ?ratio)
+}"""
         results=wd.query(queryString)
         self.cityList=wd.asListOfDicts(results)
         for city in self.cityList:
             city['wikidataurl']=city.pop('city')
             city['name']=city.pop('cityLabel')  
-            super().setNone(city,['coord','population','countryIsoCode'])
+            super().setNone(city,['coord','date','cityPopulation','countryPopulation','country','countryLabel','countryIsoCode','ratio'])
         return self.cityList
     
 class ProvinceManager(EntityManager):

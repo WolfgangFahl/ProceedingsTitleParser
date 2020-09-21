@@ -4,7 +4,7 @@ Created on 2020-09-15
 @author: wf
 '''
 from ptp.event import Event,EventManager
-from storage.sparql import SPARQL
+from lodstorage.sparql import SPARQL
 import time
 
 class GND(object):
