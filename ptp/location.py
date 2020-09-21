@@ -105,7 +105,7 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
 PREFIX s: <http://schema.org/>
-SELECT DISTINCT ?country ?countryLabel ?countryPopulation ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE { 
+SELECT DISTINCT ?country ?countryLabel ?countryPopulation ?countryIsoCode ?countryGDP_perCapita ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE { 
   ?city wdt:P31/wdt:P279* wd:Q515 . 
   ?city rdfs:label ?cityLabel filter (lang(?cityLabel) = "en").
   # get the coordinates
@@ -113,8 +113,13 @@ SELECT DISTINCT ?country ?countryLabel ?countryPopulation ?city ?cityLabel ?coor
   # country of the city
   ?city wdt:P17 ?country . 
   ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").     
+  # https://www.wikidata.org/wiki/Property:P297 ISO 3166-1 alpha-2 code
+  ?city wdt:P297 ?countryIsoCode
+  # https://www.wikidata.org/wiki/Property:P2132
+  # nonminal GDP per capita
+  ?city wdt:P2132 ?countryGDP_perCapita
+  # https://www.wikidata.org/wiki/Property:P1082
   ?country wdt:P1082 ?countryPopulation. 
-   
   ?city p:P1082 ?populationStatement . 
   ?populationStatement ps:P1082 ?cityPopulation.
   ?populationStatement pq:P585 ?date
@@ -126,7 +131,7 @@ SELECT DISTINCT ?country ?countryLabel ?countryPopulation ?city ?cityLabel ?coor
         for city in self.cityList:
             city['wikidataurl']=city.pop('city')
             city['name']=city.pop('cityLabel')  
-            super().setNone(city,['coord','date','cityPopulation','countryPopulation','country','countryLabel','countryIsoCode','ratio'])
+            super().setNone(city,['coord','date','cityPopulation','countryPopulation','country','countryLabel','countryIsoCode','countryGDP_perCapita','ratio'])
         return self.cityList
     
 class ProvinceManager(EntityManager):
