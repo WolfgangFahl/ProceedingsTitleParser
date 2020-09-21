@@ -5,7 +5,7 @@ Created on 2020-09-14
 '''
 import unittest
 from ptp.gnd import GND
-from storage.sparql import SPARQL
+from lodstorage.sparql import SPARQL
 from storage.query import Query
 import getpass
 

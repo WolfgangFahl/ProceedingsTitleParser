@@ -4,7 +4,7 @@ Created on 2020-08-18
 @author: wf
 '''
 import unittest
-from storage.sparql import SPARQL
+from lodstorage.sparql import SPARQL
 from storage.query import QueryManager
 from ptp.lookup import Lookup
 

@@ -4,7 +4,7 @@ Created on 2020-08-14
 @author: wf
 '''
 import unittest
-from storage.sparql import SPARQL
+from lodstorage.sparql import SPARQL
 
 class TestJena(unittest.TestCase):
     '''
