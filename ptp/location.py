@@ -7,18 +7,18 @@ import urllib.request
 import json
 import os
 import time
-import ptp.openresearch 
+import ptp.openresearch
 from lodstorage.sparql import SPARQL
 from storage.entity import EntityManager
 from storage.config import StoreMode, StorageConfig
 
 class CityManager(EntityManager):
     ''' manage cities '''
-    
+
     def __init__(self,name,config=None):
         '''
-        constructor 
-        
+        constructor
+
         Args:
             name(string): the name of this city Manager
         '''
@@ -28,7 +28,7 @@ class CityManager(EntityManager):
         self.cityList=None
         super().__init__(name,entityName="City",entityPluralName="Cities",config=config)
         pass
-    
+
     def getListOfDicts(self):
         '''
         get the list of Dicts for this city manager
@@ -36,13 +36,13 @@ class CityManager(EntityManager):
         if self.cityList is None:
             self.fromWikiData(self.endpoint)
         return self.cityList
-    
+
     def fromCache(self):
         self.cityList=super().fromCache()
         return self.cityList
-    
+
     def fromLutangar(self):
-        ''' 
+        '''
         get city list provided by Johan Dufour https://github.com/lutangar
         '''
         cityJsonUrl="https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json"
@@ -53,14 +53,14 @@ class CityManager(EntityManager):
                 city['dgraph.type']='City'
                 lat=float(city['lat'])
                 lng=float(city['lng'])
-                city['location']={'type': 'Point', 'coordinates': [lng,lat] }   
-            
+                city['location']={'type': 'Point', 'coordinates': [lng,lat] }
+
     def fromOpenResearch(self,limit=10000,batch=500,showProgress=False):
         '''
         get cities from open research
         '''
         cities=[]
-        smw=ptp.openresearch.OpenResearch.getSMW() 
+        smw=ptp.openresearch.OpenResearch.getSMW()
         offset=0
         startTime=time.time()
         while True:
@@ -70,10 +70,10 @@ class CityManager(EntityManager):
     | offset = %d
     }}""" % (batch,offset)
             askResult=smw.query(ask)
-            found=len(askResult.values())   
+            found=len(askResult.values())
             if showProgress:
                 print("retrieved cities %5d-%5d after %5.1f s" % (offset+1,offset+found,time.time()-startTime))
-            for askRecord in askResult.values():     
+            for askRecord in askResult.values():
                 cityValue= askRecord['city']
                 if type(cityValue) is list:
                     for cityEntry in cityValue:
@@ -82,16 +82,16 @@ class CityManager(EntityManager):
                     cities.append(cityValue)
             offset=offset+batch
             if found<batch or len(cities)>=limit:
-                    break    
-        return cities      
-    
+                    break
+        return cities
+
     def fromWikiData(self,endpoint):
         '''
         get the city List from WikiData
-        
+
         Args:
             endpoint(string): the url of the endpoint to be used
-            
+
         Returns:
             list: and sets it as self.cityList as a side effect
         '''
@@ -100,42 +100,47 @@ class CityManager(EntityManager):
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-PREFIX s: <http://schema.org/>
-SELECT DISTINCT ?country ?countryLabel ?countryPopulation ?countryIsoCode ?countryGDP_perCapita ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE { 
-  ?city wdt:P31/wdt:P279* wd:Q515 . 
+# get City details with Country
+SELECT DISTINCT ?country ?countryLabel ?countryIsoCode ?countryPopulation ?countryGDP_perCapita ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE {
+  VALUES ?country {wd:Q45}
+  # instance of City Q515
+  # instance of human settlement https://www.wikidata.org/wiki/Q486972
+  ?city wdt:P31/wdt:P279* wd:Q486972 .
+  # label of the City
   ?city rdfs:label ?cityLabel filter (lang(?cityLabel) = "en").
   # get the coordinates
   ?city wdt:P625 ?coord.
-  # country of the city
-  ?city wdt:P17 ?country . 
-  ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").     
+  # country this city belongs to
+  ?city wdt:P17 ?country .
+  # label for the country
+  ?country rdfs:label ?countryLabel filter (lang(?countryLabel) = "en").
   # https://www.wikidata.org/wiki/Property:P297 ISO 3166-1 alpha-2 code
-  ?city wdt:P297 ?countryIsoCode
+  ?country wdt:P297 ?countryIsoCode.
+  # population of country
+  ?country wdt:P1082 ?countryPopulation.
   # https://www.wikidata.org/wiki/Property:P2132
   # nonminal GDP per capita
-  ?city wdt:P2132 ?countryGDP_perCapita
-  # https://www.wikidata.org/wiki/Property:P1082
-  ?country wdt:P1082 ?countryPopulation. 
-  ?city p:P1082 ?populationStatement . 
+  ?country wdt:P2132 ?countryGDP_perCapita.
+  # population of city
+  ?city p:P1082 ?populationStatement .
   ?populationStatement ps:P1082 ?cityPopulation.
   ?populationStatement pq:P585 ?date
-  FILTER NOT EXISTS { ?city p:P1082/pq:P585 ?date_ . FILTER (?date_ > ?date) } 
+  FILTER NOT EXISTS { ?city p:P1082/pq:P585 ?date_ . FILTER (?date_ > ?date) }
   BIND ( concat(str(round(10000*?cityPopulation/?countryPopulation)/100), '%') AS ?ratio)
 }"""
         results=wd.query(queryString)
         self.cityList=wd.asListOfDicts(results)
         for city in self.cityList:
             city['wikidataurl']=city.pop('city')
-            city['name']=city.pop('cityLabel')  
+            city['name']=city.pop('cityLabel')
             super().setNone(city,['coord','date','cityPopulation','countryPopulation','country','countryLabel','countryIsoCode','countryGDP_perCapita','ratio'])
         return self.cityList
-    
+
 class ProvinceManager(EntityManager):
-    ''' 
+    '''
     manage province information
     '''
     def __init__(self,name,config=None,debug=False):
@@ -148,7 +153,7 @@ class ProvinceManager(EntityManager):
         config.tableName="Province_%s" % name
         self.provinceList=None
         super().__init__(name,entityName="Province",entityPluralName="Provinces",config=config)
-        
+
     def getListOfDicts(self):
         '''
         get my list of dicts
@@ -156,19 +161,19 @@ class ProvinceManager(EntityManager):
         if self.provinceList is None:
             self.fromWikiData(self.endpoint)
         return self.provinceList
-    
+
     def fromCache(self):
         self.provinceList=super().fromCache()
         return self.provinceList
-              
+
     def fromWikiData(self,endpoint):
         '''
         get the province List from WikiData
-        
+
         Args:
             endpoint(string): the url of the endpoint to be used
         Returns:
-            list: and sets it as self.provinceList as a side effect    
+            list: and sets it as self.provinceList as a side effect
         '''
         wd=SPARQL(endpoint)
         queryString="""
@@ -177,10 +182,10 @@ PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 SELECT ?region ?isocc ?isocode4 ?regionLabel ?population ?location
-WHERE 
+WHERE
 {
   # administrative unit of first order
-  ?region wdt:P31/wdt:P279* wd:Q10864048. 
+  ?region wdt:P31/wdt:P279* wd:Q10864048.
   OPTIONAL {
      ?region rdfs:label ?regionLabel filter (lang(?regionLabel) = "en").
   }
@@ -192,7 +197,7 @@ WHERE
   # # https://www.wikidata.org/wiki/Property:P297
   OPTIONAL { ?region wdt:P297 ?isocc. }
   # isocode state/province
-  ?region wdt:P300 ?isocode4. 
+  ?region wdt:P300 ?isocode4.
   # https://www.wikidata.org/wiki/Property:P625
   OPTIONAL { ?region wdt:P625 ?location. }
 }
@@ -202,13 +207,13 @@ ORDER BY (?isocode4)
         self.provinceList=wd.asListOfDicts(results)
         for province in self.provinceList:
             province['wikidataurl']=province.pop('region')
-            province['name']=province.pop('regionLabel')  
+            province['name']=province.pop('regionLabel')
             super().setNone(province,['population','location'])
         return self.provinceList
 
 class CountryManager(EntityManager):
     ''' manage countries '''
-    
+
     def __init__(self,name,config=None,debug=False):
         '''
         Constructor
@@ -220,12 +225,12 @@ class CountryManager(EntityManager):
         self.countryList=None
         path=os.path.dirname(__file__)
         super().__init__(name,entityName="Country",entityPluralName="Countries",config=config)
-        
+
         self.sampledir=path+"/../sampledata/"
         self.schema='''
 name: string @index(exact) .
-code: string @index(exact) .     
-capital: string .   
+code: string @index(exact) .
+capital: string .
 location: geo .
 type Country {
    code
@@ -250,24 +255,24 @@ type Country {
         if self.countryList is None:
             self.fromWikiData(self.endpoint)
         return self.countryList
-    
+
     def fromCache(self):
         self.countryList=super().fromCache()
         return self.countryList
-     
+
     def fromConfRef(self):
         '''
-        get countries from ConfRef 
+        get countries from ConfRef
         '''
         confRefCountriesJsonFileName='%s/confref-countries.json' % self.sampledir
         with open(confRefCountriesJsonFileName) as confRefCountriesJson:
             self.confRefCountries=json.load(confRefCountriesJson)
         for country in self.confRefCountries:
-            country['name']=country.pop('value')   
-        self.confRefCountries=sorted(self.confRefCountries, key = lambda c: c['name'])     
-            
-    def fromErdem(self):    
-        ''' 
+            country['name']=country.pop('value')
+        self.confRefCountries=sorted(self.confRefCountries, key = lambda c: c['name'])
+
+    def fromErdem(self):
+        '''
         get country list provided by Erdem Ozkol https://github.com/erdem
         '''
         countryJsonUrl="https://gist.githubusercontent.com/erdem/8c7d26765831d0f9a8c62f02782ae00d/raw/248037cd701af0a4957cce340dabb0fd04e38f4c/countries.json"
@@ -281,16 +286,16 @@ type Country {
             if mode is StoreMode.DGRAPH:
                 country['dgraph.type']='Country'
             lat,lng=country.pop('latlng')
-            country['location']={'type': 'Point', 'coordinates': [lng,lat] } 
-            
+            country['location']={'type': 'Point', 'coordinates': [lng,lat] }
+
     def fromWikiData(self,endpoint):
         '''
         get the country List from WikiData
-        
+
         Args:
             endpoint(string): the url of the endpoint to be used
          Returns:
-            list: and sets it as self.countryList as a side effect    
+            list: and sets it as self.countryList as a side effect
         '''
         wd=SPARQL(endpoint)
         queryString="""
@@ -303,7 +308,7 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
 SELECT ?country ?countryLabel ?shortName (MAX(?pop) as ?population) ?gdpPerCapita ?coord ?isocode
-WHERE 
+WHERE
 {
   # instance of country
   ?country wdt:P31 wd:Q3624078.
@@ -316,10 +321,10 @@ WHERE
       filter (lang(?shortName) = "en") # filter for English short names only
       filter not exists {?shortNameStmt pq:P31 wd:Q28840786} # ignore flags (aka emojis)
   }
-  OPTIONAL { 
+  OPTIONAL {
     # get the population
      # https://www.wikidata.org/wiki/Property:P1082
-     ?country wdt:P1082 ?pop. 
+     ?country wdt:P1082 ?pop.
   }
  OPTIONAL {
      # get the gross domestic product per capita
@@ -329,17 +334,17 @@ WHERE
   { ?country wdt:P297 ?isocode }.
   # get the coordinate
   OPTIONAL { ?country wdt:P625 ?coord }.
-} 
-GROUP BY ?country ?countryLabel ?shortName ?population ?gdpPerCapita ?coord ?isocode 
+}
+GROUP BY ?country ?countryLabel ?shortName ?population ?gdpPerCapita ?coord ?isocode
 ORDER BY ?countryLabel"""
         results=wd.query(queryString)
         self.countryList=wd.asListOfDicts(results)
         for country in self.countryList:
             country['wikidataurl']=country.pop('country')
-            country['name']=country.pop('countryLabel')  
+            country['name']=country.pop('countryLabel')
             super().setNone(country,['shortName','gdpPerCapita'])
-        return self.countryList                    
-            
+        return self.countryList
+
     def storeToRDF(self,sparql):
         '''
         store my country list to the given SPARQL store
@@ -349,14 +354,14 @@ ORDER BY ?countryLabel"""
         prefixes="PREFIX cr: <http://cr.bitplan.com/>"
         errors=sparql.insertListOfDicts(self.countryList, entityType, primaryKey, prefixes)
         return errors
-    
+
     def fromRDF(self,sparql):
-        ''' 
+        '''
         restore me from the given sparql store
         '''
         countryQuery="""
 PREFIX cr: <http://cr.bitplan.com/>
-SELECT ?name ?population ?coord ?isocode ?wikidataurl WHERE { 
+SELECT ?name ?population ?coord ?isocode ?wikidataurl WHERE {
     ?country cr:Country_name ?name.
     ?country cr:Country_population ?population.
     ?country cr:Country_coord ?coord.
