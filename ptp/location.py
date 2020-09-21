@@ -105,7 +105,6 @@ PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
 # get City details with Country
 SELECT DISTINCT ?country ?countryLabel ?countryIsoCode ?countryPopulation ?countryGDP_perCapita ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE {
-  VALUES ?country {wd:Q45}
   # instance of City Q515
   # instance of human settlement https://www.wikidata.org/wiki/Q486972
   ?city wdt:P31/wdt:P279* wd:Q486972 .
