@@ -6,7 +6,7 @@ Created on 2020-09-03
 import unittest
 from ptp.ontology import Ontology
 import getpass
-from storage.jsonable import JSONAble
+from lodstorage.jsonable import JSONAble
 
 class TestOntology(unittest.TestCase):
     ''' 
