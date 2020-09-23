@@ -123,9 +123,9 @@ WHERE {
         test getting cities(human settlements to be precise)
         from Wikidata
         '''
-        endpoint=self.getEndPoint()
-        # force caching - 5 min query!
-        #endpoint=None
+        #endpoint=self.getEndPoint()
+        # force caching - 3.5 hour query if done via endpoint!
+        endpoint=None
         cm=CityManager("wikidata")
         cm.endpoint=endpoint
         cm.fromCache()

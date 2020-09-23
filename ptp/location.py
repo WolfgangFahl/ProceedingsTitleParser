@@ -97,6 +97,8 @@ class CityManager(EntityManager):
         '''
         wd=SPARQL(endpoint)
         queryString="""# get a list of cities
+# for geograpy3 library
+# see https://github.com/somnathrakshit/geograpy3/issues/15
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
@@ -104,7 +106,10 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
 # get City details with Country
-SELECT DISTINCT ?country ?countryLabel ?countryIsoCode ?countryPopulation ?countryGDP_perCapita ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE {
+SELECT DISTINCT ?country ?countryLabel ?countryIsoCode ?countryPopulation ?countryGDP_perCapita ?region ?regionLabel ?regionIsoCode ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE {
+  # run for Paris as example only
+  # if you uncomment this line this query might run for some 3 hours on a local wikidata copy using Apache Jena
+  #VALUES ?city {wd:Q90}.
   # instance of City Q515
   # instance of human settlement https://www.wikidata.org/wiki/Q486972
   ?city wdt:P31/wdt:P279* wd:Q486972 .
@@ -112,6 +117,17 @@ SELECT DISTINCT ?country ?countryLabel ?countryIsoCode ?countryPopulation ?count
   ?city rdfs:label ?cityLabel filter (lang(?cityLabel) = "en").
   # get the coordinates
   ?city wdt:P625 ?coord.
+  # region this country belongs to
+  # https://www.wikidata.org/wiki/Property:P361
+  OPTIONAL {
+    # part of
+    # https://www.wikidata.org/wiki/Property:P361
+    ?city wdt:P131 ?region.
+    # first order region
+    ?region wdt:P31/wdt:P279* wd:Q10864048.
+    ?region rdfs:label ?regionLabel filter (lang(?regionLabel) = "en").
+    ?region wdt:P300 ?regionIsoCode
+  }
   # country this city belongs to
   ?city wdt:P17 ?country .
   # label for the country
@@ -135,7 +151,7 @@ SELECT DISTINCT ?country ?countryLabel ?countryIsoCode ?countryPopulation ?count
         for city in self.cityList:
             city['wikidataurl']=city.pop('city')
             city['name']=city.pop('cityLabel')
-            super().setNone(city,['coord','date','cityPopulation','countryPopulation','country','countryLabel','countryIsoCode','countryGDP_perCapita','ratio'])
+            super().setNone(city,['coord','date','cityPopulation','countryPopulation','country','countryLabel','countryIsoCode','countryGDP_perCapita','region','regionLabel','regionIsoCode','ratio'])
         return self.cityList
 
 class ProvinceManager(EntityManager):
