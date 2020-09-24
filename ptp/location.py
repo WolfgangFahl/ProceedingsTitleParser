@@ -105,29 +105,15 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-# get City details with Country
-SELECT DISTINCT ?country ?countryLabel ?countryIsoCode ?countryPopulation ?countryGDP_perCapita ?region ?regionLabel ?regionIsoCode ?city ?cityLabel ?coord ?cityPopulation ?date ?ratio WHERE {
-  # run for Paris as example only
+# get human settlements
+SELECT ?city ?cityLabel (max(?cityPop) as ?cityPopulation) ?coord ?region ?regionLabel ?regionIsoCode ?country ?countryLabel ?countryIsoCode ?countryPopulation WHERE {
   # if you uncomment this line this query might run for some 3 hours on a local wikidata copy using Apache Jena
-  #VALUES ?city {wd:Q90}.
-  # instance of City Q515
+  # run for Vienna, Illinois, Vienna Austria, Paris Texas and Paris France as example only
+  # VALUES ?city { wd:Q577544 wd:Q1741 wd:Q830149 wd:Q90}.
   # instance of human settlement https://www.wikidata.org/wiki/Q486972
   ?city wdt:P31/wdt:P279* wd:Q486972 .
   # label of the City
   ?city rdfs:label ?cityLabel filter (lang(?cityLabel) = "en").
-  # get the coordinates
-  ?city wdt:P625 ?coord.
-  # region this country belongs to
-  # https://www.wikidata.org/wiki/Property:P361
-  OPTIONAL {
-    # part of
-    # https://www.wikidata.org/wiki/Property:P361
-    ?city wdt:P131 ?region.
-    # first order region
-    ?region wdt:P31/wdt:P279* wd:Q10864048.
-    ?region rdfs:label ?regionLabel filter (lang(?regionLabel) = "en").
-    ?region wdt:P300 ?regionIsoCode
-  }
   # country this city belongs to
   ?city wdt:P17 ?country .
   # label for the country
@@ -136,16 +122,22 @@ SELECT DISTINCT ?country ?countryLabel ?countryIsoCode ?countryPopulation ?count
   ?country wdt:P297 ?countryIsoCode.
   # population of country
   ?country wdt:P1082 ?countryPopulation.
-  # https://www.wikidata.org/wiki/Property:P2132
-  # nonminal GDP per capita
-  ?country wdt:P2132 ?countryGDP_perCapita.
+  OPTIONAL {
+     # located in administrative territory
+     # https://www.wikidata.org/wiki/Property:P131
+     ?city wdt:P131* ?region.
+     # administrative unit of first order
+     ?region wdt:P31/wdt:P279* wd:Q10864048.
+     ?region rdfs:label ?regionLabel filter (lang(?regionLabel) = "en").
+     # isocode state/province
+     OPTIONAL { ?region wdt:P300 ?regionIsoCode. }
+  }
   # population of city
-  ?city p:P1082 ?populationStatement .
-  ?populationStatement ps:P1082 ?cityPopulation.
-  ?populationStatement pq:P585 ?date
-  FILTER NOT EXISTS { ?city p:P1082/pq:P585 ?date_ . FILTER (?date_ > ?date) }
-  BIND ( concat(str(round(10000*?cityPopulation/?countryPopulation)/100), '%') AS ?ratio)
-}"""
+  OPTIONAL { ?city wdt:P1082 ?cityPop.}
+   # get the coordinates
+  OPTIONAL { ?city wdt:P625 ?coord. }
+} GROUP BY  ?city ?cityLabel  ?coord ?region ?regionLabel ?regionIsoCode ?country ?countryLabel ?countryIsoCode ?countryPopulation
+"""
         results=wd.query(queryString)
         self.cityList=wd.asListOfDicts(results)
         for city in self.cityList:
