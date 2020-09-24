@@ -106,10 +106,12 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
 # get human settlements
-SELECT ?city ?cityLabel (max(?cityPop) as ?cityPopulation) ?coord ?region ?regionLabel ?regionIsoCode ?country ?countryLabel ?countryIsoCode ?countryPopulation WHERE {
+SELECT DISTINCT ?city ?cityLabel (max(?cityPop) as ?cityPopulation) (min (?coord) as ?cityCoord) ?region ?regionLabel ?regionIsoCode ?country ?countryLabel ?countryIsoCode ?countryPopulation ?countryGdpPerCapita WHERE {
   # if you uncomment this line this query might run for some 3 hours on a local wikidata copy using Apache Jena
   # run for Vienna, Illinois, Vienna Austria, Paris Texas and Paris France as example only
   # VALUES ?city { wd:Q577544 wd:Q1741 wd:Q830149 wd:Q90}.
+  # run for Andorra Q228 
+  # VALUES ?country {wd:Q228}.
   # instance of human settlement https://www.wikidata.org/wiki/Q486972
   ?city wdt:P31/wdt:P279* wd:Q486972 .
   # label of the City
@@ -122,6 +124,9 @@ SELECT ?city ?cityLabel (max(?cityPop) as ?cityPopulation) ?coord ?region ?regio
   ?country wdt:P297 ?countryIsoCode.
   # population of country
   ?country wdt:P1082 ?countryPopulation.
+  OPTIONAL {
+     ?country wdt:P2132 ?countryGdpPerCapita.
+  }
   OPTIONAL {
      # located in administrative territory
      # https://www.wikidata.org/wiki/Property:P131
@@ -136,7 +141,8 @@ SELECT ?city ?cityLabel (max(?cityPop) as ?cityPopulation) ?coord ?region ?regio
   OPTIONAL { ?city wdt:P1082 ?cityPop.}
    # get the coordinates
   OPTIONAL { ?city wdt:P625 ?coord. }
-} GROUP BY  ?city ?cityLabel  ?coord ?region ?regionLabel ?regionIsoCode ?country ?countryLabel ?countryIsoCode ?countryPopulation
+} GROUP BY  ?city ?cityLabel  ?cityCoord ?region ?regionLabel ?regionIsoCode ?country ?countryLabel ?countryIsoCode ?countryPopulation ?countryGdpPerCapita
+#ORDER BY ?cityLabel
 """
         results=wd.query(queryString)
         self.cityList=wd.asListOfDicts(results)
