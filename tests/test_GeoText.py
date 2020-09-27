@@ -22,7 +22,25 @@ class TestGeoText(unittest.TestCase):
 
     def tearDown(self):
         pass
+    
+    def checkExamples(self,examples,countries):
+        '''
+        
+        check that the given example give results in the given countries
+        Args:
+            examples(list): a list of example location strings
+            countries(list): a list of expected country iso codes
+        '''
+        for index,example in enumerate(examples):
+            city=geograpy.locate(example,debug=False)
+            if self.debug:
+                print("%3d: %22s->%s" % (index,example,city))
+            self.assertEqual(countries[index],city.country.iso) 
 
+    def testGeoGrapyExamples(self):
+        examples=['San Francisco, USA','Auckland, New Zealand']
+        countries=['US','NZ']
+        self.checkExamples(examples, countries)
 
     def testGeoTextAndGrapy(self):
         '''
@@ -63,7 +81,7 @@ LIMIT %d
                 if debug:
                     print("  %s" % geo.countries)
                     print("  %s" % geo.cities)    
-                city=geograpy.locate(locality)
+                city=geograpy.locateCity(locality)
                 if city is not None:
                     found+=1
                 if debug:

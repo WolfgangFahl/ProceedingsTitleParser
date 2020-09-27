@@ -7,6 +7,7 @@ import unittest
 from ptp.wikicfp import WikiCFP, WikiCFPEvent
 import os
 from pathlib import Path
+from collections import Counter
 
 class TestWikiCFP(unittest.TestCase):
     '''
@@ -20,6 +21,21 @@ class TestWikiCFP(unittest.TestCase):
 
     def tearDown(self):
         pass
+    
+    def printDelimiterCount(self,names):
+        '''
+        print the count of the most common use delimiters in the given name list
+        '''
+        ordC=Counter()
+        for name in names:
+            if name is not None:
+                for char in name:
+                    code=ord(char)
+                    if code<ord("A"):
+                        ordC[code]+=1
+        for index,countT in enumerate(ordC.most_common(10)):
+            code,count=countT
+            print ("%d: %d %s -> %d" % (index,code,chr(code),count))
 
     def testCrawledJsonFiles(self):
         '''
@@ -41,6 +57,11 @@ class TestWikiCFP(unittest.TestCase):
             wikiCFP.em.fromStore()    
         self.assertTrue(wikiCFP.em.isCached())
         self.assertTrue(len(wikiCFP.em.events)>80000)
+        names=[]
+        for event in wikiCFP.em.events.values():
+            names.append(event.locality)
+        self.printDelimiterCount(names)
+            
         pass
     
     def testInvalidUrl(self):
