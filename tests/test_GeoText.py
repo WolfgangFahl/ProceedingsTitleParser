@@ -32,7 +32,7 @@ class TestGeoText(unittest.TestCase):
             countries(list): a list of expected country iso codes
         '''
         for index,example in enumerate(examples):
-            city=geograpy.locate(example,debug=False)
+            city=geograpy.locateCity(example,debug=False)
             if self.debug:
                 print("%3d: %22s->%s" % (index,example,city))
             self.assertEqual(countries[index],city.country.iso) 
@@ -71,6 +71,7 @@ LIMIT %d
             index=0
             rsum=0
             found=0
+            problems=[]
             for record in listOfDicts:
                 locality=record['locality']
                 count=record['count']
@@ -84,11 +85,14 @@ LIMIT %d
                 city=geograpy.locateCity(locality)
                 if city is not None:
                     found+=1
+                else:
+                    problems.append(locality)
                 if debug:
-                    print("  %s" % city)
+                    print("  %s%s" % (city,'✅' if city is not None else '❌'))
             if self.debug:        
                 print ("found %d/%d = %5.1f%%" % (found,limit,found/limit*100))
-            self.assertTrue(found/limit>0.6)
+                print ("problems: %s" % problems)
+            self.assertTrue(found/limit>0.8)
         pass
     
     def testExamples(self):
