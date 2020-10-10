@@ -59,4 +59,4 @@ geotext
 # https://pypi.org/project/flashgeotext/
 flashgeotext
 #https://pypi.org/project/geograpy3/
-geograpy3>=0.1.18
+geograpy3>=0.1.22
