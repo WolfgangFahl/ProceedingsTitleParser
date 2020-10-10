@@ -38,6 +38,8 @@ jsons
 # json2xml
 #https://pypi.org/project/dicttoxml/
 dicttoxml
+## transitive dependency for habanero/spacy 
+tqdm>=4.38.0
 # https://pypi.org/project/habanero/
 habanero
 # Python Graph handling package
