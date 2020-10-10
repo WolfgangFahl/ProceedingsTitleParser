@@ -54,7 +54,7 @@ SPARQLWrapper
 # https://pypi.org/project/pylodstorage/
 pylodstorage
 # https://pypi.org/project/spacy/
-spacy
+spacy>=2.3.2
 # country,city Natural Language Parsing
 # https://pypi.org/project/geotext/
 geotext
