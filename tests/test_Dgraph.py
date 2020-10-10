@@ -8,10 +8,11 @@ from storage.dgraph import Dgraph
 
 class TestDdgraph(unittest.TestCase):
     '''
-    test Dgraph database 
+    test Dgraph database
     '''
 
     def setUp(self):
+        self.active=False
         pass
 
 
@@ -19,9 +20,11 @@ class TestDdgraph(unittest.TestCase):
         pass
 
     def testDgraph(self):
-        ''' 
+        '''
         test basic Dgraph operation
         '''
+        if not self.active:
+            return
         dgraph=Dgraph(debug=True)
         # drop all data and schemas
         dgraph.drop_all()
@@ -38,8 +41,8 @@ type Pokemon {
         dgraph.addSchema(schema)
         # prepare a list of Pokemons to be added
         pokemonList=[{'name':'Pikachu', 'weight':  6, 'height': 0.4 },
-                  {'name':'Arbok',   'weight': 65, 'height': 3.5 }, 
-                  {'name':'Raichu',  'weight': 30, 'height': 0.8 }, 
+                  {'name':'Arbok',   'weight': 65, 'height': 3.5 },
+                  {'name':'Raichu',  'weight': 30, 'height': 0.8 },
                   {'name':'Sandan',  'weight': 12, 'height': 0.6 }]
         # add the list in a single transaction
         dgraph.addData(obj=pokemonList)
