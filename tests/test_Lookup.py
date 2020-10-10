@@ -29,7 +29,7 @@ class TestLookup(unittest.TestCase):
         '''
         if getpass.getuser()!="travis":
             lookup=Lookup("test")
-            self.assertEqual(7,len(lookup.ems))
+            self.assertEqual(8,len(lookup.ems))
             errors=lookup.store('Event_all')
             self.assertEqual(0,len(errors))
             lookup.createView()
