@@ -21,7 +21,7 @@ class TestWikiCFP(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def printDelimiterCount(self,names):
         '''
         print the count of the most common use delimiters in the given name list
@@ -54,16 +54,16 @@ class TestWikiCFP(unittest.TestCase):
         if not wikiCFP.em.isCached():
             wikiCFP.cacheEvents()
         else:
-            wikiCFP.em.fromStore()    
+            wikiCFP.em.fromStore()
         self.assertTrue(wikiCFP.em.isCached())
         self.assertTrue(len(wikiCFP.em.events)>80000)
         names=[]
         for event in wikiCFP.em.events.values():
             names.append(event.locality)
         self.printDelimiterCount(names)
-            
+
         pass
-    
+
     def testInvalidUrl(self):
         '''
         make sure only valid urls are accepted
@@ -74,11 +74,11 @@ class TestWikiCFP(unittest.TestCase):
             self.fail("invalid url should raise an exception")
         except:
             pass
-    
+
     def testEventScraping(self):
         '''
         test scraping the given event
-        
+
          test "This item has been deleted" WikiCFP items
         e.g.
         http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=3
@@ -90,7 +90,7 @@ class TestWikiCFP(unittest.TestCase):
             rawEvent=event.fromEventId(eventId)
             print (rawEvent)
             self.assertTrue(isDeleted[index]==rawEvent['deleted'])
-            
+
     def testCrawlEvents(self):
         '''
         test crawling a few events and storing the result to a json file
@@ -103,11 +103,12 @@ class TestWikiCFP(unittest.TestCase):
         batchEm=wikiCFP.getEventManager(mode='json')
         batchEm.fromStore(cacheFile=jsonFilePath)
         self.assertEqual(len(batchEm.events.values()),10)
-        inspect=True
+        inspect=False # if setting to True make sure tmp is on same filesystem
+        # see https://stackoverflow.com/questions/42392600/oserror-errno-18-invalid-cross-device-link
         if inspect:
             tmpPath="/tmp/%s" % os.path.basename(jsonFilePath)
             Path(jsonFilePath).rename(tmpPath)
-                
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
