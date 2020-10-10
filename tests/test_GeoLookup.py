@@ -11,9 +11,9 @@ from geotext import GeoText
 import geograpy
 import os
 
-class TestGeoText(unittest.TestCase):
+class TestGeoLookup(unittest.TestCase):
     '''
-    test the geo text  and similar libraries
+    test the geo lookup with geograpy3, geotext  and similar libraries
     '''
 
     def setUp(self):

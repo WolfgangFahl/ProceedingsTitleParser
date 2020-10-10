@@ -5,7 +5,9 @@ Created on 2020-09-15
 '''
 from ptp.event import Event,EventManager
 from lodstorage.sparql import SPARQL
+import re
 import time
+import datetime
 
 class GND(object):
     '''
@@ -26,6 +28,47 @@ class GND(object):
         '''
         self.fromRDF(self.endpoint)
         pass
+    
+    @staticmethod
+    def strToDate(dateStr):
+        result=datetime.datetime.strptime(
+                        dateStr, "%d.%m.%Y").date()
+        return result
+                        
+    @staticmethod
+    def getDateRange(date):
+        '''
+        given a GND date string create a date range
+        
+        Args:
+            date(str): the date string to analyze
+            
+        Returns:
+            dict: containing year, startDate, endDate
+        examples:
+        2018-2019
+        08.01.2019-11.01.2019
+        2019
+        '''
+        result={}
+        if date is not None:
+            yearPattern="[12][0-9]{3}"
+            datePattern="[0-9]{2}[.][0-9]{2}[.]"+yearPattern
+            yearOnly=re.search(r"^("+yearPattern+")[-]?("+yearPattern+")?$",date)
+            if yearOnly: 
+                result['year']=int(yearOnly.group(1))
+            else:                
+                fromOnly=re.search(r"^("+datePattern+")[-]?$",date) 
+                if fromOnly:   
+                    result['startDate']=GND.strToDate(fromOnly.group(1))
+                else:
+                    fromTo=re.search(r"^("+datePattern+")[-]("+datePattern+")$",date)
+                    if fromTo:
+                        result['startDate']=GND.strToDate(fromTo.group(1))
+                        result['endDate']=GND.strToDate(fromTo.group(2))
+        if 'startDate' in result:
+                result['year']=result['startDate'].year
+        return result
     
     def fromRDF(self,endpoint):
         '''
@@ -65,8 +108,11 @@ WHERE {
         print ("retrieved %d events in %6.1f s" % (len(eventList),time.time()-starttime))
         for rawevent in eventList:
             rawevent['url']=rawevent.pop('event')
-            fields=['eventId','variant','name','areaCode','url','source','date','place','acronym','lookupAcronym','topic','homepage']
+            fields=['eventId','variant','name','areaCode','url','source','date','startDate','endDate','year','place','acronym','lookupAcronym','topic','homepage']
             self.em.setNone(rawevent,fields)
+            dateStr=rawevent['date']
+            for key,value in GND.getDateRange(dateStr).items():
+                rawevent[key]=value
             event=Event()
             event.fromDict(rawevent)
             event.source=self.em.name

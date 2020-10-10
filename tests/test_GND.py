@@ -37,7 +37,19 @@ class TestGND(unittest.TestCase):
         cachedEvents=len(gnd.em.events)
         print("There are %d GND events available" % cachedEvents)
         # the GND subset of events with homepages has some 14281 events
-        self.assertTrue(cachedEvents>14000)
+        minTotal=14000
+        self.assertTrue(cachedEvents>minTotal)
+        debug=False
+        invalid=0
+        for i,event in enumerate(gnd.em.events.values()):
+            dateRange=(gnd.getDateRange(event.date))
+            if (len(dateRange)==0 and event.date is not None):
+                invalid+=1
+                if debug:
+                    print("%5d: %s: %s %s" % (i,event.eventId,event.date,dateRange))
+        if debug:
+            print("%d GND dates are invalid " % invalid)
+        self.assertTrue(invalid<minTotal/300)
         pass
 
     def testStats(self):
