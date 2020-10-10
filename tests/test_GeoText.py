@@ -38,8 +38,11 @@ class TestGeoText(unittest.TestCase):
             self.assertEqual(countries[index],city.country.iso) 
 
     def testGeoGrapyExamples(self):
-        examples=['San Francisco, USA','Auckland, New Zealand']
-        countries=['US','NZ']
+        '''
+        test some Geograpy 3 library examples
+        '''
+        examples=['San Francisco, USA','Auckland, New Zealand','Vienna, Illinois','Vienna']
+        countries=['US','NZ','US','AT']
         self.checkExamples(examples, countries)
 
     def testGeoTextAndGrapy(self):
