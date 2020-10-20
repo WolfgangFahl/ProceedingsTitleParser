@@ -175,7 +175,7 @@ getText() {
   for source in dblp wikidata
   do
      target=proceedings-$source.txt
-     download http://wiki.bitplan.com/images/$target $sampledir/$target
+     download http://wiki.bitplan.com/images/confident/$target $sampledir/$target
   done
 }
 

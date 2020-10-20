@@ -255,21 +255,21 @@ class Lookup(object):
             cacheFileName(string): the path to the database
         '''
         viewDDL='''create view event as 
-   select eventId,title,url,lookupAcronym,acronym,source from event_CEURWS
+   select eventId,title,url,lookupAcronym,acronym,source,year from event_CEURWS
 union 
-   select eventId,title,url,lookupAcronym,acronym,source from event_crossref
+   select eventId,title,url,lookupAcronym,acronym,source,year from event_crossref
 union 
-   select eventId,title,url,lookupAcronym,acronym,source from event_confref
+   select eventId,title,url,lookupAcronym,acronym,source,year from event_confref
 union 
-   select eventId,title,url,lookupAcronym,acronym,source from event_dblp   
+   select eventId,title,url,lookupAcronym,acronym,source,year from event_dblp   
 union 
-   select eventId,title,url,lookupAcronym,acronym,source from event_gnd     
+   select eventId,title,url,lookupAcronym,acronym,source,year from event_gnd     
 union
-   select eventId,title,url,lookupAcronym,acronym,source from event_or
+   select eventId,title,url,lookupAcronym,acronym,source,year from event_or
 union
-   select eventId,title,url,lookupAcronym,acronym,source from event_wikicfp
+   select eventId,title,url,lookupAcronym,acronym,source,year from event_wikicfp
 union 
-   select eventId,title,url,lookupAcronym,acronym,source from event_wikidata;
+   select eventId,title,url,lookupAcronym,acronym,source,year from event_wikidata;
    '''
         sqlDB=self.getSQLDB()
         sqlDB.c.execute(viewDDL)
