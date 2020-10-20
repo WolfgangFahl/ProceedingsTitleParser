@@ -18,6 +18,7 @@ from collections import Counter
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 from ptp.event import EventManager
+from ptp.plot import Plot
 
 class TitleParser(object):
     '''
@@ -520,3 +521,101 @@ class Dictionary(object):
         if (number >= 5): return "V" + self.toRoman(number - 5)
         if (number >= 4): return "IV" + self.toRoman(number - 4)
         if (number >= 1): return "I" + self.toRoman(number - 1)
+
+class TokenStatistics(object):
+    '''
+    keep track of token/wordcount
+    '''
+    def __init__(self,name,dictionary):
+        self.name=name
+        self.tc=Counter()
+        self.typeCounters={}
+        self.kc=Counter()
+        self.known=0
+        self.total=0
+        self.recordCount=0
+        self.tclist=[]
+        self.d=dictionary
+        pass
+
+    def addToken(self,token,dtoken):
+        self.total+=1
+        if dtoken is None:
+            self.tc[token]+=1
+        else: 
+            self.known+=1
+            self.kc[token]+=1
+            tokenType=dtoken["type"]
+            if tokenType in self.typeCounters:
+                typeCounter=self.typeCounters[tokenType]
+            else:
+                typeCounter=Counter()
+                self.typeCounters[tokenType]=typeCounter
+            label=dtoken["label"]    
+            typeCounter[label]+=1        
+    
+    def addTokenCount(self,tokenCount):
+        self.recordCount+=1
+        self.tclist.append(tokenCount)
+        
+    def showHistogramm(self,title):
+        plot=Plot(self.tclist,title)
+        plot.hist(mode="save")
+        
+    def showMostCommon(self,limit):
+        print(self.tc.most_common(limit))   
+        print(self.kc.most_common(limit))    
+        
+    def showTypeTable(self):
+        ''' show the table of found types '''
+ 
+        for tokenType in self.typeCounters:
+            typeCounter=self.typeCounters[tokenType]
+            print ("%s: %s" % (tokenType,typeCounter.most_common(5)))
+            
+        print("titles: %d found words: %d of %d %5.1f%%" % (self.recordCount,self.known,self.total,self.known/self.total*100))   
+        self.showWikiTable()
+        self.showLaTexTable()
+        
+    def showLaTexTable(self):
+        tableStart="""\\begin{table}
+\caption{%s}
+\label{tab:%s}
+\\begin{tabular}{l|r|r|r|l} 
+type & entries & found & \\%% & most common examples: count \\\\ \hline """
+        tableEnd="""
+\end{tabular}
+\end{table}"""
+        row="%s & %d & %d & (%5.1f\\%%) & %s"
+        rowDelim="\\\\"
+        self.showGenericTable(tableStart=tableStart,tableEnd=tableEnd, rowDelim=rowDelim,row=row)
+        
+    def showWikiTable(self):
+        tableStart="""
+== %s ==
+<!-- %s-->
+{| class="wikitable"
+|-
+! type !! entries !! found !! most common examples: count"""
+        rowDelim="|-\n"
+        row="|%s || %d || %d (%5.1f%%) || %s"
+        tableEnd="|}"
+        self.showGenericTable(tableStart=tableStart,tableEnd=tableEnd,rowDelim=rowDelim,row=row)
+        
+    def showGenericTable(self,tableStart,tableEnd,rowDelim,row):     
+        '''
+        show a generic table
+        ''' 
+        print (tableStart % (self.name,self.name))
+        for tokenType in sorted(self.typeCounters):
+            typeCounter=self.typeCounters[tokenType]
+            print (rowDelim,end='')
+            mc=typeCounter.most_common(5)
+            mcs=""
+            delim=""
+            for item,count in mc:
+                mcs=mcs+"%s%s: %d" % (delim,item,count)
+                delim=", "
+            typeTotal=sum(typeCounter.values())    
+            print (row % (tokenType,self.d.countType(tokenType),typeTotal,typeTotal/self.recordCount*100,mcs))
+        print (tableEnd)   

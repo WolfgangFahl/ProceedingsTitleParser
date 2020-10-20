@@ -5,9 +5,9 @@ Created on 2020-06-20
 '''
 import unittest
 from ptp.titleparser import TitleParser, Title, \
-    ProceedingsTitleParser
+    ProceedingsTitleParser, TokenStatistics
 from collections import Counter
-from ptp.plot import Plot
+
 import networkx as nx
 import os
 from ptp.openresearch import OpenResearch
@@ -190,102 +190,31 @@ class TestProceedingsTitleParser(unittest.TestCase):
                     print ("    %s" % title.info)
                 tc[title.enum]+=1
         print(tc.most_common(250))     
-        
-    def showTypeTable(self,name,d,recordCount,known,total,typeCounters):
-        ''' show the table of found types '''
- 
-        for tokenType in typeCounters:
-            typeCounter=typeCounters[tokenType]
-            print ("%s: %s" % (tokenType,typeCounter.most_common(5)))
-            
-        print("titles: %d found words: %d of %d %5.1f%%" % (recordCount,known,total,known/total*100))   
-        self.showWikiTable(name, d, recordCount, typeCounters)
-        self.showLaTexTable(name,d,recordCount,typeCounters)
-        
-    def showLaTexTable(self,name,d,recordCount,typeCounters):
-        tableStart="""\\begin{table}
-\caption{%s}
-\label{tab:%s}
-\\begin{tabular}{l|r|r|r|l} 
-type & entries & found & \\%% & most common examples: count \\\\ \hline """
-        tableEnd="""
-\end{tabular}
-\end{table}"""
-        row="%s & %d & %d & (%5.1f\\%%) & %s"
-        rowDelim="\\\\"
-        self.showGenericTable(name, d, recordCount, typeCounters, tableStart=tableStart,tableEnd=tableEnd, rowDelim=rowDelim,row=row)
-        
-    def showWikiTable(self,name,d,recordCount,typeCounters):
-        tableStart="""
-== %s ==
-<!-- %s-->
-{| class="wikitable"
-|-
-! type !! entries !! found !! most common examples: count"""
-        rowDelim="|-\n"
-        row="|%s || %d || %d (%5.1f%%) || %s"
-        tableEnd="|}"
-        self.showGenericTable(name, d, recordCount, typeCounters,tableStart=tableStart,tableEnd=tableEnd,rowDelim=rowDelim,row=row)
-        
-    def showGenericTable(self,name,d,recordCount,typeCounters,tableStart,tableEnd,rowDelim,row):      
-        print (tableStart % (name,name))
-        for tokenType in sorted(typeCounters):
-            typeCounter=typeCounters[tokenType]
-            print (rowDelim,end='')
-            mc=typeCounter.most_common(5)
-            mcs=""
-            delim=""
-            for item,count in mc:
-                mcs=mcs+"%s%s: %d" % (delim,item,count)
-                delim=", "
-            typeTotal=sum(typeCounter.values())    
-            print (row % (tokenType,d.countType(tokenType),typeTotal,typeTotal/recordCount*100,mcs))
-        print (tableEnd)    
-             
-           
+                    
     def doTestTitleParser(self,tp,em,showHistogramm=False):
         ''' test the title parser '''       
         d=ProceedingsTitleParser.getDictionary()
-        tc=Counter()
-        typeCounters={}
-        kc=Counter()
-        known=0
-        total=0
-        tclist=[]
+        tokenStats=TokenStatistics(tp.name,d)
         for record in tp.records:
             title=Title(record["title"],d)
-            tclist.append(len(title.tokens))
+            tokenStats.addTokenCount(len(title.tokens))
             for token in title.tokens:
-                total+=1
                 dtoken=d.getToken(token)
                 if dtoken is None:
                     if token in em.eventsByAcronym:
                         dtoken={}
                         dtoken["type"]="acronym"
                         dtoken["label"]=token
-                if dtoken is None:
-                    tc[token]+=1
-                else: 
-                    known+=1
-                    kc[token]+=1
-                    tokenType=dtoken["type"]
-                    if tokenType in typeCounters:
-                        typeCounter=typeCounters[tokenType]
-                    else:
-                        typeCounter=Counter()
-                        typeCounters[tokenType]=typeCounter
-                    label=dtoken["label"]    
-                    typeCounter[label]+=1        
+                tokenStats.addToken(token,dtoken);
         
-        self.showTypeTable(tp.name.replace("proceedings-",""),d,len(tp.records),known,total,typeCounters)
-      
-        print(tc.most_common(250))   
-        print(kc.most_common(250))     
+        tokenStats.showTypeTable()
+        tokenStats.showMostCommon(250)
+         
         if showHistogramm:
             title=tp.name.replace(".txt","")
-            plot=Plot(tclist,title)
-            plot.hist(mode="save")
-        return len(tp.records)
+            tokenStats.showHistogramm(title)
+          
+        return tokenStats
   
     def testTitleParser(self):
         ''' test reading the proceeding titles from the sampledata directory'''
@@ -293,6 +222,7 @@ type & entries & found & \\%% & most common examples: count \\\\ \hline """
         opr=OpenResearch()
         opr.initEventManager()
         em=opr.em
+        stats={}
         counter=Counter()
         for tp in [
                 # low expectation due to problem in API
@@ -301,7 +231,8 @@ type & entries & found & \\%% & most common examples: count \\\\ \hline """
                 self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
                 self.getTitleParser("proceedings-wikidata.txt",16000)
             ]:
-            counter[tp.name]=self.doTestTitleParser(tp,em,showHistogram)   
+            stats[tp.name]=self.doTestTitleParser(tp,em,showHistogram) 
+            counter[tp.name]=stats[tp.name].recordCount  
         print (counter) 
         print ("total # of proceeding titles parsed: %d" % (sum(counter.values())))   
       

@@ -1864,6 +1864,8 @@ human:
   type: field
 Hypertension:
   type: field
+Information:
+  type: field
 Infections:
   type: field
 Immunology:
@@ -1915,6 +1917,8 @@ Radiation:
 Radiology:
   type: field
 Surgery:
+  type: field
+Systems:
   type: field
 Surgical:
   type: field
@@ -2171,6 +2175,10 @@ of:
 the:
   type: syntax
 to:
+  type: syntax
+towards:
+  type: syntax
+Towards:
   type: syntax
 with:
   type: syntax
