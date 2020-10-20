@@ -199,14 +199,39 @@ class TestProceedingsTitleParser(unittest.TestCase):
             print ("%s: %s" % (tokenType,typeCounter.most_common(5)))
             
         print("titles: %d found words: %d of %d %5.1f%%" % (recordCount,known,total,known/total*100))   
-        print ("""
+        self.showWikiTable(name, d, recordCount, typeCounters)
+        self.showLaTexTable(name,d,recordCount,typeCounters)
+        
+    def showLaTexTable(self,name,d,recordCount,typeCounters):
+        tableStart="""\\begin{table}
+\caption{%s}
+\label{tab:%s}
+\\begin{tabular}{l|r|r|r|l} 
+type & entries & found & \\%% & most common examples: count \\\\ \hline """
+        tableEnd="""
+\end{tabular}
+\end{table}"""
+        row="%s & %d & %d & (%5.1f\\%%) & %s"
+        rowDelim="\\\\"
+        self.showGenericTable(name, d, recordCount, typeCounters, tableStart=tableStart,tableEnd=tableEnd, rowDelim=rowDelim,row=row)
+        
+    def showWikiTable(self,name,d,recordCount,typeCounters):
+        tableStart="""
 == %s ==
+<!-- %s-->
 {| class="wikitable"
 |-
-! type !! entries !! found !! most common examples: count""" % (name))
+! type !! entries !! found !! most common examples: count"""
+        rowDelim="|-\n"
+        row="|%s || %d || %d (%5.1f%%) || %s"
+        tableEnd="|}"
+        self.showGenericTable(name, d, recordCount, typeCounters,tableStart=tableStart,tableEnd=tableEnd,rowDelim=rowDelim,row=row)
+        
+    def showGenericTable(self,name,d,recordCount,typeCounters,tableStart,tableEnd,rowDelim,row):      
+        print (tableStart % (name,name))
         for tokenType in sorted(typeCounters):
             typeCounter=typeCounters[tokenType]
-            print ("|-")
+            print (rowDelim,end='')
             mc=typeCounter.most_common(5)
             mcs=""
             delim=""
@@ -214,8 +239,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 mcs=mcs+"%s%s: %d" % (delim,item,count)
                 delim=", "
             typeTotal=sum(typeCounter.values())    
-            print ("|%s || %d || %d (%5.1f%%) || %s" % (tokenType,d.countType(tokenType),typeTotal,typeTotal/recordCount*100,mcs))
-        print ("|}")    
+            print (row % (tokenType,d.countType(tokenType),typeTotal,typeTotal/recordCount*100,mcs))
+        print (tableEnd)    
              
            
     def doTestTitleParser(self,tp,em,showHistogramm=False):
