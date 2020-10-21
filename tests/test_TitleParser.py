@@ -231,7 +231,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         count=0
         foundCountries={}
         for stats in statsMap.values():
-            for unknownToken,freq in stats.tc.most_common(1000):
+            for unknownToken,freq in stats.tc.most_common(10000):
                 if unknownToken in countryMap:
                     country=countryMap[unknownToken]
                     foundCountries[country['name']]=country
@@ -247,8 +247,6 @@ class TestProceedingsTitleParser(unittest.TestCase):
     population: %10.0f
     gpdPerCapita: %6.0f""" % (countryName,country["isocode"],country["population"],country["gdpPerCapita"]) )
     
-            
-  
     def testTitleParser(self):
         ''' test reading the proceeding titles from the sampledata directory'''
         checkCountries=True
