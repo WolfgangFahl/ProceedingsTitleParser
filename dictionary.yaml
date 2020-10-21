@@ -87,9 +87,9 @@ Oslo:
   type: city
 Oxford:
   type: city
-Los Angeles:
+'Los Angeles':
   type: city
-Panama City:
+'Panama City':
   type: city
 Paris:
   type: city
@@ -97,19 +97,19 @@ Philadelphia:
   type: city
 Prague:
   type: city
-Quebec City:
+'Quebec City':
   type: city
 Rome:
   type: city
 Seattle:
   type: city
-San Antonio:
+'San Antonio':
   type: city
-San Diego:
+'San Diego':
   type: city
-Santa Fe:
+'Santa Fe':
   type: city
-San Francisco:
+'San Francisco':
   type: city
 Sydney:
   type: city
@@ -127,6 +127,9 @@ Washington:
   type: city
 York:
   type: city
+#
+# countries
+# 
 America:
   type: country
 Australia:
@@ -145,7 +148,7 @@ Canada:
   type: country
 China:
   type: country
-Czech Republic:
+'Czech Republic':
   type: country
 Denmark:
   type: country
@@ -169,7 +172,7 @@ Japan:
   type: country
 Netherlands:
   type: country
-New Zealand:
+'New Zealand':
   type: country
 Österreich:
   type: country
@@ -183,7 +186,7 @@ Switzerland:
   type: country
 Turkey:
   type: country
-United Kingdom:
+'United Kingdom':
   type: country
 USA:
   type: country

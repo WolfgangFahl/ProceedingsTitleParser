@@ -216,13 +216,43 @@ class TestProceedingsTitleParser(unittest.TestCase):
             tokenStats.showHistogramm(title)
           
         return tokenStats
+    
+    def doCheckCountries(self,statsMap):
+        '''
+        analyze tokens for potentially missing country entries
+        '''
+        cm=CountryManager("wikidata")
+        cm.fromCache()
+        countryMap={}
+        for country in cm.countryList:
+            countryMap[country['name']]=country;
+            
+        foundSum=0
+        count=0
+        foundCountries={}
+        for stats in statsMap.values():
+            for unknownToken,freq in stats.tc.most_common(1000):
+                if unknownToken in countryMap:
+                    country=countryMap[unknownToken]
+                    foundCountries[country['name']]=country
+                    foundSum+=freq
+                    count+=1
+                    print ("%20s %2s %3d %10.0f %6.0f" % (country["name"],country["isocode"],freq,country["population"],country["gdpPerCapita"]))
+        print ("%d/%d: %d" % (count,len(foundCountries),foundSum))  
+        for countryName in sorted(foundCountries.keys()):
+            country=foundCountries[countryName]
+            print("""%s:
+    type: country
+    isocode: %s
+    population: %10.0f
+    gpdPerCapita: %6.0f""" % (countryName,country["isocode"],country["population"],country["gdpPerCapita"]) )
+    
+            
   
     def testTitleParser(self):
         ''' test reading the proceeding titles from the sampledata directory'''
         checkCountries=True
-        if checkCountries:
-            cm=CountryManager("wikidata")
-            cm.fromCache()
+       
         showHistogram=True
         opr=OpenResearch()
         opr.initEventManager()
@@ -241,22 +271,8 @@ class TestProceedingsTitleParser(unittest.TestCase):
         print (counter) 
         print ("total # of proceeding titles parsed: %d" % (sum(counter.values())))   
         if checkCountries:
-            countryMap={}
-            for country in cm.countryList:
-                countryMap[country['name']]=country;
-                
-            foundSum=0
-            count=0
-            foundCountries={}
-            for stats in statsMap.values():
-                for unknownToken,freq in stats.tc.most_common(1000):
-                    if unknownToken in countryMap:
-                        country=countryMap[unknownToken]
-                        foundCountries[country['name']]=country
-                        foundSum+=freq
-                        count+=1
-                        print ("%20s %2s %3d %10.0f %6.0f" % (country["name"],country["isocode"],freq,country["population"],country["gdpPerCapita"]))
-            print ("%d/%d: %d" % (count,len(foundCountries),foundSum))      
+            self.doCheckCountries(statsMap)
+             
             
     def testGraph(self):
         g=nx.Graph()
