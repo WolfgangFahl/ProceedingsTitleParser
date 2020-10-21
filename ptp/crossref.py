@@ -40,16 +40,20 @@ class Crossref(object):
         cache my json files to my eventmanager
         '''
         startTime=time.time()
-        for jsonFilePath in self.jsonFiles():
-            eventBatch=self.fromJsonFile(jsonFilePath)
-            if self.debug:
-                print("%4d: %s" % (len(eventBatch),jsonFilePath))
-            for rawEvent in eventBatch:
-                self.addEvent(rawEvent)
-        if self.profile:
-            print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
-        self.em.store(limit=self.limit,batchSize=self.batchSize)
-        
+        jsonFiles=self.jsonFiles()
+        if len(jsonFiles)<47:
+            print ("not enough crossref json files - did getsamples fail due to crossref API issues?")
+        else:         
+            for jsonFilePath in jsonFiles:
+                eventBatch=self.fromJsonFile(jsonFilePath)
+                if self.debug:
+                    print("%4d: %s" % (len(eventBatch),jsonFilePath))
+                for rawEvent in eventBatch:
+                    self.addEvent(rawEvent)
+            if self.profile:
+                print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
+            self.em.store(limit=self.limit,batchSize=self.batchSize)
+            
     def initEventManager(self):
         ''' initialize my event manager '''
         if not self.em.isCached():
