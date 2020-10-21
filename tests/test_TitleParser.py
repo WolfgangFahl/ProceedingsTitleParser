@@ -7,6 +7,7 @@ import unittest
 from ptp.titleparser import TitleParser, Title, \
     ProceedingsTitleParser, TokenStatistics
 from collections import Counter
+from ptp.location import CountryManager
 
 import networkx as nx
 import os
@@ -218,11 +219,15 @@ class TestProceedingsTitleParser(unittest.TestCase):
   
     def testTitleParser(self):
         ''' test reading the proceeding titles from the sampledata directory'''
+        checkCountries=True
+        if checkCountries:
+            cm=CountryManager("wikidata")
+            cm.fromCache()
         showHistogram=True
         opr=OpenResearch()
         opr.initEventManager()
         em=opr.em
-        stats={}
+        statsMap={}
         counter=Counter()
         for tp in [
                 # low expectation due to problem in API
@@ -231,11 +236,28 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
                 self.getTitleParser("proceedings-wikidata.txt",16000)
             ]:
-            stats[tp.name]=self.doTestTitleParser(tp,em,showHistogram) 
-            counter[tp.name]=stats[tp.name].recordCount  
+            statsMap[tp.name]=self.doTestTitleParser(tp,em,showHistogram) 
+            counter[tp.name]=statsMap[tp.name].recordCount  
         print (counter) 
         print ("total # of proceeding titles parsed: %d" % (sum(counter.values())))   
-      
+        if checkCountries:
+            countryMap={}
+            for country in cm.countryList:
+                countryMap[country['name']]=country;
+                
+            foundSum=0
+            count=0
+            foundCountries={}
+            for stats in statsMap.values():
+                for unknownToken,freq in stats.tc.most_common(1000):
+                    if unknownToken in countryMap:
+                        country=countryMap[unknownToken]
+                        foundCountries[country['name']]=country
+                        foundSum+=freq
+                        count+=1
+                        print ("%20s %2s %3d %10.0f %6.0f" % (country["name"],country["isocode"],freq,country["population"],country["gdpPerCapita"]))
+            print ("%d/%d: %d" % (count,len(foundCountries),foundSum))      
+            
     def testGraph(self):
         g=nx.Graph()
         g.add_edge('A', 'B', weight=4)
