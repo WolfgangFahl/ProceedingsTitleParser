@@ -4,15 +4,18 @@ Created on 2020-09-04
 @author: wf
 '''
 import unittest
-from ptp.wordparser import CorpusWordParser, WordParser, WordUsage
+from ptp.wordparser import CorpusWordParser, WordParser
 from ptp.lookup import Lookup
 from lodstorage.sql import SQLDB
-import os
 from ptp.plot import Plot
-import pandas as pd
 from pandas import DataFrame
+import os
+from collections import Counter
 
 class TestWordParser(unittest.TestCase):
+    '''
+    test the Word usage based parser
+    '''
 
 
     def setUp(self):
@@ -34,7 +37,7 @@ class TestWordParser(unittest.TestCase):
         for index,wu in enumerate(wus):
             if self.debug:
                 print("%2d:%s" % (index,wu.__dict__))
-        self.assertEqual(14,len(wus))  
+        self.assertEqual(27,len(wus))  
     
     @staticmethod
     def getProceedingsTitles(sqlDB,source):
@@ -77,6 +80,28 @@ class TestWordParser(unittest.TestCase):
             wSQLDB=SQLDB(wordUsageDBFile)
             entityInfo=wSQLDB.createTable(totalWordUsages, "wordusage",withDrop=True)
             wSQLDB.store(totalWordUsages, entityInfo)
+            
+    def testDelimiters(self):
+        '''
+        test frequency of delimiter usage
+        '''
+        wordUsageDBFile=Lookup.getDBFile("wordusage")
+        if os.path.isfile(wordUsageDBFile):
+            wSQLDB=SQLDB(wordUsageDBFile)
+        delimiters=[' ',',','+',':',';','(',')','{','}','[',']','<','>','"',"''",'/','*','\%','&','#','~']
+        countResults={}
+        totalQuery="select count(distinct(eventId)) as count from wordusage"
+        totalResult=wSQLDB.query(totalQuery)
+        total=totalResult[0]['count']
+        for delimiter in delimiters:
+            sqlQuery="select count(*) as count from wordusage where word like '%s%%'" % (delimiter)
+            countResult=wSQLDB.query(sqlQuery)
+            foundCount=countResult[0]['count']
+            countResults[delimiter]=foundCount
+        counts=Counter(countResults)
+        print (total)
+        for delim,count in counts.most_common():
+            print ("%s & %7d & %5.3f \\" % (delim,count,count/total))        
 
 
 if __name__ == "__main__":

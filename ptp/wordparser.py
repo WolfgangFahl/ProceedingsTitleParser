@@ -49,10 +49,11 @@ class WordParser(object):
         
     def parse(self,title):
         '''
-        parse the given title and return the wordusages of it
+        parse the given title and return the word usages of it
         '''
-        
-        words=re.split('\W+',title)
+        # split and return delimiters
+        # https://stackoverflow.com/a/1059601/1497139
+        words=re.split('(\W+)',title)
         wordusages=[]
         for index,word in enumerate(words):
             wordusage=WordUsage(index,word,self.source,self.eventId)
