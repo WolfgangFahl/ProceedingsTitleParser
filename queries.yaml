@@ -61,6 +61,12 @@
         select number,cast(number as integer) as enum,year,title 
         from event_crossref
         where  enum> 53 and enum<1952     
+'Confref country distribution':
+    sql: |
+        select count(*) as count,country 
+        from event_confref
+        group by country
+        order by 1 desc    
 'WikiCfP year distribution':
     sql: |
         select year,count(*) as count

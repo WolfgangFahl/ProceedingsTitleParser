@@ -7,8 +7,10 @@ import unittest
 from ptp.wordparser import CorpusWordParser, WordParser
 from ptp.lookup import Lookup
 from lodstorage.sql import SQLDB
+from lodstorage.uml import UML
 from ptp.plot import Plot
 from pandas import DataFrame
+from datetime import datetime
 import os
 from collections import Counter
 
@@ -81,13 +83,36 @@ class TestWordParser(unittest.TestCase):
             entityInfo=wSQLDB.createTable(totalWordUsages, "wordusage",withDrop=True)
             wSQLDB.store(totalWordUsages, entityInfo)
             
-    def testDelimiters(self):
+    def getWordUsageDB(self):
         '''
-        test frequency of delimiter usage
+        get the Word usage database
         '''
         wordUsageDBFile=Lookup.getDBFile("wordusage")
         if os.path.isfile(wordUsageDBFile):
             wSQLDB=SQLDB(wordUsageDBFile)
+            return wSQLDB
+        return None
+            
+    def testWordUsageTagging(self):
+        wSQLDB=self.getWordUsageDB()
+        uml=UML()
+        now=datetime.now()
+        nowYMD=now.strftime("%Y-%m-%d")
+        title="""WordUsage  Entities
+%s
+[[https://projects.tib.eu/en/confident/ © 2020 ConfIDent project]]
+see also [[http://ptp.bitplan.com/settings Proceedings Title Parser]]
+""" %nowYMD
+        tableList=wSQLDB.getTableList()
+        plantUml=uml.tableListToPlantUml(tableList,title=title, packageName="ptp")
+        print (plantUml)
+         
+            
+    def testDelimiters(self):
+        '''
+        test frequency of delimiter usage
+        '''
+        wSQLDB=self.getWordUsageDB()
         delimiters=[' ',',','+',':',';','(',')','{','}','[',']','<','>','"',"''",'/','*','\%','&','#','~']
         countResults={}
         totalQuery="select count(distinct(eventId)) as count from wordusage"

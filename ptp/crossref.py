@@ -5,12 +5,14 @@ Created on 2020-07-05
 '''
 import habanero
 from ptp.event import Event,EventManager
+from storage.config import StoreMode
 import json
 import os
 import re
 import glob
 import time
 import datetime
+import urllib
 
 class Crossref(object):
     '''
@@ -43,6 +45,10 @@ class Crossref(object):
         jsonFiles=self.jsonFiles()
         if len(jsonFiles)<47:
             print ("not enough crossref json files - did getsamples fail due to crossref API issues?")
+            print ("will download cached version of database as a work-around instead")
+            url="http://wiki.bitplan.com/images/confident/Event_crossref.db"
+            filename=self.em.getCacheFile(mode=StoreMode.SQL)
+            urllib.request.urlretrieve(url, filename)
         else:         
             for jsonFilePath in jsonFiles:
                 eventBatch=self.fromJsonFile(jsonFilePath)
