@@ -59,10 +59,10 @@ download() {
   local l_target="$2"
   if [ ! -f $l_target ]
   then
-    echo "downloading $l_target from $l_src"
+    color_msg $blue "downloading $l_target from $l_src"
     curl -o $l_target $l_src
   else
-    echo "$l_target already downloaded"
+    color_msg $green "$l_target already downloaded"
   fi
   # show number of lines
   # check if the file has json format
