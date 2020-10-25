@@ -258,6 +258,7 @@ getConfRef() {
     if [ $? -ne 0 ]
     then
       srcwiki="http://wiki.bitplan.com/images/confident/confref-$entity.json"
+      rm $target
       color_msg $blue "$src download failed - will retrieve a cached version from $srcwiki"
       download $srcwiki $target
     fi
