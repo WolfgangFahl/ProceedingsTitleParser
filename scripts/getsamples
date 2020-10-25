@@ -67,7 +67,13 @@ download() {
   # show number of lines
   # check if the file has json format
   if [[ $l_target =~ ^.*\.json$ ]]; then
-    jq . $l_target | wc -l
+    jq length $l_target
+    # invalid json?
+    if [ $? -ne 0 ]
+    then
+      # show first few lines which might contain error message
+      head $l_target
+    fi
   else
     wc -l $l_target
   fi
