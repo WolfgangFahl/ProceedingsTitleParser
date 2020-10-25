@@ -71,8 +71,10 @@ download() {
     # invalid json?
     if [ $? -ne 0 ]
     then
+      color_msg $red "invalid json received for $l_target:"
       # show first few lines which might contain error message
       head $l_target
+      color_msg $red "test will have to work-around this issue e.g. downloading a cached result"
     fi
   else
     wc -l $l_target
@@ -249,6 +251,15 @@ getConfRef() {
     target=$sampledir/confref-$entity.json
     src=http://portal.confref.org/api/$entity/
     download $src $target
+    # check result (again)
+    jq length $l_target
+    # invalid json?
+    if [ $? -ne 0 ]
+    then
+      srcwiki="http://wiki.bitplan.com/images/confident/confref-$entity.json"
+      color_msg $blue "$src download failed - will retrieve a cached version from $srcwiki"
+      download $srcwiki $target
+    fi
   done
 }
 
