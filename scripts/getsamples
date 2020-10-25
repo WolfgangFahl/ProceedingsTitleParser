@@ -48,7 +48,8 @@ error() {
 usage() {
   echo "usage: $0 [-h|--help][--ceurws]"
   echo "  -h|--help: show this usage"
-  echo "  --ceurws: force getting samples for CEURWS"
+  echo "  --ceurws: force getting samples for CEURWS and exit"
+  echo "  --confref: get samples for confref and exit"
 }
 
 #
@@ -252,7 +253,7 @@ getConfRef() {
     src=http://portal.confref.org/api/$entity/
     download $src $target
     # check result (again)
-    jq length $l_target
+    jq length $target
     # invalid json?
     if [ $? -ne 0 ]
     then
@@ -326,6 +327,9 @@ do
   case $option in
     -h|--help)
       usage
+      exit 0;;
+    --confref)
+      getConfRef
       exit 0;;
     --ceurws)
       html=$sampledir/ceurs-ws.html
