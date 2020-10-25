@@ -113,6 +113,9 @@ see also [[http://ptp.bitplan.com/settings Proceedings Title Parser]]
         test frequency of delimiter usage
         '''
         wSQLDB=self.getWordUsageDB()
+        # rest only if available
+        if wSQLDB is None:
+            return
         delimiters=[' ',',','+',':',';','(',')','{','}','[',']','<','>','"',"''",'/','*','\%','&','#','~']
         countResults={}
         totalQuery="select count(distinct(eventId)) as count from wordusage"
