@@ -37,6 +37,9 @@ class TestProceedingsTitleParser(unittest.TestCase):
         return tp 
     
     def getParser(self):
+        '''
+        get the ProceedingsTitleParser singleton instance
+        '''
         return ProceedingsTitleParser.getInstance()
        
     def tryParse(self,line,parser,tc,eventId=None,doprint=False):
@@ -50,8 +53,13 @@ class TestProceedingsTitleParser(unittest.TestCase):
             title.pyparse()
             if self.debug:
                 title.dump()
+            metadata=title.metadata()
+            for key in metadata.keys():
+                value=metadata[key]
+                if value is not None:
+                    tc[key]+=1
             if doprint:    
-                print (title.metadata())    
+                print (metadata)    
             tc["success"]+=1
             return title
         except Exception as ex:
@@ -159,23 +167,55 @@ class TestProceedingsTitleParser(unittest.TestCase):
                 eventId=record["eventId"]
             lineCount=lineCount+1    
             self.tryParse(record["title"],parser,tc,eventId=eventId,doprint=lineCount<=limit)
-        print(tc.most_common(2))   
-        self.assertGreater(tc["success"], minSuccess)     
+        print (tc.most_common())
+        success=tc['success']
+        failed=tc['fail']
+        total=success+failed
+        print("%5d/%5d %5.1f%%" % (success,total,success/total*100))   
+        self.assertGreater(success, minSuccess)
+        return tc
+        
+    def testPyParse(self):
+        '''
+        test py parsing approach for four samples
+        '''
+        tcs={}
+        tps=self.getTitleParsers()
+        delim=""    
+        for tp in tps:
+            tcs[tp.name]=self.doTestParser(tp,10)
+        for tp in tps:
+            print("%s%s" % (delim,tp.name),end='')
+            delim="&"   
+        print("\\\\")
+                  
+        for key in ['success','fail','eventType','frequency','enum','acronym','year','month','daterange','country','city']:
+            print (key,end='')
+            for tp in tps:
+                tc=tcs[tp.name]
+                total=tc['success']+tc['fail']
+                print ("&%d&%5.1f%%" %(tc[key],tc[key]/total*100),end='')
+            print ("\\\\")
                
     def testPyParseWikiData(self):
         ''' test pyparsing parser '''
         tp=self.getTitleParser("proceedings-wikidata.txt",16000)
         self.doTestParser(tp,15500)
         
-    def testCEUR_WS(self):
+    def testPyParseCEUR_WS(self):
         ''' test pyparsing parser with CEUR-WS dataset '''
         tp=self.getTitleParser("proceedings-ceur-ws.txt",2629,mode='CEUR-WS')
         self.doTestParser(tp,2280)
         
-    def testDBLP(self):
+    def testPyParseDBLP(self):
         ''' test pyparsing with DBLP dataset '''
         tp=self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp')
         self.doTestParser(tp,13700)
+    
+    def testPyParseCrossRef(self):
+        ''' test py parsing '''
+        tp=self.getTitleParser("proceedings-crossref.txt",10000,mode='line')
+        self.doTestParser(tp,10000)
      
     def testSeriesEnumeration(self):
         ''' test getting most often used series enumerations of Proceeding Events '''
@@ -247,6 +287,16 @@ class TestProceedingsTitleParser(unittest.TestCase):
     population: %10.0f
     gpdPerCapita: %6.0f""" % (countryName,country["isocode"],country["population"],country["gdpPerCapita"]) )
     
+    def getTitleParsers(self):
+        tps=[
+                # low expectation due to problem in API
+                self.getTitleParser("proceedings-ceur-ws.txt",2629,mode='CEUR-WS'),
+                self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
+                self.getTitleParser("proceedings-wikidata.txt",16000),
+                self.getTitleParser("proceedings-crossref.txt",45300, mode='line')
+        ]
+        return tps;
+        
     def testTitleParser(self):
         ''' test reading the proceeding titles from the sampledata directory'''
         checkCountries=True
@@ -257,13 +307,7 @@ class TestProceedingsTitleParser(unittest.TestCase):
         em=opr.em
         statsMap={}
         counter=Counter()
-        for tp in [
-                # low expectation due to problem in API
-                self.getTitleParser("proceedings-crossref.txt",45300, mode='line'),
-                self.getTitleParser("proceedings-ceur-ws.txt",2629,mode='CEUR-WS'),
-                self.getTitleParser("proceedings-dblp.txt",14207,mode='dblp'),
-                self.getTitleParser("proceedings-wikidata.txt",16000)
-            ]:
+        for tp in self.getTitleParsers():
             statsMap[tp.name]=self.doTestTitleParser(tp,em,showHistogram) 
             counter[tp.name]=statsMap[tp.name].recordCount  
         print (counter) 
