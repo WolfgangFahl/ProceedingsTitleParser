@@ -25,25 +25,34 @@ class TestAcronyms(unittest.TestCase):
         em=wikiCFP.em
         sqlDB=em.getSQLDB(em.getCacheFile(em.config, StoreMode.SQL))
         return sqlDB
+    
+    def checkPattern(self,sqlDB,regex,year,debug=False):
+        '''
+        check the given regex pattern for the given year
+        '''
+        acronymRecords=sqlDB.query("select acronym from event_wikicfp where year=%d" % year)
+        print ("total acronyms for year %d: %d" % (year,len(acronymRecords)))
+        count=1
+        limit=len(acronymRecords)
+        for acronymRecord in acronymRecords:
+            acronym=acronymRecord['acronym']
+            matches=re.match(regex,acronym)
+            if matches:
+                count+=1
+            if debug and count<10:
+                print ("%s:%s" % ('✅' if matches else '❌' ,acronym))
+        print("%d/%d (%5.1f%%) matches for %s" % (count,limit,count/limit*100,regex)) 
+   
        
     def testAcronyms(self):
         '''
         test Acronyms
         '''
         sqlDB=self.getWikiCFPDB()
-        acronymRecords=sqlDB.query("select acronym from event_wikicfp")
-        print ("total acronyms: %d" % len(acronymRecords))
-        limit=81966
-        count=0
-        for regex in [r'[A-Z]+\s*[0-9]+']:
-            for acronymRecord in acronymRecords[:limit]:
-                acronym=acronymRecord['acronym']
-                matches=re.match(regex,acronym)
-                if matches:
-                    count+=1
-                print ("%s:%s" % ('✅' if matches else '❌' ,acronym))
-            print("%d/%d (%5.1f%%) matches for %s" % (count,limit,count/limit*100,regex)) 
-
+        for year in range(2007,2021):
+            for regex in [r'[A-Z]+\s*[0-9]+']:
+                self.checkPattern(sqlDB,regex,year,debug=True)
+      
     def testQueries(self):
         '''
         test Queries
