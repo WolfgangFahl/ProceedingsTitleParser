@@ -4,6 +4,7 @@ Created on 2020-09-14
 @author: wf
 '''
 import unittest
+import subprocess, platform
 from ptp.gnd import GND
 from lodstorage.sparql import SPARQL
 from storage.query import Query
@@ -23,15 +24,29 @@ class TestGND(unittest.TestCase):
 
     def tearDown(self):
         pass
+    
+    def pingTest(self,sHost="zeus.bitplan.com"):
+        # https://stackoverflow.com/a/34455969/1497139
+        try:
+            option="-n" if platform.system().lower()=="windows" else "-c"
+            cmd="ping %s 1 -t 1 %s" % (option,sHost) 
+            output = subprocess.check_output(cmd, shell=True)
+            return output is not None
+        except Exception:
+            return False
+       
 
+    #def testPing(self):
+    #    print(self.pingTest())
 
     def testGND(self):
         '''
         test GND data access
         '''
         # get samples now has an Event_gnd.db download to prefill cache
-        #if getpass.getuser()!="wf":
-        #    return
+        if getpass.getuser()!="wf" or not self.pingTest():
+            return
+        
         gnd=GND(endpoint=self.endpoint)
         gnd.initEventManager()
         cachedEvents=len(gnd.em.events)
