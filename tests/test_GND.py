@@ -35,6 +35,8 @@ class TestGND(unittest.TestCase):
         except Exception:
             return False
        
+    def available(self):
+        return getpass.getuser()=="wf" and self.pingTest();
 
     #def testPing(self):
     #    print(self.pingTest())
@@ -44,7 +46,7 @@ class TestGND(unittest.TestCase):
         test GND data access
         '''
         # get samples now has an Event_gnd.db download to prefill cache
-        if getpass.getuser()!="wf" or not self.pingTest():
+        if not self.available():
             return
         
         gnd=GND(endpoint=self.endpoint)
@@ -68,7 +70,7 @@ class TestGND(unittest.TestCase):
         pass
 
     def testStats(self):
-        if getpass.getuser()!="wf":
+        if not self.available():
             return
         queries=[Query('entities and usage frequency', '''
 # get histogramm data of entities by
