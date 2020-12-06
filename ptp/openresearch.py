@@ -4,8 +4,10 @@ Created on 04.07.2020
 @author: wf
 '''
 from wikibot.smw import SMW
+import getpass
 import os
 from wikibot.wikibot import WikiBot
+from wikibot.wikiuser import WikiUser
 from ptp.event import Event, EventManager
 
 
@@ -126,9 +128,12 @@ class OpenResearch(object):
     @staticmethod    
     def getSMW_Wiki():
         wikiId="or"
-        iniFile=WikiBot.iniFilePath(wikiId)
+        iniFile=WikiUser.iniFilePath(wikiId)
         if not os.path.isfile(iniFile):
-            WikiBot.writeIni(wikiId,"OpenResearch.org","https://www.openresearch.org","/mediawiki/","MediaWiki 1.31.1")    
+            wikiDict={"wikiId": wikiId,"email":"webmaster@openresearch.org","url":"https://www.openresearch.org","scriptPath":"/mediawiki/","version":"MediaWiki 1.31.1"}   
+            wikiUser=WikiUser.ofDict(wikiDict, lenient=True)
+            if getpass.getuser()=="travis":
+                wikiUser.save()
         wikibot=WikiBot.ofWikiId(wikiId)
         return  wikibot
     

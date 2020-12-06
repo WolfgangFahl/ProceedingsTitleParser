@@ -20,7 +20,7 @@ num2words
 Flask
 # Mediawiki and SMW API
 # https://pypi.org/project/py-3rdparty-mediawiki/
-py-3rdparty-mediawiki>=0.1.4
+py-3rdparty-mediawiki>=0.1.15
 # https://phabricator.wikimedia.org/T171886
 # https://pypi.org/project/pywikibot/
 pywikibot==3.0.20200306
