@@ -18,7 +18,7 @@ num2words
 # web server
 # https://pypi.org/project/Flask/
 Flask
-# Mediawiki and SMW API
+# Mediawiki and Semantic MediaWiki (SMW) API
 # https://pypi.org/project/py-3rdparty-mediawiki/
 py-3rdparty-mediawiki>=0.1.15
 # https://phabricator.wikimedia.org/T171886
