@@ -3,7 +3,7 @@ Created on 2020-09-03
 
 @author: wf
 '''
-from wikibot.smw import SMW
+from wikibot.smw import SMWBot
 from wikibot.wikibot import WikiBot
 from lodstorage.jsonable import JSONAble
 from storage.entity import EntityManager
@@ -56,7 +56,7 @@ class Ontology(object):
             the list of schema properties
         '''
         self.wikibot=WikiBot.ofWikiId(wikiId)
-        self.smw=SMW(self.wikibot.site)
+        self.smw=SMWBot(self.wikibot.site)
         askResult=self.smw.query(ask)
         if self.debug:
             for askRecord in askResult.values():
