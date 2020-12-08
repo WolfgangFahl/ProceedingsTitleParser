@@ -26,23 +26,33 @@ class TestAcronyms(unittest.TestCase):
         sqlDB=em.getSQLDB(em.getCacheFile(em.config, StoreMode.SQL))
         return sqlDB
     
-    def checkPattern(self,sqlDB,regex,year,debug=False):
-        '''
-        check the given regex pattern for the given year
-        '''
-        acronymRecords=sqlDB.query("select acronym from event_wikicfp where year=%d" % year)
-        print ("total acronyms for year %d: %d" % (year,len(acronymRecords)))
+    def showPercentage(self,value,total,title):
+        print("%d/%d (%5.1f%%)  %s" % (value,total,value/total*100,title)) 
+    
+    def getMatchingRecords(self,sqlDB,regex,whereClause,show=10):
+        acronymRecords=sqlDB.query("select acronym,startDate from event_wikicfp where %s" % whereClause)
+        if show:
+            print ("total acronyms for %s: %d" % (whereClause,len(acronymRecords)))
         count=1
         limit=len(acronymRecords)
+        matchingRecords=[]
         for acronymRecord in acronymRecords:
             acronym=acronymRecord['acronym']
             matches=re.match(regex,acronym)
             if matches:
                 count+=1
-            if debug and count<10:
+                matchingRecords.append(acronymRecord)
+            if show and count<show:
                 print ("%s:%s" % ('✅' if matches else '❌' ,acronym))
-        print("%d/%d (%5.1f%%) matches for %s" % (count,limit,count/limit*100,regex)) 
-   
+        if show:
+            self.showPercentage(count,limit, "matches for %s" % regex)
+        return matchingRecords
+    
+    def checkPattern(self,sqlDB,regex,year,debug=False):
+        '''
+        check the given regex pattern for the given year
+        '''
+        self.getMatchingRecords(sqlDB,regex,"year=%d" %year)
        
     def testAcronyms(self):
         '''
@@ -52,7 +62,21 @@ class TestAcronyms(unittest.TestCase):
         for year in range(2007,2021):
             for regex in [r'[A-Z]+\s*[0-9]+']:
                 self.checkPattern(sqlDB,regex,year,debug=True)
-      
+                
+    def testYears(self):
+        sqlDB=self.getWikiCFPDB()
+        regex=r'[A-Z]+\s*[12][0-9]{3}'    
+        matchedEvents=self.getMatchingRecords(sqlDB,regex,"year is not Null")
+        yearDifferent=0
+        for matchedEvent in matchedEvents:
+            acronym=matchedEvent['acronym']
+            startDate=matchedEvent['startDate']
+            acronymYear=re.sub(r"^.*([12][0-9]{3}).*$",r"\1", acronym)
+            if acronymYear!=str(startDate.year):
+                yearDifferent+=1
+                #print ("%s:%s != %s" % (acronym,acronymYear,startDate.year))
+        self.showPercentage(yearDifferent,len(matchedEvents),"year different")
+                   
     def testQueries(self):
         '''
         test Queries
