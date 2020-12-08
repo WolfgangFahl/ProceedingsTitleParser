@@ -130,7 +130,7 @@ class OpenResearch(object):
         wikiId="or"
         iniFile=WikiUser.iniFilePath(wikiId)
         if not os.path.isfile(iniFile):
-            wikiDict={"wikiId": wikiId,"email":"webmaster@openresearch.org","url":"https://www.openresearch.org","scriptPath":"/mediawiki/","version":"MediaWiki 1.31.1"}   
+            wikiDict={"wikiId": wikiId,"user":"","email":"","url":"https://www.openresearch.org","scriptPath":"/mediawiki/","version":"MediaWiki 1.31.1"}   
             wikiUser=WikiUser.ofDict(wikiDict, lenient=True)
             if getpass.getuser()=="travis":
                 wikiUser.save()
