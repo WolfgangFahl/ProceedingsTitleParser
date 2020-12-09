@@ -6,7 +6,7 @@ Created on 04.07.2020
 from wikibot.smw import SMWBot
 import getpass
 import os
-from wikibot.wikibot import WikiBot
+from wikibot.wikiclient import WikiClient
 from wikibot.wikiuser import WikiUser
 from ptp.event import Event, EventManager
 
@@ -129,6 +129,7 @@ class OpenResearch(object):
     def createWikiUser(wikiId="or"):
         wikiDict={"wikiId": wikiId,"user":"","email":"","url":"https://www.openresearch.org","scriptPath":"/mediawiki/","version":"MediaWiki 1.31.1"}   
         wikiUser=WikiUser.ofDict(wikiDict, lenient=True)
+        wikiUser.save()
         return wikiUser
     
     @staticmethod    
@@ -136,9 +137,10 @@ class OpenResearch(object):
         iniFile=WikiUser.iniFilePath(wikiId)
         if not os.path.isfile(iniFile):
             wikiUser=OpenResearch.createWikiUser(wikiId)
-            wikibot=WikiBot.ofWikiUser(wikiUser)
+            wikiUser.save()
+            wikibot=WikiClient.ofWikiUser(wikiUser)
         else:    
-            wikibot=WikiBot.ofWikiId(wikiId)
+            wikibot=WikiClient.ofWikiId(wikiId,lenient=True)
         return  wikibot
     
     def initEventManager(self):
