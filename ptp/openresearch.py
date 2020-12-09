@@ -124,17 +124,21 @@ class OpenResearch(object):
         wikibot=OpenResearch.getSMW_Wiki()
         smw=SMWBot(wikibot.site)
         return smw
-        
+    
+    @staticmethod 
+    def createWikiUser(wikiId="or"):
+        wikiDict={"wikiId": wikiId,"user":"","email":"","url":"https://www.openresearch.org","scriptPath":"/mediawiki/","version":"MediaWiki 1.31.1"}   
+        wikiUser=WikiUser.ofDict(wikiDict, lenient=True)
+        return wikiUser
+    
     @staticmethod    
-    def getSMW_Wiki():
-        wikiId="or"
+    def getSMW_Wiki(wikiId="or"):
         iniFile=WikiUser.iniFilePath(wikiId)
         if not os.path.isfile(iniFile):
-            wikiDict={"wikiId": wikiId,"user":"","email":"","url":"https://www.openresearch.org","scriptPath":"/mediawiki/","version":"MediaWiki 1.31.1"}   
-            wikiUser=WikiUser.ofDict(wikiDict, lenient=True)
-            if getpass.getuser()=="travis":
-                wikiUser.save()
-        wikibot=WikiBot.ofWikiId(wikiId)
+            wikiUser=OpenResearch.createWikiUser(wikiId)
+            wikibot=WikiBot.ofWikiUser(wikiUser)
+        else:    
+            wikibot=WikiBot.ofWikiId(wikiId)
         return  wikibot
     
     def initEventManager(self):

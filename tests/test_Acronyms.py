@@ -64,9 +64,13 @@ class TestAcronyms(unittest.TestCase):
                 self.checkPattern(sqlDB,regex,year,debug=True)
                 
     def testYears(self):
+        '''
+        test the hypothesis that the year part of the event's acronym correlates
+        with the year of the stardate of the event
+        '''
         sqlDB=self.getWikiCFPDB()
         regex=r'[A-Z]+\s*[12][0-9]{3}'    
-        matchedEvents=self.getMatchingRecords(sqlDB,regex,"year is not Null")
+        matchedEvents=self.getMatchingRecords(sqlDB,regex,"year >2006 and year <2022")
         yearDifferent=0
         for matchedEvent in matchedEvents:
             acronym=matchedEvent['acronym']

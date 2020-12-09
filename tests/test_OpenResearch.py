@@ -20,6 +20,14 @@ class TestOpenResearch(unittest.TestCase):
 
     def tearDown(self):
         pass
+    
+    def testCreateWikiUser(self):
+        '''
+        test creating a wiki user
+        '''
+        wikiUser=OpenResearch.createWikiUser()
+        self.assertTrue(wikiUser is not None)
+        
 
     def testGetInfo(self):
         ''' get the semantic mediawiki info'''
