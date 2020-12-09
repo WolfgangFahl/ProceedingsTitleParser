@@ -6,7 +6,7 @@ Created on 04.07.2020
 from wikibot.smw import SMWBot
 import getpass
 import os
-from wikibot.wikiclient import WikiClient
+from wikibot.wikibot import WikiBot
 from wikibot.wikiuser import WikiUser
 from ptp.event import Event, EventManager
 
@@ -138,9 +138,9 @@ class OpenResearch(object):
         if not os.path.isfile(iniFile):
             wikiUser=OpenResearch.createWikiUser(wikiId)
             wikiUser.save()
-            wikibot=WikiClient.ofWikiUser(wikiUser)
+            wikibot=WikiBot.ofWikiUser(wikiUser)
         else:    
-            wikibot=WikiClient.ofWikiId(wikiId,lenient=True)
+            wikibot=WikiBot.ofWikiId(wikiId,lenient=True)
         return  wikibot
     
     def initEventManager(self):
