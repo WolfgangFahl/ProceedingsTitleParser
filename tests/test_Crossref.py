@@ -47,7 +47,7 @@ class TestCrossref(unittest.TestCase):
         dois=['10.1637/0005-2086-63.1.117','10.1145/3001867']
         expected=[
             {'title':'Tenth International Symposium on Avian Influenza'},
-            {'title':'Proceedings of the 7th International Workshop on Feature-Oriented Software Development  - FOSD 2016'}
+            {'title':'Proceedings of the 7th International Workshop on Feature-Oriented Software Development'}
         ]
         for index,doi in enumerate(dois):
             doimeta=cr.doiMetaData(doi)
