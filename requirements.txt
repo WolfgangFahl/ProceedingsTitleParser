@@ -20,10 +20,10 @@ num2words
 Flask
 # Mediawiki and Semantic MediaWiki (SMW) API
 # https://pypi.org/project/py-3rdparty-mediawiki/
-py-3rdparty-mediawiki>=0.1.17
+py-3rdparty-mediawiki>=0.1.23
 # https://phabricator.wikimedia.org/T171886
 # https://pypi.org/project/pywikibot/
-pywikibot==3.0.20200306
+#pywikibot==3.0.20200306
 #https://pypi.org/project/pycrypto/
 pycrypto
 # https://pypi.org/project/jsonpickle/
