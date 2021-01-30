@@ -5,7 +5,7 @@ Created on 2020-08-18
 '''
 import unittest
 from lodstorage.sparql import SPARQL
-from storage.query import QueryManager
+from lodstorage.query import QueryManager
 from ptp.lookup import Lookup
 
 class TestStats(unittest.TestCase):

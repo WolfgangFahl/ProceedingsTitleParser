@@ -52,7 +52,7 @@ pydgraph
 SPARQLWrapper
 # https://github.com/WolfgangFahl/pyLoDStorage
 # https://pypi.org/project/pylodstorage/
-pylodstorage
+pylodstorage>=0.0.24
 # https://pypi.org/project/spacy/
 spacy>=2.3.2
 # country,city Natural Language Parsing
