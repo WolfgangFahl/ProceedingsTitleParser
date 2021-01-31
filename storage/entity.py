@@ -101,29 +101,7 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         '''
         config=self.config
         sqldb=self.sqldb=SQLDB(cacheFile,debug=config.debug,errorDebug=config.errorDebug)
-        return sqldb   
-    
-    def setNone4List(self,listOfDicts,fields):
-        '''
-        set the given fields to None for the records in the given listOfDicts
-        if they are not set
-        Args:
-            listOfDicts(list): the list of records to work on
-            fields(list): the list of fields to set to None 
-        '''
-        for record in listOfDicts:
-            self.setNone(record, fields)
-    
-    def setNone(self,record,fields):
-        '''
-        make sure the given fields in the given record are set to none
-        Args:
-            record(dict): the record to work on
-            fields(list): the list of fields to set to None 
-        '''
-        for field in fields:
-            if not field in record:
-                record[field]=None
+        return sqldb
             
     def isCached(self):
         ''' check whether there is a file containing cached 

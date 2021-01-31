@@ -7,6 +7,7 @@ import unittest
 import time
 from storage.dgraph import Dgraph
 from lodstorage.sparql import SPARQL
+from lodstorage.lod import LOD
 from ptp.location import CountryManager, ProvinceManager, CityManager
 from ptp.listintersect import ListOfDict
 import datetime
@@ -86,7 +87,7 @@ class TestLocations(unittest.TestCase):
             """ % limit
         cityList=dbpedia.queryAsListOfDicts(citiesWithPopulationQuery)
         cim=CityManager("dbpedia")
-        cim.setNone4List(cityList, ["population","website"])
+        LOD.setNone4List(cityList, ["population","website"])
         cim.store(cityList)
 
     def testDBPediaCountries(self):
