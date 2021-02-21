@@ -6,7 +6,7 @@ Created on 2020-10-31
 import unittest
 from ptp.wikicfp import WikiCFP
 from storage.config import StoreMode
-from storage.query import Query
+from lodstorage.query import Query
 import re
 
 class TestAcronyms(unittest.TestCase):
