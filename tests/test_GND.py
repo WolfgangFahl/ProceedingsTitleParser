@@ -7,7 +7,7 @@ import unittest
 import subprocess, platform
 from ptp.gnd import GND
 from lodstorage.sparql import SPARQL
-from storage.query import Query
+from lodstorage.query import Query
 import getpass
 
 class TestGND(unittest.TestCase):

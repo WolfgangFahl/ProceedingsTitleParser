@@ -7,6 +7,7 @@ import unittest
 from lodstorage.sparql import SPARQL
 from lodstorage.query import QueryManager
 from ptp.lookup import Lookup
+import os
 
 class TestStats(unittest.TestCase):
     '''
@@ -19,11 +20,16 @@ class TestStats(unittest.TestCase):
     def tearDown(self):
         pass
     
+    def getQueryManager(self):
+        path=os.path.dirname(__file__)+"/.."
+        qm=QueryManager(lang='sql',debug=self.debug,path=path)
+        return qm
+    
     def test_SQL(self):
         '''
         test SQL queries
         '''
-        qm=QueryManager(lang='sql',debug=False)
+        qm=self.getQueryManager()
         self.assertEqual(17,len(qm.queriesByName))
         lookup=Lookup.ensureAllIsAvailable()
         sqlDB=lookup.getSQLDB()
@@ -43,7 +49,7 @@ class TestStats(unittest.TestCase):
         '''
         # disable test for the time being
         return
-        qm=QueryManager(lang='sparql',debug=False)
+        qm=self.getQueryManager()
         self.assertEqual(4,len(qm.queriesByName))
         endpoint="http://localhost:3030/cr"
         sparql=SPARQL(endpoint)
