@@ -27,7 +27,7 @@ py-3rdparty-mediawiki>=0.4.2
 #https://pypi.org/project/pycrypto/
 pycrypto
 # https://pypi.org/project/jsonpickle/
-jsonpickle
+jsonpickle==1.5.2
 # Beautiful Soup HTML parser
 # https://pypi.org/project/beautifulsoup4/
 beautifulsoup4>=4.9.3
