@@ -5,9 +5,7 @@ Created on 2020-07-17
 '''
 import unittest
 from ptp.dblp import Dblp
-from collections import Counter
-import numpy
-import pandas as pd
+from ptp.relevance import Category
 
 
 class TestDblp(unittest.TestCase):
@@ -42,31 +40,25 @@ class TestDblp(unittest.TestCase):
         self.assertTrue(foundEvents>43950)
         self.assertTrue(cachedEvents>43950)
         print("found %d  and cached %d events from dblp" % (foundEvents,cachedEvents))
-        pass    
-    
-    def testMostCommonFirstLetter(self):
+        pass
+        
+    def testMostCommonCategories(self):
         '''
         get the most common first letters
         '''
         dblp,foundEvents=self.getEvents()
         self.assertTrue(foundEvents>43950)
-        # collect first letters
-        counter=Counter()
-        total=0
+        categories=[
+            Category("first Letter",lambda event:event.title[0]),
+            Category("first Word",lambda event:event.title.split(' ',1)[0])
+        ]
         for eventId in dblp.em.events:
             if eventId.startswith("conf"):
                 event=dblp.em.events[eventId]
-                first=ord(event.title[0])
-                counter[first]+=1
-                total+=1
-        bins=len(counter.keys())
-        print(f"found {bins} different first letters in {total} titles")
-        for o,count in counter.most_common(bins):
-            c=chr(o)
-            print (f"{c}: {count:5} {count/total*100:4.1f} %")
-        
-        
-    
+                for category in categories:
+                    category.add(event)
+        for category in categories:
+            print(category.mostCommonTable(tablefmt="mediawiki"))
 
 
 if __name__ == "__main__":
