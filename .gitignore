@@ -150,3 +150,7 @@ lib
 data
 # eclipse
 .settings
+# assorted irrelevant items 
+apicache-py3/
+pywikibot.lwp
+throttle.ctrl
