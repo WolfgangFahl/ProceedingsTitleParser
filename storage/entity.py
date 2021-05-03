@@ -9,6 +9,7 @@ from storage.config import StorageConfig, StoreMode
 from storage.dgraph import Dgraph
 from lodstorage.sparql import SPARQL
 from lodstorage.sql import SQLDB
+from lodstorage.lod import LOD
 import os
 import time
 
@@ -102,6 +103,15 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         config=self.config
         sqldb=self.sqldb=SQLDB(cacheFile,debug=config.debug,errorDebug=config.errorDebug)
         return sqldb
+    
+    def setNone(self,record,fields):
+        '''
+        make sure the given fields in the given record are set to none
+        Args:
+            record(dict): the record to work on
+            fields(list): the list of fields to set to None 
+        '''
+        LOD.setNone(record,fields)
             
     def isCached(self):
         ''' check whether there is a file containing cached 
