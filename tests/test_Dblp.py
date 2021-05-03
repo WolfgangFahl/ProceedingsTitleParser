@@ -6,8 +6,7 @@ Created on 2020-07-17
 import unittest
 from ptp.dblp import Dblp
 from ptp.relevance import Category
-from ptp.signature import OrdinalCategory
-
+from ptp.signature import OrdinalCategory, EnumCategory
 
 class TestDblp(unittest.TestCase):
     '''
@@ -43,9 +42,14 @@ class TestDblp(unittest.TestCase):
         print("found %d  and cached %d events from dblp" % (foundEvents,cachedEvents))
         pass
     
-    def testOrdinalCategory(self):
+    def testCategories(self):
+        '''
+        check some categories 
+        '''
         ocat=OrdinalCategory()
-        print (len(ocat.lookup))
+        self.assertEqual(745,len(ocat.lookupByKey))
+        mcat=EnumCategory("month")
+        self.assertEqual(12,len(mcat.lookupByKey))
         
     def testMostCommonCategories(self):
         '''
@@ -54,16 +58,21 @@ class TestDblp(unittest.TestCase):
         dblp,foundEvents=self.getEvents()
         self.assertTrue(foundEvents>43950)
         categories=[
-            Category("first Letter",lambda event:event.title[0]),
-            Category("first Word",lambda event:event.title.split(' ',1)[0]),
-            OrdinalCategory()
+            Category("first Letter",lambda word:word[0] if word else ''),
+            Category("word",lambda word:word),
+            OrdinalCategory(),
+            EnumCategory('month')
         ]
         for eventId in dblp.em.events:
             if eventId.startswith("conf"):
                 event=dblp.em.events[eventId]
-                for category in categories:
-                    category.add(event)
+                title=event.title
+                words=title.split(' ')
+                for i,word in enumerate(words):
+                    for category in categories:
+                        category.add(event,word,i)
         for category in categories:
+            print(f"=== {category.name} ===")
             print(category.mostCommonTable(tablefmt="mediawiki"))
 
 

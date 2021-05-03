@@ -20,11 +20,11 @@ class Category(object):
         self.itemFunc=itemFunc
         self.counter=Counter()
         
-    def add(self,item):
+    def add(self,item,propValue,pos):
         '''
         add the given item with the given value
         '''
-        value=self.itemFunc(item)
+        value=self.itemFunc(propValue)
         if value in self.items:
             self.items[value].append(item)
         else:

@@ -5,8 +5,58 @@ Proceedings Title signature elements
 @author: wf
 '''
 from ptp.relevance import Category
+from num2words import num2words
+import yaml
+import os
 
-class OrdinalCategory(Category):
+class EnumCategory(Category):
+    tokens=None
+    
+    @classmethod
+    def getYamlPath(cls):
+        path=os.path.dirname(__file__)
+        path=f"{path}/../dictionary.yaml"
+        return path
+
+    @classmethod    
+    def read(cls, yamlPath=None):
+        ''' read the dictionary from the given yaml path
+            https://github.com/WolfgangFahl/ProceedingsTitleParser/blob/7e52b4e3eae09269464669fe387425b9f6392952/ptp/titleparser.py#L456
+        '''
+        if yamlPath is None:
+            yamlPath=EnumCategory.getYamlPath()
+        with open(yamlPath, 'r') as stream:
+            cls.tokens = yaml.safe_load(stream)
+        pass
+    
+    def __init__(self,name):
+        '''
+        construct me for the given name
+        '''
+        super().__init__(name,itemFunc=lambda word:self.lookup(word))
+        self.lookupByKey={}    
+        if EnumCategory.tokens is None:
+            EnumCategory.read()
+        for tokenKey in EnumCategory.tokens:
+            token=EnumCategory.tokens[tokenKey]
+            tokenType=token['type']
+            if tokenType==name:
+                value=token['value'] if 'value' in token else tokenKey 
+                self.lookupByKey[tokenKey]=value
+    
+    def lookup(self,word):
+        if word in self.lookupByKey:
+                return self.lookupByKey[word]
+        return None
+    
+    def addLookup(self,key,value):
+        '''
+        add the given key value pair to my lookup
+        '''
+        self.lookupByKey[key]=value
+
+    
+class OrdinalCategory(EnumCategory):
     '''
     I am the category for ordinals
     '''
@@ -16,27 +66,26 @@ class OrdinalCategory(Category):
         Constructor
         '''
         self.maxOrdinal=maxOrdinal
+        super().__init__("Ordinal")
         self.prepareLookup()
-        super().__init__("Ordinal",itemFunc=lambda event:self.getOrdinal(event))
-        
-    def getOrdinal(self,event):
-        for word in event.title.split(' '):
-            if word in self.lookup:
-                return self.lookup[word]
-        return None
+    
         
     def prepareLookup(self):
-        self.lookup={}
         # https://stackoverflow.com/a/20007730/1497139
         ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n/10%10!=1)*(n%10<4)*n%10::4])
         for i in range(1,self.maxOrdinal):
             # standard decimal ordinal 1., 2., 3. 
-            self.lookup[f"{i}."]=i
+            self.addLookup(f"{i}.",i)
             # text ordinal 1st, 2nd, 3rd
-            self.lookup[f"{ordinal(i)}"]=i
+            self.addLookup(f"{ordinal(i)}",i)
             # roman
-            self.lookup[f"{self.toRoman(i)}."]=i
-            
+            self.addLookup(f"{self.toRoman(i)}.",i)
+            # using num2words library
+            ordinal4i=num2words(i, to='ordinal')
+            self.addLookup(ordinal4i,i)
+            title=ordinal4i.title()
+            self.addLookup(title,i)
+            pass       
     
     def toRoman(self,number):
         ''' https://stackoverflow.com/a/11749642/1497139 '''
@@ -56,4 +105,3 @@ class OrdinalCategory(Category):
         if (number >= 5): return "V" + self.toRoman(number - 5)
         if (number >= 4): return "IV" + self.toRoman(number - 4)
         if (number >= 1): return "I" + self.toRoman(number - 1)
-        
