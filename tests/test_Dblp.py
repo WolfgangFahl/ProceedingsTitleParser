@@ -6,6 +6,7 @@ Created on 2020-07-17
 import unittest
 from ptp.dblp import Dblp
 from ptp.relevance import Category
+from ptp.signature import OrdinalCategory
 
 
 class TestDblp(unittest.TestCase):
@@ -41,6 +42,10 @@ class TestDblp(unittest.TestCase):
         self.assertTrue(cachedEvents>43950)
         print("found %d  and cached %d events from dblp" % (foundEvents,cachedEvents))
         pass
+    
+    def testOrdinalCategory(self):
+        ocat=OrdinalCategory()
+        print (len(ocat.lookup))
         
     def testMostCommonCategories(self):
         '''
@@ -50,7 +55,8 @@ class TestDblp(unittest.TestCase):
         self.assertTrue(foundEvents>43950)
         categories=[
             Category("first Letter",lambda event:event.title[0]),
-            Category("first Word",lambda event:event.title.split(' ',1)[0])
+            Category("first Word",lambda event:event.title.split(' ',1)[0]),
+            OrdinalCategory()
         ]
         for eventId in dblp.em.events:
             if eventId.startswith("conf"):
