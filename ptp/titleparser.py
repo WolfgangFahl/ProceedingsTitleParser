@@ -142,7 +142,7 @@ class TitleParser(object):
                 vol=None
                 partlen=len(parts)
                 if partlen>1:
-                    idpart=parts[partlen]
+                    idpart=parts[partlen-1]
                     # id=Vol-2534
                     vol=idpart.split("=")[1]
                 self.records.append({'source':'CEUR-WS','eventId': vol,'title': title})
