@@ -60,8 +60,19 @@ class TestDblp(unittest.TestCase):
         categories=[
             Category("first Letter",lambda word:word[0] if word else ''),
             Category("word",lambda word:word),
+            # TODO: country, region, city
             OrdinalCategory(),
-            EnumCategory('month')
+            # TODO: year
+            EnumCategory('month'),
+            EnumCategory('delimiter'),
+            EnumCategory('eventType'),
+            EnumCategory('extract'),
+            EnumCategory('field'),
+            EnumCategory('frequency'),
+            EnumCategory('organization'),
+            EnumCategory('publish'),
+            EnumCategory('scope'),
+            EnumCategory('syntax')
         ]
         for eventId in dblp.em.events:
             if eventId.startswith("conf"):
