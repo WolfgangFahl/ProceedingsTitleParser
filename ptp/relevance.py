@@ -13,6 +13,45 @@ class Categorizer(object):
     def __init__(self,categories):
         self.categories=categories
         pass
+    
+    def categorize(self,text,item):
+        results={}
+        for category in self.categories:
+            tokenSequence=TokenSequence(text)
+            result=Categorization(category,tokenSequence)
+            if result.matches()>0:
+                results[result.name]=result
+                result.item=item
+        return results
+    
+class TokenSequence(object):
+    
+    def __init__(self,text):
+        self.words=text.split(' ')
+        self.pos=-1
+        
+    def next(self):
+        while self.pos+1<len(self.words):
+            self.pos+=1
+            yield self.words[self.pos]
+        
+class Categorization(object):
+    
+    def __init__(self,category,tokenSequence):
+        self.category=category
+        self.name=category.name
+        self.tokenSequence=tokenSequence
+        
+    def __str__(self):
+        text=f"{self.name}:{self.matchResult}"
+        return text
+
+    def matches(self)->list:
+        '''
+        return how many matches there are
+        '''
+        self.matchResult=self.category.matches(self.tokenSequence)
+        return len(self.matchResult)
 
 class Category(object):
     '''
@@ -32,7 +71,7 @@ class Category(object):
     def addCategory(self,category):
         self.subCategory[category.name]=category
         
-    def add(self,item,propValue,pos):
+    def add(self,item,propValue):
         '''
         add the given item with the given value
         '''
@@ -43,9 +82,20 @@ class Category(object):
             self.items[value]=[item]
         self.counter[value]+=1
         
-    def matches(self):
-        pass
+    def matches(self,tokenSequence)->list:
+        '''
+        match the given tokenSequence
         
+        
+        '''
+        if hasattr(self,"checkMatch") and callable(getattr(self,"checkMatch")):
+            matchResult=[]
+            for token in tokenSequence.next():
+                if self.checkMatch(token):
+                    value=self.itemFunc(token)
+                    matchResult.append((token,tokenSequence.pos,value))
+        return matchResult
+    
     def mostCommonTable(self,headers=["#","key","count","%"],tablefmt='pretty',limit=50):
         '''
         get the most common Table

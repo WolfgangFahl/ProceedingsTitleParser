@@ -5,8 +5,8 @@ Created on 2020-07-17
 '''
 import unittest
 from ptp.dblp import Dblp
-from ptp.relevance import Category
-from ptp.signature import OrdinalCategory, EnumCategory
+from ptp.relevance import Category, Categorizer, TokenSequence
+from ptp.signature import RegexpCategory,OrdinalCategory, EnumCategory
 
 class TestDblp(unittest.TestCase):
     '''
@@ -42,6 +42,20 @@ class TestDblp(unittest.TestCase):
         print("found %d  and cached %d events from dblp" % (foundEvents,cachedEvents))
         pass
     
+    def testCategorizer(self):
+        cat=Categorizer([OrdinalCategory()])
+        event={
+            'eventId':'conf/icwe/icwe2019',
+            'acronym':'ICWE 2019',
+            'title':'Web Engineering - 19th International Conference, ICWE 2019, Daejeon, South Korea, June 11-14, 2019, Proceedings'
+        }
+        results=cat.categorize(event['title'], event)
+        self.assertEqual(1,len(results))
+        token,pos,value=results['Ordinal'].matchResult[0]
+        self.assertEqual("19th",token)
+        self.assertEqual(3,pos)
+        self.assertEqual(19,value)
+    
     def testCategories(self):
         '''
         check some categories 
@@ -58,8 +72,8 @@ class TestDblp(unittest.TestCase):
         dblp,foundEvents=self.getEvents()
         self.assertTrue(foundEvents>43950)
         categories=[
-            Category("first Letter",lambda word:word[0] if word else ''),
-            Category("word",lambda word:word),
+            RegexpCategory("first Letter",lambda word:word[0] if word else '',r".*"),
+            RegexpCategory("word",lambda word:word,r".*"),
             # TODO: country, region, city
             OrdinalCategory(),
             # TODO: year
@@ -74,14 +88,20 @@ class TestDblp(unittest.TestCase):
             EnumCategory('scope'),
             EnumCategory('syntax')
         ]
+        cat=Categorizer(categories)
+        categorizations={}
         for eventId in dblp.em.events:
             if eventId.startswith("conf"):
                 event=dblp.em.events[eventId]
-                title=event.title
-                words=title.split(' ')
-                for i,word in enumerate(words):
-                    for category in categories:
-                        category.add(event,word,i)
+                categorizations[eventId]=cat.categorize(event.title,event)
+        limit=50
+        count=0
+        for clist in categorizations.values():
+            for c in clist.values():
+                count+=1
+                if count>limit:
+                    break;
+                print(c)
         for category in categories:
             print(f"=== {category.name} ===")
             print(category.mostCommonTable(tablefmt="mediawiki"))

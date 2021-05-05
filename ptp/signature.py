@@ -6,9 +6,21 @@ Proceedings Title signature elements
 '''
 from ptp.relevance import Category
 from num2words import num2words
+import re
 import yaml
 import os
 
+class RegexpCategory(Category):
+    '''
+    category defined by regular expression
+    '''
+    def __init__(self,name,itemFunc,pattern):
+        self.pattern=pattern
+        super().__init__(name,itemFunc=itemFunc)
+        
+    def checkMatch(self,token):
+        return re.search(self.pattern, token) is not None
+  
 class EnumCategory(Category):
     tokens=None
     
@@ -44,6 +56,9 @@ class EnumCategory(Category):
                 value=token['value'] if 'value' in token else tokenKey 
                 self.lookupByKey[tokenKey]=value
     
+    def checkMatch(self,word):
+        return self.lookup(word) is not None
+    
     def lookup(self,word):
         if word in self.lookupByKey:
                 return self.lookupByKey[word]
@@ -54,7 +69,6 @@ class EnumCategory(Category):
         add the given key value pair to my lookup
         '''
         self.lookupByKey[key]=value
-
     
 class OrdinalCategory(EnumCategory):
     '''
@@ -68,7 +82,6 @@ class OrdinalCategory(EnumCategory):
         self.maxOrdinal=maxOrdinal
         super().__init__("Ordinal")
         self.prepareLookup()
-    
         
     def prepareLookup(self):
         # https://stackoverflow.com/a/20007730/1497139
