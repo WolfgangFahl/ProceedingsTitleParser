@@ -161,7 +161,7 @@ ignorelines { next }
 #
 getDblp() {
   source=dblp.json
-  download http://wiki.bitplan.com/images/$source $sampledir/$source
+  download http://wiki.bitplan.com/images/confident/$source $sampledir/$source
 }
 
 #

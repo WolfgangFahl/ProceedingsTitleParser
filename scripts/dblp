@@ -1,9 +1,19 @@
 #!/bin/bash
 # WF 2020-07-17
 # get proceedings xml nodes from dblp xml download
-xml=$HOME/downloads/dblp.xml
+
+# if you do not have xq you might wan to install it with
+# pip install yq
+# see https://pypi.org/project/yq/
+
+# use dblpconf compatible location
+xml=$HOME/.dblp/dblp.xml
 tmpxml=/tmp/proceedings-dblp.xml
 json=sampledata/dblp.json
+echo "starting to extract $json from $xml ..."
+date
+echo "extracting proceedings nodes from $xml"
+# copy the xml header
 head -3 $xml > $tmpxml
 # make sure there are newlines before and after end tags
 # of type proceeding with sed and then filter with awk
@@ -14,4 +24,7 @@ cat $xml | sed $'s/<proceedings/\\\n&/g' | sed $'s/<.proceedings>/&\\\n/g' | awk
   print
 }' >> $tmpxml
 echo "</dblp>" >> $tmpxml
+echo "converting xml format to $json"
 xq . $tmpxml > $json
+echo "finished"
+date

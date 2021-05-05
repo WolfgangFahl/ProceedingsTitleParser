@@ -6,6 +6,14 @@ Created on 2021-05-31
 from collections import Counter
 from tabulate import tabulate
 
+class Categorizer(object):
+    '''
+    categorize some text input
+    ''' 
+    def __init__(self,categories):
+        self.categories=categories
+        pass
+
 class Category(object):
     '''
     I am a category
@@ -19,6 +27,10 @@ class Category(object):
         self.items={}
         self.itemFunc=itemFunc
         self.counter=Counter()
+        self.subCategories={}
+        
+    def addCategory(self,category):
+        self.subCategory[category.name]=category
         
     def add(self,item,propValue,pos):
         '''
