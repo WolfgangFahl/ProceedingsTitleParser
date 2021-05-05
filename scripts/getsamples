@@ -339,6 +339,9 @@ do
       rm $html $txt
       getCEURWS
       exit 0;;
+    --dblp)
+      getDblp
+      exit 0;;
     --wikicfp)
       getWikiCFP
       exit 0;;
