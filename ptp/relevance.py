@@ -71,8 +71,7 @@ class Token(object):
         self.tokenSequence=tokenSequence
         self.pos=pos
         self.tokenStr=tokenStr
-        self.value=category.itemFunc(tokenStr)
-        category.add(item,self.value)
+        self.value=category.add(item,tokenStr)
        
         
 class Category(object):
@@ -103,6 +102,7 @@ class Category(object):
         else:
             self.items[value]=[item]
         self.counter[value]+=1
+        return value
         
    
     def mostCommonTable(self,headers=["#","key","count","%"],tablefmt='pretty',limit=50):
