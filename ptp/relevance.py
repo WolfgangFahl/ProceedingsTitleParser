@@ -47,6 +47,7 @@ class TokenSequence(object):
         match me for the given categories
         
         '''
+        self.item=item
         for tokenStr in self.next():
             for category in categories:
                 if category.checkMatch(tokenStr):
@@ -60,6 +61,9 @@ class TokenSequence(object):
         
         
 class Token(object):
+    '''
+    a single categorized token
+    '''
     
     def __init__(self,category,tokenSequence,pos,tokenStr,item):
         self.category=category
@@ -68,7 +72,8 @@ class Token(object):
         self.pos=pos
         self.tokenStr=tokenStr
         self.value=category.itemFunc(tokenStr)
-        self.item=item
+        category.add(item,self.value)
+       
         
 class Category(object):
     '''
