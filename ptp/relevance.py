@@ -6,53 +6,70 @@ Created on 2021-05-31
 from collections import Counter
 from tabulate import tabulate
 
-class Categorizer(object):
+class Tokenizer(object):
     '''
     categorize some text input
     ''' 
     def __init__(self,categories):
         self.categories=categories
+        for category in categories:
+            for neededFunc in ["checkMatch","itemFunc"]:
+                hasNeededFunc=hasattr(category,neededFunc) and callable(getattr(category,neededFunc))
+                if not hasNeededFunc:
+                    raise Exception(f"category {category.name} has no {neededFunc} function")
         pass
     
-    def categorize(self,text,item):
-        results={}
-        for category in self.categories:
-            tokenSequence=TokenSequence(text)
-            result=Categorization(category,tokenSequence)
-            if result.matches()>0:
-                results[result.name]=result
-                result.item=item
-        return results
-    
+    def tokenize(self,text,item):
+        '''
+        tokenize the given text for the given item
+        '''
+        tokenSequence=TokenSequence(text)
+        tokenSequence.match(self.categories,item)
+        return tokenSequence
+        
 class TokenSequence(object):
+    '''
+    a sequence of tokens
+    '''
     
-    def __init__(self,text):
-        self.words=text.split(' ')
+    def __init__(self,text,separator=' '):
+        self.words=text.split(separator)
         self.pos=-1
+        self.matchResults=[]
         
     def next(self):
         while self.pos+1<len(self.words):
             self.pos+=1
             yield self.words[self.pos]
+            
+    def match(self,categories:list,item:object)->list:
+        '''
+        match me for the given categories
         
-class Categorization(object):
+        '''
+        for tokenStr in self.next():
+            for category in categories:
+                if category.checkMatch(tokenStr):
+                    token=Token(category,self,self.pos,tokenStr,item)
+                    self.matchResults.append(token)
+        return self.matchResults
     
-    def __init__(self,category,tokenSequence):
+    def __str__(self):
+        text=f"{self.name}:{self.matchResults}"
+        return text
+        
+        
+class Token(object):
+    
+    def __init__(self,category,tokenSequence,pos,tokenStr,item):
         self.category=category
         self.name=category.name
         self.tokenSequence=tokenSequence
+        self.pos=pos
+        self.tokenStr=tokenStr
+        self.value=category.itemFunc(tokenStr)
+        self.item=item
         
-    def __str__(self):
-        text=f"{self.name}:{self.matchResult}"
-        return text
-
-    def matches(self)->list:
-        '''
-        return how many matches there are
-        '''
-        self.matchResult=self.category.matches(self.tokenSequence)
-        return len(self.matchResult)
-
 class Category(object):
     '''
     I am a category
@@ -82,20 +99,7 @@ class Category(object):
             self.items[value]=[item]
         self.counter[value]+=1
         
-    def matches(self,tokenSequence)->list:
-        '''
-        match the given tokenSequence
-        
-        
-        '''
-        if hasattr(self,"checkMatch") and callable(getattr(self,"checkMatch")):
-            matchResult=[]
-            for token in tokenSequence.next():
-                if self.checkMatch(token):
-                    value=self.itemFunc(token)
-                    matchResult.append((token,tokenSequence.pos,value))
-        return matchResult
-    
+   
     def mostCommonTable(self,headers=["#","key","count","%"],tablefmt='pretty',limit=50):
         '''
         get the most common Table

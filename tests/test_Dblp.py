@@ -5,7 +5,7 @@ Created on 2020-07-17
 '''
 import unittest
 from ptp.dblp import Dblp
-from ptp.relevance import Category, Categorizer, TokenSequence
+from ptp.relevance import Tokenizer, TokenSequence
 from ptp.signature import RegexpCategory,OrdinalCategory, EnumCategory
 
 class TestDblp(unittest.TestCase):
@@ -42,19 +42,20 @@ class TestDblp(unittest.TestCase):
         print("found %d  and cached %d events from dblp" % (foundEvents,cachedEvents))
         pass
     
-    def testCategorizer(self):
-        cat=Categorizer([OrdinalCategory()])
+    def testTokenizer(self):
+        tokenizer=Tokenizer([OrdinalCategory()])
         event={
             'eventId':'conf/icwe/icwe2019',
             'acronym':'ICWE 2019',
             'title':'Web Engineering - 19th International Conference, ICWE 2019, Daejeon, South Korea, June 11-14, 2019, Proceedings'
         }
-        results=cat.categorize(event['title'], event)
-        self.assertEqual(1,len(results))
-        token,pos,value=results['Ordinal'].matchResult[0]
-        self.assertEqual("19th",token)
-        self.assertEqual(3,pos)
-        self.assertEqual(19,value)
+        tokenSequence=tokenizer.tokenize(event['title'], event)
+        self.assertEqual(1,len(tokenSequence.matchResults))
+        token=tokenSequence.matchResults[0]
+        self.assertEqual('Ordinal',token.category.name)
+        self.assertEqual("19th",token.tokenStr)
+        self.assertEqual(3,token.pos)
+        self.assertEqual(19,token.value)
     
     def testCategories(self):
         '''
@@ -88,20 +89,20 @@ class TestDblp(unittest.TestCase):
             EnumCategory('scope'),
             EnumCategory('syntax')
         ]
-        cat=Categorizer(categories)
-        categorizations={}
+        tokenizer=Tokenizer(categories)
+        tokenSequences={}
         for eventId in dblp.em.events:
             if eventId.startswith("conf"):
                 event=dblp.em.events[eventId]
-                categorizations[eventId]=cat.categorize(event.title,event)
+                tokenSequences[eventId]=tokenizer.tokenize(event.title,event)
         limit=50
         count=0
-        for clist in categorizations.values():
-            for c in clist.values():
+        for tokenSequence in tokenSequences.values():
+            for token in tokenSequence.matchResults:
                 count+=1
                 if count>limit:
                     break;
-                print(c)
+                print(token)
         for category in categories:
             print(f"=== {category.name} ===")
             print(category.mostCommonTable(tablefmt="mediawiki"))
