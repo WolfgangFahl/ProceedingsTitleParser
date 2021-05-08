@@ -3,7 +3,7 @@
 # Crawl WikiCFP and save to JSON
 python --version
 export PYTHONPATH="."
-for base in 0 1 2 3 4 5 6 7 8 9 10 11 
+for base in 0 1 2 3 4 5 6 7 8 9 10 11 12 13
 do
   python ptp/wikicfp.py --startId ${base}0000 --stopId ${base}9999 -t 10
 done
