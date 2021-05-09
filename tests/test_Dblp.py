@@ -6,7 +6,8 @@ Created on 2020-07-17
 import unittest
 from ptp.dblp import Dblp
 from ptp.relevance import Tokenizer, TokenSequence
-from ptp.signature import RegexpCategory,OrdinalCategory, EnumCategory
+from ptp.signature import RegexpCategory,OrdinalCategory, EnumCategory, ParsingCategory
+from pyparsing import oneOf
 
 class TestDblp(unittest.TestCase):
     '''
@@ -87,7 +88,8 @@ class TestDblp(unittest.TestCase):
             EnumCategory('organization'),
             EnumCategory('publish'),
             EnumCategory('scope'),
-            EnumCategory('syntax')
+            EnumCategory('syntax'),
+            ParsingCategory('part',"Part"+oneOf("A B C 1 2 3 4 I II III IV")+".")
         ]
         tokenizer=Tokenizer(categories)
         tokenSequences={}

@@ -9,6 +9,7 @@ from num2words import num2words
 import re
 import yaml
 import os
+from pyparsing import ParseException
 
 class RegexpCategory(Category):
     '''
@@ -20,6 +21,29 @@ class RegexpCategory(Category):
         
     def checkMatch(self,token):
         return re.search(self.pattern, token) is not None
+    
+class ParsingCategory(Category):
+    '''
+    category defined by a PyParsing grammar
+    '''
+    def __init__(self,name,grammar):
+        self.grammar=grammar
+        itemFunc=self.getResult
+        super().__init__(name,itemFunc=itemFunc)
+    
+    def getResult(self):
+        pass
+        return None
+    
+    def checkMatch(self,token):
+        self.parseResult=None
+        try:
+            self.parseResult=self.grammar.parseString(token)
+            pass
+        except ParseException as pe:
+            pass
+        return self.parseResult is not None
+        
   
 class EnumCategory(Category):
     tokens=None
