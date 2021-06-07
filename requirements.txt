@@ -56,7 +56,7 @@ pylodstorage>=0.0.29
 # https://pypi.org/project/nltk/
 nltk
 # https://pypi.org/project/spacy/
-spacy==2.3.2
+spacy==2.3.7
 # country,city Natural Language Parsing
 # https://pypi.org/project/geotext/
 geotext
