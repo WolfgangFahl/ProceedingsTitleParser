@@ -56,13 +56,13 @@ pylodstorage>=0.0.29
 # https://pypi.org/project/nltk/
 nltk
 # https://pypi.org/project/spacy/
-spacy>=2.3.2
+spacy==2.3.2
 # country,city Natural Language Parsing
 # https://pypi.org/project/geotext/
 geotext
 # https://pypi.org/project/flashgeotext/
 #flashgeotext
 #https://pypi.org/project/geograpy3/
-geograpy3>=0.1.22
+geograpy3>=0.1.24
 # tabulate
 tabulate

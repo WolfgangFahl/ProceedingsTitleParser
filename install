@@ -38,7 +38,7 @@ esac
 autoinstall jq jq
 $pip --version
 echo "installing required python modules with useroption $useroption"
-$pip install $useroption --use-deprecated=legacy-resolver --upgrade -r requirements.txt
+$pip install $useroption --upgrade -r requirements.txt
 
 wd=$(pwd)
 if [ ! -d web ]
