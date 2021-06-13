@@ -9,7 +9,6 @@ from storage.dgraph import Dgraph
 from lodstorage.sparql import SPARQL
 from lodstorage.lod import LOD
 from ptp.location import CountryManager, ProvinceManager, CityManager
-from ptp.listintersect import ListOfDict
 import datetime
 from collections import Counter
 import getpass
@@ -54,7 +53,7 @@ class TestLocations(unittest.TestCase):
         for cityName,count in uniqueCities:
             orCityList.append({'name': cityName, 'count': count})
         startTime=time.time()
-        validCities=ListOfDict().intersect(cim.cityList, orCityList, 'name')
+        validCities=LOD.intersect(cim.cityList, orCityList, 'name')
         print ("validating %d cities from openresearch took %5.1f secs" % (len(validCities),time.time()-startTime))
 
     def getDBPedia(self,mode='query',debug=False):
@@ -195,7 +194,7 @@ WHERE {
         self.assertTrue('countries' in queryResult)
         countries=queryResult['countries']
         self.assertEqual(len(countries),len(cm.countryList))
-        validCountries=ListOfDict.intersect(countries, cm.confRefCountries, 'name')
+        validCountries=LOD.intersect(countries, cm.confRefCountries, 'name')
         print("found %d valid countries " % (len(validCountries)))
         self.assertEqual(138,len(validCountries))
         dgraph.close()
@@ -215,10 +214,10 @@ WHERE {
              {'count': 351, 'evt_datetime': datetime.datetime(2015, 10, 23, 8, 45), 'att_value': 'red'},
              {'count': 381, 'evt_datetime': datetime.datetime(2015, 10, 22, 8, 45), 'att_value': 'red'}]
 
-        listi=ListOfDict.intersect(list1, list2,'count')
+        listi=LOD.intersect(list1, list2,'count')
         print(listi)
         self.assertEquals(2,len(listi))
-        listi=ListOfDict.intersect(list1, list2)
+        listi=LOD.intersect(list1, list2)
         print(listi)
         self.assertEquals(2,len(listi))
 
