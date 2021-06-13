@@ -4,7 +4,7 @@ Created on 2021-05-31
 @author: wf
 '''
 from collections import Counter
-from tabulate import tabulate
+from lodstorage.tabulateCounter import TabulateCounter
 
 class Tokenizer(object):
     '''
@@ -105,18 +105,11 @@ class Category(object):
         return value
         
    
-    def mostCommonTable(self,headers=["#","key","count","%"],tablefmt='pretty',limit=50):
+    def mostCommonTable(self,tablefmt='pretty',limit=50):
         '''
         get the most common Table
         '''
-        bins=len(self.counter.keys())
-        limit=min(bins,limit)
-        total=sum(self.counter.values())
-        binTable=[("total",bins,total)]
-        for i,bintuple in enumerate(self.counter.most_common(limit)):
-            key,count=bintuple
-            binTable.append((i+1,key,count,count/total*100.0))
-        
-        table=tabulate(binTable,headers=headers,tablefmt=tablefmt,floatfmt=".2f")
+        tabulateCounter=TabulateCounter(self.counter)
+        table=tabulateCounter.mostCommonTable(tablefmt=tablefmt, limit=limit)
         return table
         
