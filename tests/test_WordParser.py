@@ -8,7 +8,7 @@ from ptp.wordparser import CorpusWordParser, WordParser
 from ptp.lookup import Lookup
 from lodstorage.sql import SQLDB
 from lodstorage.uml import UML
-from ptp.plot import Plot
+from lodstorage.plot import Plot
 from pandas import DataFrame
 from datetime import datetime
 import os

@@ -18,7 +18,8 @@ from collections import Counter
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 from ptp.event import EventManager
-from ptp.plot import Plot
+from lodstorage.plot import Plot
+
 
 class TitleParser(object):
     '''
