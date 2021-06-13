@@ -6,7 +6,7 @@ Created on 2020-07-04
 import unittest
 
 from ptp.openresearch import OpenResearch
-from ptp.plot import Plot
+from lodstorage.plot import Plot
 import pyparsing as pp
 from tests.test_PyParsing import TestPyParsing
 from storage.config import StorageConfig
