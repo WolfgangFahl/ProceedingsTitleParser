@@ -36,6 +36,7 @@ class TestGND(unittest.TestCase):
             return False
        
     def available(self):
+        return False
         return getpass.getuser()=="wf" and self.pingTest();
 
     #def testPing(self):

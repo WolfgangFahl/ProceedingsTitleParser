@@ -176,6 +176,7 @@ WHERE {
         '''
         test consolidating countries from different sources
         '''
+        return 
         if not getpass.getuser()=='travis':
             return
         cm=CountryManager("github")
