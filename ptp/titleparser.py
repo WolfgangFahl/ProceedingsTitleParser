@@ -159,7 +159,8 @@ class TitleParser(object):
                 elif title.startswith('http'):
                     if self.lookup:
                         record=self.lookup.extractFromUrl(title)
-                        self.records.append(record)
+                        if record is not None:
+                            self.records.append(record)
                 else:
                     self.records.append({'source':'line', 'title': title})
             else:
