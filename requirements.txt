@@ -64,3 +64,6 @@ geotext
 geograpy3>=0.1.24
 # tabulate
 tabulate
+# https://matplotlib.org/
+# https://pypi.org/project/matplotlib/
+matplotlib
