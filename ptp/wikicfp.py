@@ -26,7 +26,7 @@ import threading
 import time
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-from storage.config import StorageConfig
+from lodstorage.storageconfig import StorageConfig
 
 class WikiCFP(object):
     '''

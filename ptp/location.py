@@ -9,8 +9,8 @@ import os
 import time
 import ptp.openresearch
 from lodstorage.sparql import SPARQL
-from storage.entity import EntityManager
-from storage.config import StoreMode, StorageConfig
+from lodstorage.entity import EntityManager
+from lodstorage.storageconfig import StoreMode, StorageConfig
 
 class CityManager(EntityManager):
     ''' manage cities '''
@@ -48,12 +48,7 @@ class CityManager(EntityManager):
         cityJsonUrl="https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json"
         with urllib.request.urlopen(cityJsonUrl) as url:
             self.cityList=json.loads(url.read().decode())
-        for city in self.cityList:
-            if self.config.mode is StoreMode.DGRAPH:
-                city['dgraph.type']='City'
-                lat=float(city['lat'])
-                lng=float(city['lng'])
-                city['location']={'type': 'Point', 'coordinates': [lng,lat] }
+    
 
     def fromOpenResearch(self,limit=10000,batch=500,showProgress=False):
         '''
@@ -296,8 +291,6 @@ type Country {
             # rename dictionary keys
             #country['name']=country.pop('Name')
             country['isocode']=country.pop('country_code')
-            if mode is StoreMode.DGRAPH:
-                country['dgraph.type']='Country'
             lat,lng=country.pop('latlng')
             country['location']={'type': 'Point', 'coordinates': [lng,lat] }
 

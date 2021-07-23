@@ -5,7 +5,6 @@ Created on 2020-08-11
 '''
 import unittest
 import time
-from storage.dgraph import Dgraph
 from lodstorage.sparql import SPARQL
 from lodstorage.lod import LOD
 from ptp.location import CountryManager, ProvinceManager, CityManager
@@ -172,35 +171,7 @@ WHERE {
         cm.fromErdem()
         cm.store(cm.countryList)
 
-    def testCountries(self):
-        '''
-        test consolidating countries from different sources
-        '''
-        return 
-        if not getpass.getuser()=='travis':
-            return
-        cm=CountryManager("github")
-        cm.fromErdem()
-        cm.fromConfRef()
-        dgraph=Dgraph(debug=self.debug)
-        # drop all data and schemas
-        dgraph.drop_all()
-        # create schema for countries
-        dgraph.addSchema(cm.schema)
-        startTime=time.time()
-        dgraph.addData(obj=cm.countryList)
-        elapsed=time.time() - startTime
-        print("adding %d countries took %5.1f s" % (len(cm.countryList),elapsed))
-        queryResult=dgraph.query(cm.graphQuery)
-        self.assertTrue('countries' in queryResult)
-        countries=queryResult['countries']
-        self.assertEqual(len(countries),len(cm.countryList))
-        validCountries=LOD.intersect(countries, cm.confRefCountries, 'name')
-        print("found %d valid countries " % (len(validCountries)))
-        self.assertEqual(138,len(validCountries))
-        dgraph.close()
-        pass
-
+    
     def testIntersection(self):
         '''
         test creating the intersection of a list of dictionaries

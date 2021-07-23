@@ -5,8 +5,8 @@ Created on 2020-07-12
 '''
 import unittest
 from ptp.event import Event, EventManager
-from storage.config import StorageConfig
-from storage.entity import EntityManager
+from lodstorage.storageconfig import StorageConfig
+from lodstorage.entity import EntityManager
 
 class TestEvent(unittest.TestCase):
     ''' test handling Events and EventManagers '''

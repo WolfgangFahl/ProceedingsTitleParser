@@ -14,8 +14,8 @@ import ptp.dblp
 import ptp.gnd
 import ptp.wikicfp
 from lodstorage.sql import SQLDB
-from storage.entity import EntityManager
-from storage.config import StoreMode, StorageConfig
+from lodstorage.entity import EntityManager
+from lodstorage.storageconfig import StoreMode, StorageConfig
 from datetime import datetime
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
@@ -228,7 +228,7 @@ class Lookup(object):
         '''
         get the database file for the given cacheFileName
         '''
-        cachedir=EntityManager.getCachePath()
+        cachedir=StorageConfig.getDefault().getCachePath()
         dbfile="%s/%s.db" % (cachedir,cacheFileName) 
         dbfile=os.path.abspath(dbfile)
         return dbfile

@@ -9,7 +9,7 @@ from ptp.openresearch import OpenResearch
 from lodstorage.plot import Plot
 import pyparsing as pp
 from tests.test_PyParsing import TestPyParsing
-from storage.config import StorageConfig
+from lodstorage.storageconfig import StorageConfig
 
 class TestOpenResearch(unittest.TestCase):
     ''' test accessing open research data '''

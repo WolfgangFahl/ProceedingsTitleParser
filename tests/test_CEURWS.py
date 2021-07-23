@@ -6,7 +6,7 @@ Created on 2020-07-06
 import unittest
 import os
 from ptp.ceurws import CEURWS, CeurwsEvent
-from storage.config import StoreMode
+from lodstorage.storageconfig import StoreMode
 
 class TestCEURWS(unittest.TestCase):
     ''' test handling proceeding titles retrieved

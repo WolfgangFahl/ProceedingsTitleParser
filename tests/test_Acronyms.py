@@ -5,7 +5,7 @@ Created on 2020-10-31
 '''
 import unittest
 from ptp.wikicfp import WikiCFP
-from storage.config import StoreMode
+from lodstorage.storageconfig import StoreMode
 from lodstorage.query import Query
 import re
 

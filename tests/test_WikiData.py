@@ -5,7 +5,7 @@ Created on 2020-07-11
 '''
 import unittest
 from ptp.wikidata import WikiData
-from storage.config import StoreMode
+from lodstorage.storageconfig import StoreMode
 import os
 
 class TestWikiData(unittest.TestCase):

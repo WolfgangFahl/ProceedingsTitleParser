@@ -5,8 +5,7 @@ Created on 2020-07-11
 '''
 import unittest
 from ptp.confref import ConfRef
-#from storage.dgraph import Dgraph
-#import getpass
+
 
 class TestConfRef(unittest.TestCase):
     ''' test handling for data from portal.confref.org '''

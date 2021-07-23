@@ -8,11 +8,10 @@ import html
 import io
 import json
 import re
-import os
 import time
 
-from storage.entity import EntityManager
-from storage.config import StoreMode, StorageConfig
+from lodstorage.entity import EntityManager
+from lodstorage.storageconfig import StoreMode, StorageConfig
 import pyparsing as pp
 
 class EventManager(EntityManager):
@@ -84,30 +83,7 @@ class EventManager(EntityManager):
                     pass
         self.showProgress ("found %d checked acronyms for %s of %d events with acronyms" % (len(self.eventsByCheckedAcronym),self.name,len(self.eventsByAcronym)))          
     
-    def removeCacheFile(self):
-        '''  remove my cache file '''
-        mode=self.config.mode
-        if mode is StoreMode.JSON:
-            cacheFile=self.getCacheFile(mode=mode)
-            if os.path.isfile(cacheFile):
-                os.remove(cacheFile)
-        elif mode is StoreMode.DGRAPH:
-            # https://discuss.dgraph.io/t/running-upsert-in-python/9364
-            """mutation='''
-            upsert {  
-  query {
-    # get the uids of all Event nodes
-     events as var (func: has(<dgraph.type>)) @filter(eq(<dgraph.type>, "Country")) {
-        uid
-    }
-  }
-  mutation {
-    delete {
-      uid(events) * * .
-    }
-  }
-}'''        
-            self.dgraph.query(mutation)"""
+    
     
     def fromEventList(self,eventList):
         ''' 
