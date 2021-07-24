@@ -5,7 +5,7 @@ Created on 2020-07-05
 '''
 import habanero
 from ptp.event import Event,EventManager
-from storage.config import StoreMode
+from lodstorage.storageconfig import StoreMode
 import json
 import os
 import re

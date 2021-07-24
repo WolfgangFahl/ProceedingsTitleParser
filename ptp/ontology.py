@@ -6,7 +6,7 @@ Created on 2020-09-03
 from wikibot.smw import SMWBot
 from wikibot.wikibot import WikiBot
 from lodstorage.jsonable import JSONAble
-from storage.entity import EntityManager
+from lodstorage.entity import EntityManager
 
 class Ontology(object):
     '''
