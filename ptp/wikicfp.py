@@ -33,13 +33,13 @@ class WikiCFP(object):
     support events from http://www.wikicfp.com/cfp/
     '''
 
-    def __init__(self,config=None,debug=False,limit=200000,batchSize=1000):
+    def __init__(self,config=None,debug:bool=False,limit=200000,batchSize=1000):
         '''
         Constructor
         
         Args:
             config(StorageConfig): the storage configuration to use
-            debug(boolean): if True debug for crawling is on
+            debug(bool): if True debug for crawling is on
             limit(int): maximum number of entries to be crawled
             batchSize(int): default size of batches
         '''
@@ -198,8 +198,17 @@ class WikiCFPEvent(object):
     '''
     a single WikiCFPEvent
     '''
-    def __init__(self,debug=False):
+    def __init__(self,debug=False,showProgress:bool=True):
+        '''
+        construct me
+        
+        Args:
+            showProgress(bool): if True show progress
+        
+        '''
         self.debug=debug
+        self.showProgress=showProgress
+        self.progressCount=0
             
     def fromTriples(self,rawEvent,triples): 
         '''
@@ -247,6 +256,57 @@ class WikiCFPEvent(object):
     def getEventUrl(eventId):
         url= "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid="+str(eventId)
         return url   
+    
+    @classmethod
+    def getLatestEvent(cls,debug=False,showProgress=True):
+        '''
+        get the latest Event doing a binary search
+        '''
+        wikicfp=WikiCFPEvent(debug,showProgress=showProgress)
+        wikicfp.progressCount=0
+        wikicfp.getLatestEventFromPair()
+        
+    def getHighestNonDeletedIdInRange(self,fromId:int,toId:int)->int:
+        '''
+        get the event with the highest id int the range fromId to toId that is not deleted
+        
+        Args:
+            fromId(int): minimum id to search from
+            toId(int): maximum id to search to
+            
+        Returns:
+            int: maxium id of an event that is not deleted or None if there is none in this range
+        '''
+        maxId=None
+        for eventId in range(fromId,toId+1):
+            if self.showProgress:
+                print(".",end='',flush=True)
+                self.progressCount+=1
+                if self.progressCount % 50 == 0:
+                    print(flush=True)
+            rawEvent=self.fromEventId(eventId)
+            if not rawEvent['deleted']:
+                maxId=eventId
+        return maxId
+    
+    def getLatestEventFromPair(self,low=5000,high=300000,margin=40):
+        '''
+        get the latest Event doing a binary search
+        
+        Args:
+            low(int): lower index to search from
+            hight(int): upper index boundary
+        '''
+        if high-low>margin+1:
+            mid=(high+low)//2
+            midId=(self.getHighestNonDeletedIdInRange(mid-margin, mid))
+            if midId:
+                return self.getLatestEventFromPair(mid+1,high)
+            else:
+                return self.getLatestEventFromPair(low, mid-1)
+        else:
+            return mid
+        pass
                            
     def fromEventId(self,eventId):
         '''
@@ -278,6 +338,18 @@ class WikiCFPEvent(object):
                 rawEvent['deleted']=True
         else:        
             self.fromTriples(rawEvent,triples)
+            # add series information
+            seriesRegexp=r'/cfp/program\?id=([0-9]+).*'
+            seriesLink=scrape.soup.find('a',href=re.compile(seriesRegexp))
+            if seriesLink:
+                # Tag: <a href="/cfp/program?id=1769&amp;s=ISWC&amp;f=International Semantic Web Conference">International Semantic Web Conference</a>
+                href=seriesLink['href']
+                m=re.match(seriesRegexp,href)
+                if m:
+                    rawEvent['seriesId']=m.group(1)
+                    rawEvent['series']=seriesLink.text
+                pass
+                
             if 'summary' in rawEvent:
                 rawEvent['acronym']=rawEvent.pop('summary').strip()
             if 'description' in rawEvent:
@@ -285,9 +357,9 @@ class WikiCFPEvent(object):
            
         return rawEvent
     
-__version__ = 0.1
+__version__ = 0.2
 __date__ = '2020-06-22'
-__updated__ = '2020-08-20'    
+__updated__ = '2021-07-24'    
 
 DEBUG = 1
 
@@ -309,7 +381,7 @@ def main(argv=None): # IGNORE:C0111
     program_license = '''%s
 
   Created by %s on %s.
-  Copyright 2020 TIB Hannover, Wolfgang Fahl. All rights reserved.
+  Copyright 2020-2021 TIB Hannover, Wolfgang Fahl. All rights reserved.
 
   Licensed under the Apache License 2.0
   http://www.apache.org/licenses/LICENSE-2.0

@@ -85,11 +85,37 @@ class TestWikiCFP(unittest.TestCase):
         '''
         eventIds=[3862,1]
         isDeleted=[False,True]
-        event=WikiCFPEvent(debug=True)
+        event=WikiCFPEvent(debug=self.debug)
         for index,eventId in enumerate(eventIds):
             rawEvent=event.fromEventId(eventId)
-            print (rawEvent)
+            if self.debug:
+                print (rawEvent)
             self.assertTrue(isDeleted[index]==rawEvent['deleted'])
+            
+    def testGettingEventSeriesForEvent(self):
+        '''
+        test extracting the event series id from th event page
+        '''
+        self.debug=True
+        expectedSeriesId=['1769',None]
+        eventIds=[1974,139964]
+        event=WikiCFPEvent(debug=self.debug)
+        for index,eventId in enumerate(eventIds):
+            rawEvent=event.fromEventId(eventId)
+            expected=expectedSeriesId[index]
+            if expected:
+                self.assertEqual(expected,rawEvent['seriesId'])
+            else:
+                self.assertTrue('seriesId' not in rawEvent)
+            if self.debug:
+                print (f"{index}:{rawEvent}")
+            
+    def testGettingLatestEvent(self):
+        '''
+        get the latest event Id with a binary search
+        '''
+        #latestEvent=WikiCFPEvent.getLatestEvent(showProgress=True)
+        pass
 
     def testCrawlEvents(self):
         '''

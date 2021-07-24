@@ -45,7 +45,7 @@ habanero
 SPARQLWrapper
 # https://github.com/WolfgangFahl/pyLoDStorage
 # https://pypi.org/project/pylodstorage/
-pylodstorage>=0.0.44
+pylodstorage>=0.0.46
 # https://pypi.org/project/nltk/
 nltk
 # https://pypi.org/project/spacy/
@@ -62,3 +62,6 @@ tabulate
 # https://matplotlib.org/
 # https://pypi.org/project/matplotlib/
 matplotlib
+# https://github.com/LeMyst/WikibaseIntegrator
+# https://pypi.org/project/wikibaseintegrator/
+wikibaseintegrator
