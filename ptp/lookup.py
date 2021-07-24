@@ -159,7 +159,7 @@ class Lookup(object):
             doi=doi.replace("http:","")
             return self.extractFromDOI(doi) 
         elif '//www.wikicfp.com/cfp' in url:
-            wikiCFPEvent=ptp.wikicfp.WikiCFPEvent()
+            wikiCFPEvent=ptp.wikicfp.WikiCFPEventFetcher()
             rawEvent=wikiCFPEvent.fromUrl(url)
             result={'source':'wikicfp','eventId': rawEvent['eventId'], 'title': rawEvent['title'],'metadata':rawEvent}
             return result

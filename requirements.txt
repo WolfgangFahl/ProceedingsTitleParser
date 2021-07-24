@@ -45,7 +45,7 @@ habanero
 SPARQLWrapper
 # https://github.com/WolfgangFahl/pyLoDStorage
 # https://pypi.org/project/pylodstorage/
-pylodstorage>=0.0.46
+pylodstorage>=0.0.47
 # https://pypi.org/project/nltk/
 nltk
 # https://pypi.org/project/spacy/

@@ -4,7 +4,7 @@ Created on 2020-08-20
 @author: wf
 '''
 import unittest
-from ptp.wikicfp import WikiCFP, WikiCFPEvent
+from ptp.wikicfp import WikiCFP, WikiCFPEventFetcher
 import os
 from pathlib import Path
 from collections import Counter
@@ -68,7 +68,7 @@ class TestWikiCFP(unittest.TestCase):
         '''
         make sure only valid urls are accepted
         '''
-        event=WikiCFPEvent(debug=True)
+        event=WikiCFPEventFetcher(debug=True)
         try:
             event.fromUrl("http://google.com")
             self.fail("invalid url should raise an exception")
@@ -85,7 +85,7 @@ class TestWikiCFP(unittest.TestCase):
         '''
         eventIds=[3862,1]
         isDeleted=[False,True]
-        event=WikiCFPEvent(debug=self.debug)
+        event=WikiCFPEventFetcher(debug=self.debug)
         for index,eventId in enumerate(eventIds):
             rawEvent=event.fromEventId(eventId)
             if self.debug:
@@ -99,7 +99,7 @@ class TestWikiCFP(unittest.TestCase):
         self.debug=True
         expectedSeriesId=['1769',None]
         eventIds=[1974,139964]
-        event=WikiCFPEvent(debug=self.debug)
+        event=WikiCFPEventFetcher(debug=self.debug)
         for index,eventId in enumerate(eventIds):
             rawEvent=event.fromEventId(eventId)
             expected=expectedSeriesId[index]
@@ -114,7 +114,7 @@ class TestWikiCFP(unittest.TestCase):
         '''
         get the latest event Id with a binary search
         '''
-        #latestEvent=WikiCFPEvent.getLatestEvent(showProgress=True)
+        #latestEvent=WikiCFPEventFetcher.getLatestEvent(showProgress=True)
         pass
 
     def testCrawlEvents(self):

@@ -104,7 +104,7 @@ class WikiCFP(object):
                             event.__dict__[field]=None
                     if event.startDate is not None:
                         event.year=event.startDate.year
-                    event.url=WikiCFPEvent.getEventUrl(event.wikiCFPId)
+                    event.url=WikiCFPEventFetcher.getEventUrl(event.wikiCFPId)
                     jsonEm.add(event)
         if self.profile:
             print ("read %d events in %5.1f s" % (len(self.em.events),time.time()-startTime))
@@ -144,7 +144,7 @@ class WikiCFP(object):
  
         # get all ids
         for eventId in range(int(startId), int(stopId+1), step):
-            wEvent=WikiCFPEvent()
+            wEvent=WikiCFPEventFetcher()
             rawEvent=wEvent.fromEventId(eventId)
             event=Event()
             event.fromDict(rawEvent)
@@ -194,9 +194,9 @@ class WikiCFP(object):
             print('crawling done after %5.1f s' % (time.time()-startTime))
                
       
-class WikiCFPEvent(object):
+class WikiCFPEventFetcher(object):
     '''
-    a single WikiCFPEvent
+    a single WikiCFPEventFetcher to fetch and event or series
     '''
     def __init__(self,debug=False,showProgress:bool=True):
         '''
@@ -262,7 +262,7 @@ class WikiCFPEvent(object):
         '''
         get the latest Event doing a binary search
         '''
-        wikicfp=WikiCFPEvent(debug,showProgress=showProgress)
+        wikicfp=WikiCFPEventFetcher(debug,showProgress=showProgress)
         wikicfp.progressCount=0
         wikicfp.getLatestEventFromPair()
         
@@ -312,7 +312,7 @@ class WikiCFPEvent(object):
         '''
         see e.g. https://github.com/andreeaiana/graph_confrec/blob/master/src/data/WikiCFPCrawler.py
         '''
-        url=WikiCFPEvent.getEventUrl(eventId)
+        url=WikiCFPEventFetcher.getEventUrl(eventId)
         return self.fromUrl(url)
     
     def fromUrl(self,url):
