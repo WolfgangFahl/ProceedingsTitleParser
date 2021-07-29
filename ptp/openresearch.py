@@ -133,7 +133,7 @@ class OpenResearch(object):
         return wikiUser
     
     @staticmethod    
-    def getSMW_Wiki(wikiId="or"):
+    def getSMW_Wiki(wikiId="orclone"):
         iniFile=WikiUser.iniFilePath(wikiId)
         if not os.path.isfile(iniFile):
             wikiUser=OpenResearch.createWikiUser(wikiId)

@@ -15,9 +15,11 @@ Created on 2020-08-20
   @copyright:  2020 TIB Hannover, Wolfgang Fahl. All rights reserved.
 
 """
+from openresearch.event import EventSeriesList, EventList
 from ptp.event import EventManager, Event
 from ptp.webscrape import WebScrape
 import datetime
+from enum import Enum
 import glob
 import re
 import os
@@ -28,10 +30,27 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 from lodstorage.storageconfig import StorageConfig
 
+class CrawlType(Enum):
+    '''
+    possible supported storage modes
+    '''
+    EVENT = "Event"      
+    SERIES = "Series"
+    
+    @property
+    def urlPrefix(self):
+        baseUrl="http://www.wikicfp.com/cfp"
+        if self==CrawlType.EVENT:
+            url= f"{baseUrl}/servlet/event.showcfp?eventid="
+        elif self==CrawlType.SERIES:
+            url= f"{baseUrl}/program?id="
+        return url
+     
 class WikiCFP(object):
     '''
     support events from http://www.wikicfp.com/cfp/
     '''
+    
 
     def __init__(self,config=None,debug:bool=False,limit=200000,batchSize=1000):
         '''
@@ -125,36 +144,44 @@ class WikiCFP(object):
         jsonFiles=sorted(glob.glob(self.jsondir+"wikicfp_*.json"),key=lambda path:int(re.findall(r'\d+',path)[0]))
         return jsonFiles    
         
-    def getJsonFileName(self,startId,stopId):
+    def getJsonFileName(self,startId,stopId,crawlType:CrawlType):
         '''
         get the JsonFileName for the given startId to stopId
         '''
-        jsonFilePath=self.jsondir+"wikicfp_%06d-%06d.json" % (startId,stopId)
+        jsonFilePath=self.jsondir+"wikicfp_%s%06d-%06d.json" % (crawlType.value,startId,stopId)
         return jsonFilePath
         
-    def crawl(self,threadIndex,startId,stopId):
+    def crawl(self,threadIndex,startId,stopId,crawlType:CrawlType):
         '''
         see https://github.com/TIBHannover/confIDent-dataScraping/blob/master/wikicfp.py
         '''
         if startId <= stopId: step = +1
         else: step = -1
-        print('crawling (%2d) WikiCFP from %d to %d' % (threadIndex,startId,stopId))
-        jsonFilepath=self.getJsonFileName(startId,stopId)
-        batchEm=self.getEventManager(mode='json')
+        print(f'crawling ({threadIndex}) WikiCFP {crawlType.value} from {startId} to {stopId}')
+        jsonFilepath=self.getJsonFileName(startId,stopId,crawlType)
+        if crawlType==CrawlType.EVENT:
+            batchEm=self.getEventManager(mode='json')
+        elif crawlType==CrawlType.SERIES:
+            eventSeriesList=EventSeriesList()
  
         # get all ids
         for eventId in range(int(startId), int(stopId+1), step):
-            wEvent=WikiCFPEventFetcher()
+            wEvent=WikiCFPEventFetcher(crawlType=crawlType)
             rawEvent=wEvent.fromEventId(eventId)
-            event=Event()
-            event.fromDict(rawEvent)
-            batchEm.add(event)
-            title="? deleted: %r" %event.deleted if not 'title' in rawEvent else event.title
-            print("%06d: %s" % (eventId,title))
-        batchEm.store(cacheFile=jsonFilepath)
+            if crawlType == CrawlType.EVENT:
+                event=Event()
+                event.fromDict(rawEvent)
+                batchEm.add(event)
+                title="? deleted: %r" %event.deleted if not 'title' in rawEvent else event.title
+                print("%06d: %s" % (eventId,title))
+            elif crawlType == CrawlType.SERIES:
+                pass
+           
+        if crawlType == CrawlType.EVENT:    
+            batchEm.store(cacheFile=jsonFilepath)
         return jsonFilepath
             
-    def threadedCrawl(self,threads,startId,stopId):
+    def threadedCrawl(self,threads,startId:int,stopId:int,crawlType:str):
         '''
         crawl with the given number of threads, startId and stopId
         
@@ -162,13 +189,16 @@ class WikiCFP(object):
            threads(int): number of threads to use
            startId(int): id of the event to start crawling with
            stopId(int): id of the event to stop crawling
+           crawlType(str): the type of crawling (Event or Series)
         '''
+        if not crawlType in ["Event","Series"]:
+            raise Exception(f"Invalid crawl type {crawlType}")
         # determine the eventId range for each threaded job
         total = stopId-startId+1
         batchSize = total / threads
         startTime=time.time()
         
-        msg='Crawling WikiCFP from %d - %d with %d threads with batches of %d event IDs each' % (startId,stopId,threads,batchSize)
+        msg=f'Crawling WikiCFP from {startId} - {stopId} with {threads} threads with batches of {batchSize} {crawlType} IDs each'
         print(msg)
 
         # this list will contain all threads -> we can wait for all to finish at the end
@@ -180,7 +210,7 @@ class WikiCFP(object):
             s = startId + threadIndex * batchSize
             e = s + batchSize-1
         
-            thread = threading.Thread(target = self.crawl, args=(threadIndex,s, e))
+            thread = threading.Thread(target = self.crawl, args=(threadIndex,s, e,crawlType))
             jobs.append(thread)
             
         for job in jobs:
@@ -198,7 +228,7 @@ class WikiCFPEventFetcher(object):
     '''
     a single WikiCFPEventFetcher to fetch and event or series
     '''
-    def __init__(self,debug=False,showProgress:bool=True):
+    def __init__(self,crawlType=CrawlType.EVENT,debug=False,showProgress:bool=True):
         '''
         construct me
         
@@ -207,6 +237,7 @@ class WikiCFPEventFetcher(object):
         
         '''
         self.debug=debug
+        self.crawlType=crawlType
         self.showProgress=showProgress
         self.progressCount=0
             
@@ -253,8 +284,16 @@ class WikiCFPEventFetcher(object):
                 recentSummary=None
                 
     @staticmethod       
-    def getEventUrl(eventId):
-        url= "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid="+str(eventId)
+    def getUrl(cfpid,crawlType)->str:
+        '''
+        Args:
+            cfpid(int): the WikiCFP id of the event or series
+            crawlType(CrawlType): Event or Series
+            
+        Returns:
+            the WikiCfP url
+        '''
+        url=f"{crawlType.urlPrefix}{cfpid}"
         return url   
     
     @classmethod
@@ -308,25 +347,29 @@ class WikiCFPEventFetcher(object):
             return mid
         pass
                            
-    def fromEventId(self,eventId):
+    def fromEventId(self,cfpid):
         '''
         see e.g. https://github.com/andreeaiana/graph_confrec/blob/master/src/data/WikiCFPCrawler.py
         '''
-        url=WikiCFPEventFetcher.getEventUrl(eventId)
+        url=WikiCFPEventFetcher.getUrl(cfpid,self.crawlType)
         return self.fromUrl(url)
     
     def fromUrl(self,url):
         '''
         get the event form the given url
         '''
-        m=re.match("^.*//www.wikicfp.com/cfp/.*eventid=(\d+).*$",url)
+        regexp=r"^"+self.crawlType.urlPrefix.replace("?","\?")+"(\d+)$"
+        m=re.match(regexp,url)
         if not m:
             raise Exception("Invalid URL %s" % (url))
         else:
-            eventId=int(m.group(1))
+            cfpId=int(m.group(1))
         rawEvent={}
-        rawEvent['eventId']="wikiCFP#%d" % eventId
-        rawEvent['wikiCFPId']=eventId
+        if self.crawlType==CrawlType.EVENT:
+            rawEvent['eventId']=f"wikiCFP#{cfpId}" 
+        else:
+            rawEvent['seriesId']=f"wikiCFP#{cfpId}" 
+        rawEvent['wikiCFPId']=cfpId
         rawEvent['deleted']=False
     
         scrape=WebScrape(debug=self.debug)
@@ -399,12 +442,13 @@ USAGE
         parser.add_argument('-V', '--version', action='version', version=program_version_message)
         parser.add_argument('--startId', type=int, help='eventId to start crawling from', required=True)
         parser.add_argument('--stopId', type=int, help='eventId to stop crawling at', required=True)
+        parser.add_argument('--crawlType',type=str,default="Event",help="The crawlType - Event or Series")
         parser.add_argument('-t','--threads', type=int, help='number of threads to start', default=10)
 
         # Process arguments
         args = parser.parse_args()
         wikiCFP=WikiCFP(debug=args.debug)
-        wikiCFP.threadedCrawl(args.threads, args.startId, args.stopId)
+        wikiCFP.threadedCrawl(args.threads, args.startId, args.stopId,args.crawlType)
         
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###

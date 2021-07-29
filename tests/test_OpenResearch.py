@@ -92,7 +92,8 @@ class TestOpenResearch(unittest.TestCase):
             '    2-3 UpperCase+blank+4Year Digits'  : pp.Regex(r'^[A-Z]{2,3} \d{4}$'),
             '    2-7 UpperCase+blank or dash+2-4 Digits': pp.Regex(r'^[A-Z]{2,7}[ -]+\d{2,4}$'),
             'nth 4-6 Uppercase 20##': pp.Regex(r'^(([1-9][0-9]?)th\s)?[A-Z]{4,6}\s20[0-9][0-9]$'),
-            ' full monty': pp.Regex(r'^(([1-9][0-9]?)th\s)?[A-Z/_-]{2,10}[ -]*(19|20)[0-9][0-9]$') 
+            'Apostrophe': pp.Regex(r"^([A-Z/_-]{2,13})*[ -'](19|20)[0-9][0-9]$"),
+            ' full monty': pp.Regex(r"^(([1-9][0-9]?)th\s)?[A-Z/_-]{2,13}[ -']*(19|20)[0-9][0-9]$") 
             }
         examples=[]
         for event in opr.em.events.values():

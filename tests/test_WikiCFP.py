@@ -4,7 +4,7 @@ Created on 2020-08-20
 @author: wf
 '''
 import unittest
-from ptp.wikicfp import WikiCFP, WikiCFPEventFetcher
+from ptp.wikicfp import WikiCFP, WikiCFPEventFetcher, CrawlType
 import os
 from pathlib import Path
 from collections import Counter
@@ -68,9 +68,9 @@ class TestWikiCFP(unittest.TestCase):
         '''
         make sure only valid urls are accepted
         '''
-        event=WikiCFPEventFetcher(debug=True)
+        eventFetcher=WikiCFPEventFetcher(debug=True)
         try:
-            event.fromUrl("http://google.com")
+            eventFetcher.fromUrl("http://google.com")
             self.fail("invalid url should raise an exception")
         except:
             pass
@@ -116,25 +116,36 @@ class TestWikiCFP(unittest.TestCase):
         '''
         #latestEvent=WikiCFPEventFetcher.getLatestEvent(showProgress=True)
         pass
+    
+    def testCrawlType(self):
+        '''
+        test CrawlType enumeration
+        '''
+        for crawlType in CrawlType:
+            if self.debug:
+                print(crawlType.urlPrefix)
+            self.assertTrue(crawlType.urlPrefix.endswith("="))
 
     def testCrawlEvents(self):
         '''
         test crawling a few events and storing the result to a json file
         '''
         wikiCFP=WikiCFP()
-        jsonFilePath=wikiCFP.crawl(0, 1, 10)
-        size=os.stat(jsonFilePath).st_size
-        print ("JSON file has size %d" % size)
-        self.assertTrue(size>5000)
-        batchEm=wikiCFP.getEventManager(mode='json')
-        batchEm.fromStore(cacheFile=jsonFilePath)
-        self.assertEqual(len(batchEm.events.values()),10)
-        inspect=False # if setting to True make sure tmp is on same filesystem
-        # see https://stackoverflow.com/questions/42392600/oserror-errno-18-invalid-cross-device-link
-        if inspect:
-            tmpPath="/tmp/%s" % os.path.basename(jsonFilePath)
-            Path(jsonFilePath).rename(tmpPath)
-
+        limit=10
+        for crawlType in [CrawlType.SERIES]:
+            jsonFilePath=wikiCFP.crawl(0, 1, limit,crawlType)
+            size=os.stat(jsonFilePath).st_size
+            print (f"JSON file for {crawlType.value} has size {size}")
+            self.assertTrue(size>5000)
+            if crawlType is crawlType.EVENT:
+                batchEm=wikiCFP.getEventManager(mode='json')
+                batchEm.fromStore(cacheFile=jsonFilePath)
+                self.assertEqual(len(batchEm.events.values()),limit)
+            inspect=False # if setting to True make sure tmp is on same filesystem
+            # see https://stackoverflow.com/questions/42392600/oserror-errno-18-invalid-cross-device-link
+            if inspect:
+                tmpPath="/tmp/%s" % os.path.basename(jsonFilePath)
+                Path(jsonFilePath).rename(tmpPath)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
