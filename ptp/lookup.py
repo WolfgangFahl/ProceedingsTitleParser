@@ -4,15 +4,9 @@ Created on 2020-07-06
 @author: wf
 '''
 from ptp.titleparser import ProceedingsTitleParser,TitleParser
-from ptp.location import CityManager, ProvinceManager, CountryManager
-import ptp.openresearch
 import ptp.ceurws
-import ptp.confref
-import ptp.crossref
-import ptp.wikidata
-import ptp.dblp
+import ptp.wikidataproceedings
 import ptp.gnd
-import ptp.wikicfp
 from lodstorage.sql import SQLDB
 from lodstorage.entity import EntityManager
 from lodstorage.storageconfig import StoreMode, StorageConfig
@@ -135,7 +129,7 @@ class Lookup(object):
                     lem=ptp.wikicfp.WikiCFP(config=copy.copy(config))       
                 elif lookupId=='wikidata':
                     # https://www.wikidata.org/wiki/Wikidata:Main_Page
-                    lem=ptp.wikidata.WikiData(config=copy.copy(config))      
+                    lem=ptp.wikidataproceedings.WikiData(config=copy.copy(config))      
                               
             if lem is not None:
                 lem.initEventManager()
@@ -285,7 +279,7 @@ union
         sourceDB=SQLDB(dbFile)
         sourceDB.copyTo(sqlDB)
         
-    def createEventAll(self,maxAgeMin=24*60,withWikiData=True,wikiDataEndpoint=ptp.wikidata.WikiData.defaultEndpoint):
+    def createEventAll(self,maxAgeMin=24*60,withWikiData=True,wikiDataEndpoint=ptp.wikidataproceedings.WikiData.defaultEndpoint):
         '''
         create the event all database
         
@@ -404,7 +398,7 @@ USAGE
         # Setup argument parser
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
         parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info")
-        parser.add_argument('-e', '--endpoint', default=ptp.wikidata.WikiData.defaultEndpoint, help="SPARQL endpoint to use for wikidata queries")     
+        parser.add_argument('-e', '--endpoint', default=ptp.wikidataproceedings.WikiData.defaultEndpoint, help="SPARQL endpoint to use for wikidata queries")     
         parser.add_argument('-v', '--version', action='version', version=program_version_message)
         parser.add_argument('-a', '--all',action='store_true',default=False,help='create Event_all.db in cache')
         parser.add_argument('-c', '--check',action='store_true',default=False,help='check Event_all.db in cache')
