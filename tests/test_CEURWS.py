@@ -5,40 +5,27 @@ Created on 2020-07-06
 '''
 import unittest
 import os
-from ptp.ceurws import CEURWS, CeurwsEvent
+from tests.basetest import Basetest
+from ptp.ceurws import CeurWs, CeurWsEvent
+from ptp.titleparser import TitleParser#
 from lodstorage.storageconfig import StoreMode
 
-class TestCEURWS(unittest.TestCase):
+class TestCeurWs(Basetest):
     ''' test handling proceeding titles retrieved
     from http://ceur-ws.org/ Volumes '''
 
-    def setUp(self):
-        self.debug=False
-        self.forceCaching=False
-        pass
-
-    def tearDown(self):
-        pass
-
-    def testCEURWS(self):
+    def testCeurWsTitleParsing(self):
         ''' test CEUR-WS cache handling'''
-        cw=CEURWS()
-        if self.forceCaching:
-            cacheFile=cw.em.getCacheFile()
-            if os.path.isfile(cacheFile):
-                os.remove(cacheFile)
-        if not cw.em.isCached():    
-            cw.cacheEvents()
-        else:
-            cw.em.fromStore()    
-        print(len(cw.em.events))
-        self.assertTrue(cw.em.isCached())
-        self.assertTrue(len(cw.em.events)>940)
-        if cw.em.config.mode is StoreMode.JSON:
-            size=os.stat(cacheFile).st_size
-            print (size)
-            self.assertTrue(size>500000)
-        pass
+        cw=CeurWs(debug=True)
+        tp=TitleParser.getDefault()
+        tc,errs,titles=cw.parseEvents(tp)
+        if self.debug:
+            print(len(titles))
+        self.assertTrue(len(titles)>2900)
+        em=cw.eventManager
+        cw.addParsedTitlesToEventManager(titles, em)
+        self.assertTrue(len(em.events)>940)
+        em.store()
     
     def testExtract(self):
         ''' extract meta information from pages '''
@@ -50,7 +37,7 @@ class TestCEURWS(unittest.TestCase):
         expected=['DL4KG2020','BlockSW-CKG 2019','SemTab 2019','DI2KG2019','KGB-LASCAR 2019']
         events=[]
         for url in urls:
-            event=CeurwsEvent()
+            event=CeurWsEvent()
             event.fromUrl(url)
             print (event)
             events.append(event)

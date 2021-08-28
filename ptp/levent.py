@@ -242,7 +242,7 @@ class Event(object):
                     if hasattr(self, 'year') and self.year is not None and not re.search(r'[0-9]{4}',self.lookupAcronym):
                         self.lookupAcronym="%s %s" % (self.lookupAcronym,str(self.year))
                 except TypeError as te:
-                    print ('Warning getLookupAcronym faile for year: %s and lookupAcronym %s' % (self.year,self.lookupAcronym))   
+                    print ('Warning getLookupAcronym failed for year: %s and lookupAcronym %s' % (self.year,self.lookupAcronym))   
     
     def asJson(self):
         ''' return me as a JSON record 

@@ -67,4 +67,4 @@ matplotlib
 wikibaseintegrator
 # ConferenceCorpus
 # https://github.com/WolfgangFahl/ConferenceCorpus/
-ConferenceCorpus>=0.0.21
+ConferenceCorpus>=0.0.23
