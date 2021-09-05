@@ -2290,6 +2290,22 @@ annual:
   type: frequency
 Biennial:
   type: frequency
+Spring:
+  type: frequency
+spring:
+  type: frequency
+summer:
+  type: frequency
+Summer:
+  type: frequency  
+fall:
+  type: frequency
+Fall:
+  type: frequency
+winter:
+  type: frequency
+Winter:
+  type: frequency
 Triennial:
   type: frequency
 April:

@@ -4,11 +4,9 @@ Created on 2020-07-06
 @author: wf
 '''
 import unittest
-import os
 from tests.basetest import Basetest
 from ptp.ceurws import CeurWs, CeurWsEvent
 from ptp.titleparser import TitleParser#
-from lodstorage.storageconfig import StoreMode
 
 class TestCeurWs(Basetest):
     ''' test handling proceeding titles retrieved

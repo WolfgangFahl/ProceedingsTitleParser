@@ -15,14 +15,14 @@ class Basetest(TestCase):
     '''
     base test case
     '''
-    
+
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls,lookupIds=[]):
         super().setUpClass()
         EventStorage.profile=False
         profiler=Profiler("getting Corpus Lookup")
         EventCorpus.download()
-        cls.corpusLookup=CorpusLookup(lookupIds=[])
+        cls.corpusLookup=CorpusLookup(lookupIds=lookupIds)
         cls.corpusLookup.load()
         profiler.time()
     

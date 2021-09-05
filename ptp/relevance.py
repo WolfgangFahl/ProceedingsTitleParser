@@ -33,7 +33,10 @@ class TokenSequence(object):
     '''
     
     def __init__(self,text,separator=' '):
-        self.words=text.split(separator)
+        if text:
+            self.words=text.split(separator)
+        else:
+            self.words=[]
         self.pos=-1
         self.matchResults=[]
         
