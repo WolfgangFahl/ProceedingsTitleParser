@@ -102,9 +102,11 @@ class TestDblp(Basetest):
                 if count>limit:
                     break;
                 print(token)
-        for category in categories:
-            print(f"=== {category.name} ===")
-            print(category.mostCommonTable(tablefmt="mediawiki"))
+        show=False
+        if show:
+            for category in categories:
+                print(f"=== {category.name} ===")
+                print(category.mostCommonTable(tablefmt="mediawiki"))
 
 
 if __name__ == "__main__":
