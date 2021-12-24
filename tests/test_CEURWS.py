@@ -14,7 +14,8 @@ class TestCeurWs(Basetest):
 
     def testCeurWsTitleParsing(self):
         ''' test CEUR-WS cache handling'''
-        cw=CeurWs(debug=True)
+        debug=self.debug
+        cw=CeurWs(debug=debug)
         tp=TitleParser.getDefault()
         tc,errs,titles=cw.parseEvents(tp)
         if self.debug:
@@ -37,7 +38,8 @@ class TestCeurWs(Basetest):
         for url in urls:
             event=CeurWsEvent()
             event.fromUrl(url)
-            print (event)
+            if self.debug:
+                print (event)
             events.append(event)
         index=0    
         for event in events:
