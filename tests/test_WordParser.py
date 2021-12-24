@@ -13,19 +13,16 @@ from pandas import DataFrame
 from datetime import datetime
 import os
 from collections import Counter
+from tests.basetest import Basetest
 
-class TestWordParser(unittest.TestCase):
+class TestWordParser(Basetest):
     '''
     test the Word usage based parser
     '''
 
 
     def setUp(self):
-        self.debug=True
-        pass
-
-
-    def tearDown(self):
+        Basetest.setUp(self)
         pass
 
     def testWordUsage(self):

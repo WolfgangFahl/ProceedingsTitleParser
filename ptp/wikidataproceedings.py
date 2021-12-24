@@ -5,7 +5,7 @@ Created on 2020-07-11
 '''
 import os
 from ptp.titleparser import TitleParser
-from ptp.event import EventManager, Event
+from corpus.event import Event,EventManager
 class WikiData(object):
     '''
     WikiData proceedings titles event source

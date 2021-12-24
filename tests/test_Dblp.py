@@ -20,7 +20,7 @@ class TestDblp(Basetest):
         super().setUpClass(lookupIds=lookupIds)
         
     def setUp(self):
-        super().setUp()
+        Basetest.setUp(self)
         pass
     
     def getEventManager(self):
