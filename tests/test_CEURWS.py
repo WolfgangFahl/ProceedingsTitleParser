@@ -19,7 +19,7 @@ class TestCeurWs(Basetest):
         tc,errs,titles=cw.parseEvents(tp)
         if self.debug:
             print(len(titles))
-        self.assertTrue(len(titles)>2900)
+        self.assertTrue(len(titles)>3000)
         em=cw.eventManager
         cw.addParsedTitlesToEventManager(titles, em)
         self.assertTrue(len(em.events)>940)
