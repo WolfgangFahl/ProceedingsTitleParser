@@ -6,7 +6,6 @@ Created on 2020-07-06
 from ptp.titleparser import ProceedingsTitleParser,TitleParser
 import ptp.ceurws
 import ptp.wikidataproceedings
-import ptp.gnd
 from lodstorage.sql import SQLDB
 from lodstorage.entity import EntityManager
 from lodstorage.storageconfig import StoreMode, StorageConfig
@@ -90,50 +89,7 @@ class Lookup(object):
         self.lookupIds=['or']
         if getAll:
             self.lookupIds=['or','ceur-ws','crossref','confref','dblp','gnd','wikicfp','wikidata']
-        
-    def initEntityManagers(self,config,singleDB):
-        '''
-        Args:
-           config(StorageConfig): the configuration to use
-           singleDB(boolean): True - if one database should be use for all entity managers
-        '''        
-        if singleDB:
-            self.setSingleDBConfig(config)    
-            if len(config.errors)>0:
-                print("Warning: %s \nCan't use single database for all events" % config.errors)
-        # get the open research EventManager
-        self.ems=[]
-        for lookupId  in self.lookupIds:
-            lem=None
-            if not lookupId in self.butNot:
-                if lookupId=='or': 
-                    # https://www.openresearch.org/wiki/Main_Page
-                    lem=ptp.openresearch.OpenResearch(config=copy.copy(config))
-                elif lookupId=='ceur-ws':
-                    # CEUR-WS http://ceur-ws.org/
-                    lem=ptp.ceurws.CEURWS(config=copy.copy(config))
-                elif lookupId=='confref':
-                    # confref http://portal.confref.org/
-                    lem=ptp.confref.ConfRef(config=copy.copy(config))
-                elif lookupId=='crossref':
-                    # https://www.crossref.org/
-                    lem=ptp.crossref.Crossref(config=copy.copy(config))   
-                elif lookupId=='dblp':
-                    # https://dblp.org/
-                    lem=ptp.dblp.Dblp(config=copy.copy(config))  
-                elif lookupId=='gnd': 
-                    # https://d-nb.info/standards/elementset/gnd
-                    lem=ptp.gnd.GND(config=copy.copy(config))
-                elif lookupId=='wikicfp':
-                    # http://www.wikicfp.com/cfp/
-                    lem=ptp.wikicfp.WikiCFP(config=copy.copy(config))       
-                elif lookupId=='wikidata':
-                    # https://www.wikidata.org/wiki/Wikidata:Main_Page
-                    lem=ptp.wikidataproceedings.WikiData(config=copy.copy(config))      
-                              
-            if lem is not None:
-                lem.initEventManager()
-                self.ems.append(lem.em);            
+                   
 
     def extractFromUrl(self,url):
         ''' 
