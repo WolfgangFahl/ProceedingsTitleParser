@@ -7,6 +7,7 @@ import unittest
 from tests.basetest import Basetest
 from ptp.ceurws import CeurWs, CeurWsEvent
 from ptp.titleparser import TitleParser#
+from aniso8601.builders import Limit
 
 class TestCeurWs(Basetest):
     ''' test handling proceeding titles retrieved
@@ -15,14 +16,25 @@ class TestCeurWs(Basetest):
     def testCeurWsTitleParsing(self):
         ''' test CEUR-WS cache handling'''
         debug=self.debug
+ 
         cw=CeurWs(debug=debug)
         tp=TitleParser.getDefault()
         tc,errs,titles=cw.parseEvents(tp)
-        if self.debug:
-            print(len(titles))
+        debug=True
+        limit=10
+        if debug:
+            print(f"parsed {len(titles)} CEUR-WS titles with {len(errs)} errors  ... showing first {limit} ...")
+
+        if debug:
+            for i,err in enumerate(errs):
+                print (f"{i+1}:{err}")
+                if i>limit:
+                    break
         self.assertTrue(len(titles)>3000)
         em=cw.eventManager
         cw.addParsedTitlesToEventManager(titles, em)
+        if debug:
+            print(f"added {len(em.events)} events")
         self.assertTrue(len(em.events)>940)
         em.store()
     
