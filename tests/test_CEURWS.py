@@ -7,7 +7,6 @@ import unittest
 from tests.basetest import Basetest
 from ptp.ceurws import CeurWs, CeurWsEvent
 from ptp.titleparser import TitleParser#
-from aniso8601.builders import Limit
 
 class TestCeurWs(Basetest):
     ''' test handling proceeding titles retrieved

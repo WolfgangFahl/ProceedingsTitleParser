@@ -5,17 +5,12 @@ Created on 2020-07-10
 '''
 import unittest
 from ptp.lookup import Lookup
+from tests.basetest import Basetest
 
-class TestExamples(unittest.TestCase):
+class TestExamples(Basetest):
     '''
     test the example yaml file handling
     '''
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
 
     def testExamples(self):
         '''

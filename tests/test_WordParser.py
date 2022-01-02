@@ -5,7 +5,7 @@ Created on 2020-09-04
 '''
 import unittest
 from ptp.wordparser import CorpusWordParser, WordParser
-from ptp.lookup import Lookup
+from corpus.event import EventStorage
 from lodstorage.sql import SQLDB
 from lodstorage.uml import UML
 from lodstorage.plot import Plot
@@ -19,7 +19,6 @@ class TestWordParser(Basetest):
     '''
     test the Word usage based parser
     '''
-
 
     def setUp(self):
         Basetest.setUp(self)
@@ -54,8 +53,7 @@ class TestWordParser(Basetest):
         
         see https://stackoverflow.com/questions/2374640/how-do-i-calculate-percentiles-with-python-numpy
         '''
-        lookup=Lookup("test Word parser")
-        sqlDB=lookup.getSQLDB()
+        sqlDB=EventStorage.getSqlDB()
         if sqlDB is not None:
             totalWordUsages=[]
             for source in ['wikidata','crossref','dblp','CEUR-WS']:
@@ -91,6 +89,9 @@ class TestWordParser(Basetest):
         return None
             
     def testWordUsageTagging(self):
+        '''
+        test word usage tagging
+        '''
         wSQLDB=self.getWordUsageDB()
         uml=UML()
         now=datetime.now()
