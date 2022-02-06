@@ -17,7 +17,8 @@ class TestExamples(Basetest):
         test reading the examples
         '''
         examples=Lookup.getExamples()
-        print (examples)
+        if self.debug:
+            print (examples)
         self.assertEqual(16,len(examples.keys()))
         pass
 
