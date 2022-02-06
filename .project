@@ -3,7 +3,7 @@
 	<name>ProceedingsTitleParser</name>
 	<comment></comment>
 	<projects>
-		<project>OpenResearch</project>
+		<project>ConferenceCorpus</project>
 		<project>pyLoDStorage</project>
 	</projects>
 	<buildSpec>

@@ -73,7 +73,7 @@ class TestWordParser(Basetest):
                 print(quantileValues);
                 plot=Plot(lens.values(),"%s wordcount histogram" %source,xlabel="wordcount",ylabel="frequency")
                 plot.hist(mode='save') 
-            wordUsageDBFile=Lookup.getDBFile("wordusage")
+            wordUsageDBFile=EventStorage.getDBFile("wordusage")
             wSQLDB=SQLDB(wordUsageDBFile)
             entityInfo=wSQLDB.createTable(totalWordUsages, "wordusage",withDrop=True)
             wSQLDB.store(totalWordUsages, entityInfo)
@@ -82,7 +82,7 @@ class TestWordParser(Basetest):
         '''
         get the Word usage database
         '''
-        wordUsageDBFile=Lookup.getDBFile("wordusage")
+        wordUsageDBFile=EventStorage.getDBFile("wordusage")
         if os.path.isfile(wordUsageDBFile):
             wSQLDB=SQLDB(wordUsageDBFile)
             return wSQLDB
