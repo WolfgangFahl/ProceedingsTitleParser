@@ -1,5 +1,8 @@
 # ProceedingsTitleParser
 Shallow Semantic Parser to extract metadata from scientific proceedings titles
+This Project was started in 2020 in is deprecated as of 2023 
+See [pysotog](https://github.com/WolfgangFahl/pysotsog) as the more recent project
+with more functionality.
 
 [![Slack](https://img.shields.io/badge/join%20slack-%23ProceedingsTitleParser-brightgreen.svg)](https://app.slack.com/client/T01627ART2T/C016P51T25A)
 [![Travis (.org)](https://travis-ci.org/WolfgangFahl/ProceedingsTitleParser.svg?branch=master)](https://travis-ci.org/WolfgangFahl/ProceedingsTitleParser)
