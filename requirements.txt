@@ -48,9 +48,3 @@ tabulate
 # https://matplotlib.org/
 # https://pypi.org/project/matplotlib/
 matplotlib
-# https://github.com/LeMyst/WikibaseIntegrator
-# https://pypi.org/project/wikibaseintegrator/
-wikibaseintegrator
-# ConferenceCorpus
-# https://github.com/WolfgangFahl/ConferenceCorpus/
-ConferenceCorpus>=0.0.27
