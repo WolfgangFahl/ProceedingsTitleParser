@@ -5,7 +5,6 @@ Created on 2020-08-11
 '''
 import unittest
 import time
-from storage.dgraph import Dgraph
 from lodstorage.sparql import SPARQL
 from lodstorage.lod import LOD
 from ptp.location import CountryManager, ProvinceManager, CityManager
