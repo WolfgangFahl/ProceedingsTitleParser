@@ -3,8 +3,8 @@ Created on 2020-09-03
 
 @author: wf
 '''
-from wikibot.smw import SMWBot
-from wikibot.wikibot import WikiBot
+from wikibot3rd.smw import SMWBot
+from wikibot3rd.wikibot import WikiBot
 from lodstorage.jsonable import JSONAble
 from storage.entity import EntityManager
 
