@@ -6,7 +6,6 @@ Created on 2020-08-19
 from storage.yamlablemixin import YamlAbleMixin
 from storage.jsonablemixin import JsonAbleMixin
 from storage.config import StorageConfig, StoreMode
-from storage.dgraph import Dgraph
 from lodstorage.sparql import SPARQL
 from lodstorage.sql import SQLDB
 from lodstorage.lod import LOD
@@ -41,9 +40,7 @@ class EntityManager(YamlAbleMixin, JsonAbleMixin):
         self.config=config
         cacheFile=self.getCacheFile(config=config,mode=config.mode)
         self.showProgress ("Creating %smanager(%s) for %s using cache %s" % (self.entityName,config.mode,self.name,cacheFile))
-        if config.mode is StoreMode.DGRAPH:
-            self.dgraph=Dgraph(debug=config.debug,host=config.host,profile=config.profile)
-        elif config.mode is StoreMode.SPARQL:
+        if config.mode is StoreMode.SPARQL:
             if config.endpoint is None:
                 raise Exception("no endpoint set for mode sparql") 
             self.endpoint=config.endpoint   
