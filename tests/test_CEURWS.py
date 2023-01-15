@@ -4,38 +4,41 @@ Created on 2020-07-06
 @author: wf
 '''
 import unittest
-from tests.basetest import Basetest
-from ptp.ceurws import CeurWs, CeurWsEvent
-from ptp.titleparser import TitleParser#
+import os
+from ptp.ceurws import CEURWS, CeurwsEvent
+from storage.config import StoreMode
 
-class TestCeurWs(Basetest):
+class TestCEURWS(unittest.TestCase):
     ''' test handling proceeding titles retrieved
     from http://ceur-ws.org/ Volumes '''
 
-    def testCeurWsTitleParsing(self):
-        ''' test CEUR-WS cache handling'''
-        debug=self.debug
- 
-        cw=CeurWs(debug=debug)
-        tp=TitleParser.getDefault()
-        tc,errs,titles=cw.parseEvents(tp)
-        debug=True
-        limit=10
-        if debug:
-            print(f"parsed {len(titles)} CEUR-WS titles with {len(errs)} errors  ... showing first {limit} ...")
+    def setUp(self):
+        self.debug=False
+        self.forceCaching=False
+        pass
 
-        if debug:
-            for i,err in enumerate(errs):
-                print (f"{i+1}:{err}")
-                if i>limit:
-                    break
-        self.assertTrue(len(titles)>3000)
-        em=cw.eventManager
-        cw.addParsedTitlesToEventManager(titles, em)
-        if debug:
-            print(f"added {len(em.events)} events")
-        self.assertTrue(len(em.events)>940)
-        em.store()
+    def tearDown(self):
+        pass
+
+    def testCEURWS(self):
+        ''' test CEUR-WS cache handling'''
+        cw=CEURWS()
+        if self.forceCaching:
+            cacheFile=cw.em.getCacheFile()
+            if os.path.isfile(cacheFile):
+                os.remove(cacheFile)
+        if not cw.em.isCached():    
+            cw.cacheEvents()
+        else:
+            cw.em.fromStore()    
+        print(len(cw.em.events))
+        self.assertTrue(cw.em.isCached())
+        self.assertTrue(len(cw.em.events)>940)
+        if cw.em.config.mode is StoreMode.JSON:
+            size=os.stat(cacheFile).st_size
+            print (size)
+            self.assertTrue(size>500000)
+        pass
     
     def testExtract(self):
         ''' extract meta information from pages '''
@@ -47,10 +50,9 @@ class TestCeurWs(Basetest):
         expected=['DL4KG2020','BlockSW-CKG 2019','SemTab 2019','DI2KG2019','KGB-LASCAR 2019']
         events=[]
         for url in urls:
-            event=CeurWsEvent()
+            event=CeurwsEvent()
             event.fromUrl(url)
-            if self.debug:
-                print (event)
+            print (event)
             events.append(event)
         index=0    
         for event in events:

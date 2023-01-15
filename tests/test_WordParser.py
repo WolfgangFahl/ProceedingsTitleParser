@@ -5,7 +5,7 @@ Created on 2020-09-04
 '''
 import unittest
 from ptp.wordparser import CorpusWordParser, WordParser
-from corpus.event import EventStorage
+from ptp.lookup import Lookup
 from lodstorage.sql import SQLDB
 from lodstorage.uml import UML
 from lodstorage.plot import Plot
@@ -13,15 +13,19 @@ from pandas import DataFrame
 from datetime import datetime
 import os
 from collections import Counter
-from tests.basetest import Basetest
 
-class TestWordParser(Basetest):
+class TestWordParser(unittest.TestCase):
     '''
     test the Word usage based parser
     '''
 
+
     def setUp(self):
-        Basetest.setUp(self)
+        self.debug=True
+        pass
+
+
+    def tearDown(self):
         pass
 
     def testWordUsage(self):
@@ -53,7 +57,8 @@ class TestWordParser(Basetest):
         
         see https://stackoverflow.com/questions/2374640/how-do-i-calculate-percentiles-with-python-numpy
         '''
-        sqlDB=EventStorage.getSqlDB()
+        lookup=Lookup("test Word parser")
+        sqlDB=lookup.getSQLDB()
         if sqlDB is not None:
             totalWordUsages=[]
             for source in ['wikidata','crossref','dblp','CEUR-WS']:
@@ -73,7 +78,7 @@ class TestWordParser(Basetest):
                 print(quantileValues);
                 plot=Plot(lens.values(),"%s wordcount histogram" %source,xlabel="wordcount",ylabel="frequency")
                 plot.hist(mode='save') 
-            wordUsageDBFile=EventStorage.getDBFile("wordusage")
+            wordUsageDBFile=Lookup.getDBFile("wordusage")
             wSQLDB=SQLDB(wordUsageDBFile)
             entityInfo=wSQLDB.createTable(totalWordUsages, "wordusage",withDrop=True)
             wSQLDB.store(totalWordUsages, entityInfo)
@@ -82,16 +87,13 @@ class TestWordParser(Basetest):
         '''
         get the Word usage database
         '''
-        wordUsageDBFile=EventStorage.getDBFile("wordusage")
+        wordUsageDBFile=Lookup.getDBFile("wordusage")
         if os.path.isfile(wordUsageDBFile):
             wSQLDB=SQLDB(wordUsageDBFile)
             return wSQLDB
         return None
             
     def testWordUsageTagging(self):
-        '''
-        test word usage tagging
-        '''
         wSQLDB=self.getWordUsageDB()
         uml=UML()
         now=datetime.now()

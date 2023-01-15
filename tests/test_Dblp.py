@@ -4,40 +4,43 @@ Created on 2020-07-17
 @author: wf
 '''
 import unittest
-from tests.basetest import Basetest
+from ptp.dblp import Dblp
 from ptp.relevance import Tokenizer, TokenSequence
 from ptp.signature import RegexpCategory,OrdinalCategory, EnumCategory, ParsingCategory
 from pyparsing import oneOf
 
-class TestDblp(Basetest):
+class TestDblp(unittest.TestCase):
     '''
     test Dblp handling
     '''
-    
-    @classmethod
-    def setUpClass(cls):
-        lookupIds=["dblp"]
-        super().setUpClass(lookupIds=lookupIds)
-        
     def setUp(self):
-        Basetest.setUp(self)
+        self.forceCaching=False
+        pass
+
+    def tearDown(self):
         pass
     
-    def getEventManager(self):
-        '''
-        get DBLP events
-        '''
-        self.dblpDataSource=self.lookup.getDataSource("dblp")
-        return self.dblpDataSource.eventManager
-        
+    def getEvents(self):
+        dblp=Dblp()
+        if self.forceCaching:
+            dblp.em.removeCacheFile()
+        #EventManager.debug=True
+        if not dblp.em.isCached():
+            dblp.cacheEvents()
+            foundEvents=len(dblp.rawevents)
+        else:
+            dblp.em.fromStore()
+            foundEvents=len(dblp.em.events)
+        return dblp,foundEvents
 
     def testDblp(self):
         ''' test reading dblp data '''
-        em=self.getEventManager()
-        cachedEvents=len(em.events)
+        dblp,foundEvents=self.getEvents()
+        cachedEvents=len(dblp.em.events)
+        dblp.em.extractCheckedAcronyms() 
+        self.assertTrue(foundEvents>43950)
         self.assertTrue(cachedEvents>43950)
-        if self.debug:
-            print(f"found {len(em.events)} cached events from dblp")
+        print("found %d  and cached %d events from dblp" % (foundEvents,cachedEvents))
         pass
     
     def testTokenizer(self):
@@ -68,8 +71,8 @@ class TestDblp(Basetest):
         '''
         get the most common first letters
         '''
-        em=self.getEventManager()
-        self.assertTrue(len(em.events)>43950)
+        dblp,foundEvents=self.getEvents()
+        self.assertTrue(foundEvents>43950)
         categories=[
             RegexpCategory("first Letter",lambda word:word[0] if word else '',r".*"),
             RegexpCategory("word",lambda word:word,r".*"),
@@ -90,9 +93,9 @@ class TestDblp(Basetest):
         ]
         tokenizer=Tokenizer(categories)
         tokenSequences={}
-        for event in em.events:
-            eventId=event.eventId
+        for eventId in dblp.em.events:
             if eventId.startswith("conf"):
+                event=dblp.em.events[eventId]
                 tokenSequences[eventId]=tokenizer.tokenize(event.title,event)
         limit=50
         count=0
@@ -102,11 +105,9 @@ class TestDblp(Basetest):
                 if count>limit:
                     break;
                 print(token)
-        show=False
-        if show:
-            for category in categories:
-                print(f"=== {category.name} ===")
-                print(category.mostCommonTable(tablefmt="mediawiki"))
+        for category in categories:
+            print(f"=== {category.name} ===")
+            print(category.mostCommonTable(tablefmt="mediawiki"))
 
 
 if __name__ == "__main__":

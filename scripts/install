@@ -36,6 +36,11 @@ case $os in
 esac
 #$install python3-pip
 autoinstall jq jq
+# activate virtual environment
+python -m venv .venv
+source .venv/bin/activate
+useroption=""
+
 $pip --version
 echo "installing required python modules with useroption $useroption"
 $pip install $useroption --upgrade -r requirements.txt

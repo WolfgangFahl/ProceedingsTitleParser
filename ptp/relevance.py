@@ -33,10 +33,7 @@ class TokenSequence(object):
     '''
     
     def __init__(self,text,separator=' '):
-        if text:
-            self.words=text.split(separator)
-        else:
-            self.words=[]
+        self.words=text.split(separator)
         self.pos=-1
         self.matchResults=[]
         
@@ -75,10 +72,6 @@ class Token(object):
         self.pos=pos
         self.tokenStr=tokenStr
         self.value=category.add(item,tokenStr)
-        
-    def __str__(self):
-        text=self.tokenStr
-        return text
        
         
 class Category(object):

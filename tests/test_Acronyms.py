@@ -3,27 +3,35 @@ Created on 2020-10-31
 
 @author: wf
 '''
-from tests.basetest import Basetest
 import unittest
-from corpus.event import EventStorage
+from ptp.wikicfp import WikiCFP
+from storage.config import StoreMode
 from lodstorage.query import Query
 import re
 
-class TestAcronyms(Basetest):
-    '''
-    test acronyms
-    '''
+class TestAcronyms(unittest.TestCase):
+
+
+    def setUp(self):
+        pass
+
+
+    def tearDown(self):
+        pass
+
+
     def getWikiCFPDB(self):
-        sqlDB=EventStorage.getSqlDB()
+        wikiCFP=WikiCFP()
+        em=wikiCFP.em
+        sqlDB=em.getSQLDB(em.getCacheFile(em.config, StoreMode.SQL))
         return sqlDB
     
     def showPercentage(self,value,total,title):
         print("%d/%d (%5.1f%%)  %s" % (value,total,value/total*100,title)) 
     
-    def getMatchingRecords(self,sqlDB,regex,whereClause):
-        show=10 if self.debug else 0
+    def getMatchingRecords(self,sqlDB,regex,whereClause,show=10):
         acronymRecords=sqlDB.query("select acronym,startDate from event_wikicfp where %s" % whereClause)
-        if show>0:
+        if show:
             print ("total acronyms for %s: %d" % (whereClause,len(acronymRecords)))
         count=1
         limit=len(acronymRecords)
@@ -34,9 +42,9 @@ class TestAcronyms(Basetest):
             if matches:
                 count+=1
                 matchingRecords.append(acronymRecord)
-            if show>0 and count<show:
+            if show and count<show:
                 print ("%s:%s" % ('✅' if matches else '❌' ,acronym))
-        if show>0:
+        if show:
             self.showPercentage(count,limit, "matches for %s" % regex)
         return matchingRecords
     
@@ -53,14 +61,13 @@ class TestAcronyms(Basetest):
         sqlDB=self.getWikiCFPDB()
         for year in range(2007,2021):
             for regex in [r'[A-Z]+\s*[0-9]+']:
-                self.checkPattern(sqlDB,regex,year,debug=self.debug)
+                self.checkPattern(sqlDB,regex,year,debug=True)
                 
     def testYears(self):
         '''
         test the hypothesis that the year part of the event's acronym correlates
         with the year of the stardate of the event
         '''
-        show=self.debug
         sqlDB=self.getWikiCFPDB()
         regex=r'[A-Z]+\s*[12][0-9]{3}'    
         matchedEvents=self.getMatchingRecords(sqlDB,regex,"year >2006 and year <2022")
@@ -72,15 +79,13 @@ class TestAcronyms(Basetest):
             if acronymYear!=str(startDate.year):
                 yearDifferent+=1
                 #print ("%s:%s != %s" % (acronym,acronymYear,startDate.year))
-        if show:
-            self.showPercentage(yearDifferent,len(matchedEvents),"year different")
+        self.showPercentage(yearDifferent,len(matchedEvents),"year different")
                    
     def testQueries(self):
         '''
         test Queries
         '''
         sqlDB=self.getWikiCFPDB()
-        show=self.debug
         queries=[ 
             {"name":"order of CFPs","query":"select eventId,acronym,year,url from event_wikicfp limit 10"},
             {"name":"cfps per year", "query": """select count(*) as perYear,year 
@@ -89,10 +94,13 @@ group by year
 order by 2"""},]
         for query in queries:
             dbQuery=Query(query['name'],query['query'],"sql")
-            lod=sqlDB.query(dbQuery.query)
-            doc=dbQuery.documentQueryResult(lod,tablefmt="github")
-            if show:
-                print (doc)
+            listOfDicts=sqlDB.query(dbQuery.query)
+            markup="=== %s ===\n" % (query['name'])
+            markup+=dbQuery.asWikiSourceMarkup()
+            markup+=dbQuery.asWikiMarkup(listOfDicts)
+            print (markup)
+        
+        
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
