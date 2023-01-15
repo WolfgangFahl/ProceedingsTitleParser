@@ -49,4 +49,4 @@ tabulate
 # https://pypi.org/project/matplotlib/
 matplotlib
 # https://pypi.org/project/py-3rdparty-mediawiki/
-py-3rdparty-mediawiki>=0.8.3
+py-3rdparty-mediawiki>=0.8.1
