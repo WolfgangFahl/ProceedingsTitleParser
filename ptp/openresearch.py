@@ -3,7 +3,7 @@ Created on 04.07.2020
 
 @author: wf
 '''
-from wikibot.smw import SMWBot
+from wikibot3rd.smw import SMWBot
 import os
 from wikibot3rd.wikibot import WikiBot
 from wikibot3rd.wikiuser import WikiUser
