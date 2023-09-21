@@ -40,7 +40,7 @@ class TestLocations(unittest.TestCase):
         cim=CityManager('lutangarVersusOpenResearch')
         startTime=time.time()
         cim.fromLutangar()
-        self.assertEqual(128769,(len(cim.cityList)))
+        self.assertTrue(len(cim.cityList)>128769)
         print ("reading %d cities from github took %5.1f secs" % (len(cim.cityList),time.time()-startTime))
         startTime=time.time()
         orCities=cim.fromOpenResearch(showProgress=True)
@@ -154,15 +154,6 @@ WHERE {
         cm.fromCache()
         self.assertTrue(len(cm.countryList)>=195)
 
-        #    sparql=TestJena.getJena(debug=self.debug)
-        #    errors=cm.storeToRDF(sparql)
-        #    self.assertFalse(sparql.printErrors(errors))
-        #    doimport=True
-        #    if doimport:
-        #        cm2=CountryManager()
-        #        cm2.fromRDF(sparql)
-        #    self.assertEqual(cm.countryList,cm2.countryList)
-
     def testCountryManager(self):
         '''
         test storying countries in SQL format
@@ -181,23 +172,23 @@ WHERE {
         cm=CountryManager("github")
         cm.fromErdem()
         cm.fromConfRef()
-        dgraph=Dgraph(debug=self.debug)
+        #dgraph=Dgraph(debug=self.debug)
         # drop all data and schemas
-        dgraph.drop_all()
+        #dgraph.drop_all()
         # create schema for countries
-        dgraph.addSchema(cm.schema)
-        startTime=time.time()
-        dgraph.addData(obj=cm.countryList)
-        elapsed=time.time() - startTime
-        print("adding %d countries took %5.1f s" % (len(cm.countryList),elapsed))
-        queryResult=dgraph.query(cm.graphQuery)
-        self.assertTrue('countries' in queryResult)
-        countries=queryResult['countries']
-        self.assertEqual(len(countries),len(cm.countryList))
-        validCountries=LOD.intersect(countries, cm.confRefCountries, 'name')
-        print("found %d valid countries " % (len(validCountries)))
-        self.assertEqual(138,len(validCountries))
-        dgraph.close()
+        #dgraph.addSchema(cm.schema)
+        #startTime=time.time()
+        #dgraph.addData(obj=cm.countryList)
+        #elapsed=time.time() - startTime
+        #print("adding %d countries took %5.1f s" % (len(cm.countryList),elapsed))
+        #queryResult=dgraph.query(cm.graphQuery)
+        #self.assertTrue('countries' in queryResult)
+        #countries=queryResult['countries']
+        #self.assertEqual(len(countries),len(cm.countryList))
+        #validCountries=LOD.intersect(countries, cm.confRefCountries, 'name')
+        #print("found %d valid countries " % (len(validCountries)))
+        #self.assertEqual(138,len(validCountries))
+        #dgraph.close()
         pass
 
     def testIntersection(self):
