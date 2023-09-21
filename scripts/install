@@ -43,7 +43,7 @@ useroption=""
 
 $pip --version
 echo "installing required python modules with useroption $useroption"
-$pip install $useroption --upgrade -r requirements.txt
+$pip install .
 
 wd=$(pwd)
 if [ ! -d web ]
