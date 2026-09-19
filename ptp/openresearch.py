@@ -121,7 +121,7 @@ class OpenResearch(object):
     @staticmethod
     def getSMW():
         wikibot=OpenResearch.getSMW_Wiki()
-        smw=SMWBot(wikibot.site)
+        smw=SMWBot(wikibot.wikiUser.getWikiUrl().rstrip("/"))
         return smw
     
     @staticmethod 

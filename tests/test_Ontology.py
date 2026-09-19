@@ -6,7 +6,7 @@ Created on 2020-09-03
 import unittest
 from ptp.ontology import Ontology
 import getpass
-from lodstorage.jsonable import JSONAble
+import json
 
 class TestOntology(unittest.TestCase):
     ''' 
@@ -35,36 +35,12 @@ class TestOntology(unittest.TestCase):
                 for schema in schemas:
                     print("= %s =" % schema.name)
                     print("found %d properties for %s" % (len(schema.propsById),schema.name))
-                    print("<source lang='json'>%s</source>" % schema.toJSON())
+                    print("<source lang='json'>%s</source>" % json.dumps(schema, default=lambda o: o.__dict__, indent=2))
             self.assertTrue(len(schemas)>8)    
             allProps=schemaManager.allProperties()
             schemaManager.store(allProps,sampleRecordCount=len(allProps))
             self.assertTrue(schemaManager.isCached())
         pass
-    
-    def testJsonAble(self):
-        family=Family("The Flintstones")
-        family.add(Person("Fred","Flintstone")) 
-        family.add(Person("Wilma","Flintstone"))
-        json1=family.toJSON()
-        json2=family.asJSON()
-        print(json1)
-        print(json2)
-             
-class Family(JSONAble):
-    def __init__(self,name):
-        self.name=name
-        self.members={}
-    
-    def add(self,person):
-        self.members[person.lastName+","+person.firstName]=person
-
-class Person(JSONAble):
-    def __init__(self,firstName,lastName):
-        self.firstName=firstName;
-        self.lastName=lastName;
-  
-        
 
 
 if __name__ == "__main__":

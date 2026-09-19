@@ -22,7 +22,7 @@ class TestStats(unittest.TestCase):
     
     def getQueryManager(self):
         path=os.path.dirname(__file__)+"/.."
-        qm=QueryManager(lang='sql',debug=self.debug,path=path)
+        qm=QueryManager(lang='sql',debug=self.debug,queriesPath=path+'/queries.yaml',with_default=False)
         return qm
     
     def test_SQL(self):

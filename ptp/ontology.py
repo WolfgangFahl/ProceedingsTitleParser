@@ -3,9 +3,8 @@ Created on 2020-09-03
 
 @author: wf
 '''
-from wikibot3rd.smw import SMWBot
-from wikibot3rd.wikibot import WikiBot
-from lodstorage.jsonable import JSONAble
+from wikibot3rd.smw import SMWClient
+from wikibot3rd.wikiclient import WikiClient
 from storage.entity import EntityManager
 
 class Ontology(object):
@@ -55,8 +54,10 @@ class Ontology(object):
         Returns:
             the list of schema properties
         '''
-        self.wikibot=WikiBot.ofWikiId(wikiId)
-        self.smw=SMWBot(self.wikibot.site)
+        # the requirements wiki needs a login so the mwclient based access is used
+        self.wikiclient=WikiClient.of_wiki_id(wikiId)
+        self.wikiclient.login()
+        self.smw=SMWClient(self.wikiclient.get_site())
         askResult=self.smw.query(ask)
         if self.debug:
             for askRecord in askResult.values():
@@ -98,7 +99,7 @@ class Ontology(object):
             schemaManager.store(allProps,sampleRecordCount=len(allProps))
         return schemaManager
    
-class SchemaManager(JSONAble,EntityManager):
+class SchemaManager(EntityManager):
     '''
     manager for Schemas
     '''   
@@ -142,7 +143,7 @@ class SchemaManager(JSONAble,EntityManager):
             schema.add(prop)    
         return self.schemasByName    
 
-class Schema(JSONAble):
+class Schema(object):
     '''
     an Ontology schema
     '''
@@ -163,7 +164,7 @@ class Schema(JSONAble):
         self.propsByName[prop.name]=prop
           
                 
-class Property(JSONAble):
+class Property(object):
     '''
     a single property
     '''

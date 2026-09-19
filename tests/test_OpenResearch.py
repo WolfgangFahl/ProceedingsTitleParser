@@ -63,12 +63,12 @@ class TestOpenResearch(unittest.TestCase):
     def testGetEvent(self):
         ''' get the events from OpenResearch '''
         opr=OpenResearch()
-        event=opr.getEvent("ZEUS 2010")
+        event=opr.getEvent("ISWC 2019")
         self.assertTrue(event is not None)
         if TestOpenResearch.debug:
             print (event)  
             print (event.asJson())
-        self.assertEqual("http://www2.informatik.hu-berlin.de/top/zeus/", event.homepage)    
+        self.assertEqual("https://iswc2019.semanticweb.org/", event.homepage)    
         pass
     
     def testExtractAcronyms(self):

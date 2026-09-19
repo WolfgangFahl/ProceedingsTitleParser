@@ -28,10 +28,11 @@ dependencies = [
   "nltk",
   "spacy",
   "geotext",
-  "geograpy3~=0.2.2",
+  "geograpy3>=0.3.0",
   "tabulate",
   "matplotlib",
-  "py-3rdparty-mediawiki>=0.8.1"
+  "py-3rdparty-mediawiki>=0.8.1",
+  "lxml_html_clean"
 ]
 requires-python = ">=3.9"
 classifiers = [

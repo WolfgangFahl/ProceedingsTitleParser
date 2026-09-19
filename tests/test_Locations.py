@@ -207,10 +207,10 @@ WHERE {
 
         listi=LOD.intersect(list1, list2,'count')
         print(listi)
-        self.assertEquals(2,len(listi))
+        self.assertEqual(2,len(listi))
         listi=LOD.intersect(list1, list2)
         print(listi)
-        self.assertEquals(2,len(listi))
+        self.assertEqual(2,len(listi))
 
 
 if __name__ == "__main__":
