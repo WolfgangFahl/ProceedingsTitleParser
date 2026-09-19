@@ -154,3 +154,7 @@ data
 apicache-py3/
 pywikibot.lwp
 throttle.ctrl
+dist/
+site/
+mkdocs.yml
+docs/

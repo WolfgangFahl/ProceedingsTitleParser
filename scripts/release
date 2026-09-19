@@ -1,0 +1,8 @@
+#!/bin/bash
+# WF 2026-06-16
+# prepare a release
+scripts/doc -d
+
+# Commit and push
+git commit -a -m "release commit"
+git push

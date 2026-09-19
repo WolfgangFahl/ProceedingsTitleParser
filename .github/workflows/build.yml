@@ -18,22 +18,23 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-#        os: [ubuntu-latest, macos-latest, windows-latest]
-         os: [ubuntu-latest]
-#        python-version: [3.8, 3.9, '3.10']
-         python-version: ['3.10']
+        #os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
+        #python-version: [ '3.9', '3.10', '3.11', '3.12', '3.13' ]
+        python-version: [ '3.12' ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install python dependencies
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         scripts/install
-    - name: Get samples and Run tests
+        scripts/doc
+    - name: Get samples and run tests
       run: |
         scripts/getsamples
         scripts/test

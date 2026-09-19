@@ -1,6 +1,94 @@
 #!/bin/bash
-# WF 2020-06-03
-# activate virtual environment
-python -m venv .venv
-source .venv/bin/activate
-python3 -m unittest discover
+# WF 2022-08-20
+# WF 2024-08-03
+# WF 2026-06-16
+
+#ansi colors
+blue='\033[0;34m'
+red='\033[0;31m'
+green='\033[0;32m'
+endColor='\033[0m'
+
+color_msg() {
+  local l_color="$1"
+  local l_msg="$2"
+  echo -e "${l_color}$l_msg${endColor}"
+}
+
+negative() {
+  local l_msg="$1"
+  color_msg $red "❌:$l_msg"
+}
+
+positive() {
+  local l_msg="$1"
+  color_msg $green "✅:$l_msg"
+}
+
+usage() {
+  echo "$0 [-g|--green|-m|--module|-t|--tox|-h|--help]"
+  echo "-t |--tox: run tests with tox"
+  echo "-g |--green: run tests with green"
+  echo "-m |--module: run modulewise test"
+  echo "-h  |--help:  show this usage"
+  echo "default is running tests with unittest discover"
+  exit 1
+}
+
+check_package() {
+  local l_package="$1"
+  pip show $l_package > /dev/null
+  if [ $? -ne 0 ]
+  then
+    negative "$l_package"
+    color_msg $blue "installing $l_package"
+    pip install $l_package
+  else
+    positive "$l_package"
+  fi
+}
+
+modulewise_test() {
+  foundErrors=0
+  foundTests=0
+  for testmodule in tests/test*.py
+  do
+    echo "testing $testmodule ..."
+    python -m unittest $testmodule
+    exit_code=$?
+    foundErrors=$((foundErrors+exit_code))
+    foundTests=$((foundTests+1))
+  done
+  echo "$foundErrors/$foundTests  module unit tests failed" 1>&2
+  if [[ $foundErrors -gt 0 ]]
+  then
+    exit 1
+  fi
+}
+
+export PYTHON_PATH="."
+while [  "$1" != ""  ]
+do
+  option="$1"
+  case $option in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -g|--green)
+      check_package green
+      green tests -s 1
+      exit 0
+      ;;
+    -m|--module)
+      modulewise_test
+      exit 0
+      ;;
+    -t|--tox)
+      check_package tox
+      tox -e py
+      exit 0
+      ;;
+  esac
+done
+python3 -m unittest discover -s tests -p 'test*.py'
