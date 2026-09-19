@@ -9,6 +9,7 @@
 # 5. wikicfp
 #
 # WF 2020-07-01
+# WF 2026-09-19 --limit for crossref pages, connect timeout, confref cache first
 
 #ansi colors
 #http://www.csc.uvic.ca/~sae/seng265/fall04/tips/s265s047-tips/bash-using-colors.html
@@ -46,8 +47,9 @@ error() {
 # show the usage
 #
 usage() {
-  echo "usage: $0 [-h|--help][--ceurws]"
+  echo "usage: $0 [-h|--help][-l|--limit pages][--ceurws][--confref][--dblp][--wikicfp][-w|--wikidata][-g|--gnd]"
   echo "  -h|--help: show this usage"
+  echo "  -l|--limit pages: maximum number of crossref pages of 1000 rows to download (default: all)"
   echo "  --ceurws: force getting samples for CEURWS and exit"
   echo "  --confref: get samples for confref and exit"
 }
@@ -58,10 +60,15 @@ usage() {
 download() {
   local l_src="$1"
   local l_target="$2"
-  if [ ! -f $l_target ]
+  if [ ! -s $l_target ]
   then
     color_msg $blue "downloading $l_target from $l_src"
-    curl -o $l_target $l_src
+    curl -L --fail --connect-timeout 5 -o $l_target $l_src
+    if [ $? -ne 0 ]
+    then
+      rm -f $l_target
+      error "download of $l_src failed"
+    fi
   else
     color_msg $green "$l_target already downloaded"
   fi
@@ -89,7 +96,7 @@ getCEURWS() {
   color_msg $blue "getting sample data for CEUR-WS"
   samplehtml=$sampledir/ceurs-ws.html
   sampletxt=$sampledir/proceedings-ceur-ws.txt
-  download http://ceur-ws.org/ $samplehtml
+  download https://ceur-ws.org/ $samplehtml
   if [ ! -f $sampletxt ]
   then
     color_msg $blue "filtering proceeding titles from $samplehtml into $sampletxt"
@@ -161,7 +168,7 @@ ignorelines { next }
 #
 getDblp() {
   source=dblp.json
-  download http://wiki.bitplan.com/images/confident/$source $sampledir/$source
+  download https://wiki.bitplan.com/images/confident/$source $sampledir/$source
 }
 
 #
@@ -169,7 +176,7 @@ getDblp() {
 #
 getWikiCFP() {
   source=wikicfp.tgz
-  download http://wiki.bitplan.com/images/confident/$source $sampledir/$source
+  download https://wiki.bitplan.com/images/confident/$source $sampledir/$source
   pwd=$(pwd)
   cd $sampledir
   # unpack
@@ -184,7 +191,7 @@ getText() {
   for source in dblp wikidata
   do
      target=proceedings-$source.txt
-     download http://wiki.bitplan.com/images/confident/$target $sampledir/$target
+     download https://wiki.bitplan.com/images/confident/$target $sampledir/$target
   done
 }
 
@@ -213,6 +220,11 @@ getCrossRef() {
   downloadWithCursor $rows $index "*"
   while [ $totalRows -lt $total ]
   do
+    if [ "$limit" != "" ] && [ $index -ge $limit ]
+    then
+      color_msg $blue "crossref page limit $limit reached"
+      break
+    fi
     target=$sampledir/crossref-$index.json
     status=$(jq '.status' $target | tr -d '"')
     total=$(jq '.message["total-results"]' $target)
@@ -244,24 +256,15 @@ getCrossRef() {
 }
 
 #
-# get sample data from confref http://portal.confref.org/api
+# get sample data from confref
+# portal.confref.org is gone (2026) so the cached copies are used
 #
 getConfRef() {
   for entity in countries areas conferences
   do
     target=$sampledir/confref-$entity.json
-    src=http://portal.confref.org/api/$entity/
+    src="https://wiki.bitplan.com/images/confident/confref-$entity.json"
     download $src $target
-    # check result (again)
-    jq length $target
-    # invalid json?
-    if [ $? -ne 0 ]
-    then
-      srcwiki="http://wiki.bitplan.com/images/confident/confref-$entity.json"
-      rm $target
-      color_msg $blue "$src download failed - will retrieve a cached version from $srcwiki"
-      download $srcwiki $target
-    fi
   done
 }
 
@@ -270,7 +273,7 @@ getConfRef() {
 #
 getCachedDatabase() {
   local l_db="$1"
-	src=http://wiki.bitplan.com/images/confident/$l_db
+	src=https://wiki.bitplan.com/images/confident/$l_db
   target=$cachedir/$l_db
 	download $src $target
 }
@@ -321,6 +324,7 @@ do
 	fi
 done
 
+limit=""
 while [  "$1" != ""  ]
 do
   option=$1
@@ -329,6 +333,10 @@ do
     -h|--help)
       usage
       exit 0;;
+    -l|--limit)
+      limit=$1
+      shift
+      ;;
     --confref)
       getConfRef
       exit 0;;
