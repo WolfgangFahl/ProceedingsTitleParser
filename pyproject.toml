@@ -31,7 +31,7 @@ dependencies = [
   "geograpy3>=0.3.0",
   "tabulate",
   "matplotlib",
-  "py-3rdparty-mediawiki>=0.8.1",
+  "py-3rdparty-mediawiki>=0.19.7",
   "lxml_html_clean"
 ]
 requires-python = ">=3.9"
@@ -66,7 +66,8 @@ test = [
 ]
 
 [tool.hatch.build.targets.wheel]
-only-include = ["ptp"]
+only-include = ["ptp","storage"]
 
 [tool.hatch.build.targets.wheel.sources]
 "ptp" = "ptp"
+"storage" = "storage"
